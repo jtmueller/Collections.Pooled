@@ -495,13 +495,13 @@ namespace Core.Collections
             return false;
         }
 
-        public int FindLastIndex(Predicate<T> match)
+        public int FindLastIndex(Func<T, bool> match)
             => FindLastIndex(_size - 1, _size, match);
 
-        public int FindLastIndex(int startIndex, Predicate<T> match)
+        public int FindLastIndex(int startIndex, Func<T, bool> match)
             => FindLastIndex(startIndex, startIndex + 1, match);
 
-        public int FindLastIndex(int startIndex, int count, Predicate<T> match)
+        public int FindLastIndex(int startIndex, int count, Func<T, bool> match)
         {
             if (match == null)
             {
@@ -656,9 +656,6 @@ namespace Core.Collections
         {
             if ((uint)index > (uint)_size)
                 throw new ArgumentOutOfRangeException(nameof(index));
-
-            if (ReferenceEquals(this, collection))
-                throw new ArgumentException("Cannot insert a list into itself.");
 
             switch (collection)
             {
@@ -1079,27 +1076,35 @@ namespace Core.Collections
             _size = 0;
         }
 
-        public struct Enumerator : IEnumerator<T>
+        public struct Enumerator : IEnumerator<T>, IEnumerator
         {
             private readonly PooledList<T> _list;
             private int _index;
             private readonly int _version;
+            private T _current;
 
             internal Enumerator(PooledList<T> list)
             {
                 _list = list;
                 _index = 0;
                 _version = list._version;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
+                _current = default;
+#pragma warning restore CS8625
+            }
+
+            public void Dispose()
+            {
             }
 
             public bool MoveNext()
             {
                 var localList = _list;
 
-                int index = _index + 1;
-                if (_version == localList._version && ((uint)index < (uint)localList._size))
+                if (_version == localList._version && ((uint)_index < (uint)localList._size))
                 {
-                    _index = index;
+                    _current = localList._items[_index];
+                    _index++;
                     return true;
                 }
                 return MoveNextRare();
@@ -1111,7 +1116,28 @@ namespace Core.Collections
                 {
                     throw new InvalidOperationException("Collection was modified during enumeration.");
                 }
+
+                _index = _list._size + 1;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
+                _current = default;
+#pragma warning restore CS8625
                 return false;
+            }
+
+            public T Current => _current;
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    if (_index == 0 || _index == _list._size + 1)
+                    {
+                        throw new InvalidOperationException("Enumeration exceeded list bounds.");
+                    }
+#pragma warning disable CS8603 // Possible null reference return.
+                    return Current;
+#pragma warning restore CS8603
+                }
             }
 
             void IEnumerator.Reset()
@@ -1120,22 +1146,12 @@ namespace Core.Collections
                 {
                     throw new InvalidOperationException("Collection was modified during enumeration.");
                 }
+
                 _index = 0;
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
+                _current = default;
+#pragma warning restore CS8625
             }
-
-            void IDisposable.Dispose()
-            {
-            }
-
-            public T Current
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _list[_index];
-            }
-
-            T IEnumerator<T>.Current => throw new NotImplementedException();
-
-            object IEnumerator.Current => throw new NotImplementedException();
         }
 
         private readonly struct Comparer : IComparer<T>
