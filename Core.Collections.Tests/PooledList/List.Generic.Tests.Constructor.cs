@@ -68,7 +68,7 @@ namespace Core.Collections.Tests
         [Fact]
         public void Constructo_NullIEnumerable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => { PooledList<T> _list = new PooledList<T>(null); }); //"Expected ArgumentnUllException for null items"
+            Assert.Throws<ArgumentNullException>(() => { PooledList<T> _list = new PooledList<T>((IEnumerable<T>)null); }); //"Expected ArgumentnUllException for null items"
         }
     }
 }

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Tests;
+using System.Linq;
 using Xunit;
 
 namespace Core.Collections.Tests
@@ -39,6 +40,12 @@ namespace Core.Collections.Tests
         {
             IEnumerable<T> toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
             return new PooledList<T>(toCreateFrom);
+        }
+
+        protected virtual T[] GenericArrayFactory(int count)
+        {
+            IEnumerable<T> toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
+            return toCreateFrom.ToArray();
         }
 
         protected void VerifyList(PooledList<T> list, PooledList<T> expectedItems)

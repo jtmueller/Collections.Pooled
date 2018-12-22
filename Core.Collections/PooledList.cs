@@ -68,6 +68,40 @@ namespace Core.Collections
             }
         }
 
+        public PooledList(T[] array) : this(array.AsSpan())
+        {
+        }
+
+        public PooledList(ReadOnlySpan<T> span)
+        {
+            int count = span.Length;
+            if (count == 0)
+            {
+                _items = s_emptyArray;
+            }
+            else
+            {
+                _items = s_pool.Rent(count);
+                span.CopyTo(_items);
+                _size = count;
+            }
+        }
+
+        public PooledList(Span<T> span)
+        {
+            int count = span.Length;
+            if (count == 0)
+            {
+                _items = s_emptyArray;
+            }
+            else
+            {
+                _items = s_pool.Rent(count);
+                span.CopyTo(_items);
+                _size = count;
+            }
+        }
+
         /// <summary>
         /// Constructs a List, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
@@ -525,7 +559,7 @@ namespace Core.Collections
                 }
             }
 
-            // 2nd have of this also catches when startIndex == MAXINT, so MAXINT - 0 + 1 == -1, which is < 0.
+            // 2nd half of this also catches when startIndex == MAXINT, so MAXINT - 0 + 1 == -1, which is < 0.
             if (count < 0 || startIndex - count + 1 < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
