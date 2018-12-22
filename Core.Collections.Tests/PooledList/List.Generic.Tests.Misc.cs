@@ -119,7 +119,7 @@ namespace Core.Collections.Tests
                     Assert.Equal(list[i], itemsX[i]); //"Should have the same result."
                 }
 
-                for (int i = index; i < index + (itemsX.Length); i++)
+                for (int i = index; i < index + itemsX.Length; i++)
                 {
                     Assert.Equal(list[i], itemsX[(i - index) % itemsX.Length]); //"Should have the same result."
                 }
@@ -180,24 +180,29 @@ namespace Core.Collections.Tests
                 }
             }
 
-            public void EnsureRangeIsReference(T[] items, T item, int index, int count)
-            {
-                PooledList<T> list = new PooledList<T>(items);
-                Span<T> range = list.GetRange(index, count);
-                T tempItem = list[index];
-                range[0] = item;
-                Assert.Equal(list[index], tempItem); //String.Format("Err_707811hapba Expected item: {0} at: {1} actual: {2}", tempItem, index, list[index])
-            }
+            //// We explicitly don't want this behavior in PooledList. We want it to return
+            //// a span view of the data, without copying. Removing.
+            //public void EnsureRangeIsReference(T[] items, T item, int index, int count)
+            //{
+            //    PooledList<T> list = new PooledList<T>(items);
+            //    Span<T> range = list.GetRange(index, count);
+            //    T tempItem = list[index];
+            //    range[0] = item;
+            //    Assert.Equal(list[index], tempItem); //String.Format("Err_707811hapba Expected item: {0} at: {1} actual: {2}", tempItem, index, list[index])
+            //}
 
-            public void EnsureThrowsAfterModification(T[] items, T item, int index, int count)
-            {
-                PooledList<T> list = new PooledList<T>(items);
-                Span<T> range = list.GetRange(index, count);
-                T tempItem = list[index];
-                list[index] = item;
+            //// It's not possible to force a span to throw an exception when indexing in,
+            //// and anyway, this test doesn't check for thrown exceptions like the name implies.
+            //// As is, this test is not much different from EnsureRangeIsReference, so removing.
+            //public void EnsureThrowsAfterModification(T[] items, T item, int index, int count)
+            //{
+            //    PooledList<T> list = new PooledList<T>(items);
+            //    Span<T> range = list.GetRange(index, count);
+            //    T tempItem = list[index];
+            //    list[index] = item;
 
-                Assert.Equal(range[0], tempItem); //String.Format("Err_1221589ajpa Expected item: {0} at: {1} actual: {2}", tempItem, 0, range[0])
-            }
+            //    Assert.Equal(range[0], tempItem); //String.Format("Err_1221589ajpa Expected item: {0} at: {1} actual: {2}", tempItem, 0, range[0])
+            //}
 
             public void GetRangeValidations(T[] items)
             {
@@ -285,7 +290,7 @@ namespace Core.Collections.Tests
 
             private void Exists_VerifyVanilla(T[] items)
             {
-                T expectedItem = default(T);
+                T expectedItem = default;
                 PooledList<T> list = new PooledList<T>();
                 bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
                 bool typeNullable = default(T) == null;
@@ -311,7 +316,7 @@ namespace Core.Collections.Tests
                         "Err_30848ahidi Verify Exists returns -1 if the match returns false on every item FAILED\n");
 
                 //[] Verify with default(T)
-                list.Add(default(T));
+                list.Add(default);
                 Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
                         "Err_541848ajodi Verify with default(T) FAILED\n");
                 list.RemoveAt(list.Count - 1);
@@ -319,7 +324,7 @@ namespace Core.Collections.Tests
 
             private void Exists_VerifyDuplicates(T[] items)
             {
-                T expectedItem = default(T);
+                T expectedItem = default;
                 PooledList<T> list = new PooledList<T>();
                 bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
 
@@ -420,8 +425,7 @@ namespace Core.Collections.Tests
                     throw new ArgumentException("invalid argument passed to testcase");
                 }
 
-                PooledList<T> list = new PooledList<T>(items);
-                list.Add(value);
+                var list = new PooledList<T>(items) { value };
                 Assert.True(list.Contains(value)); //"Should contain item."
             }
 
@@ -469,7 +473,7 @@ namespace Core.Collections.Tests
 
             public void TrueForAll_VerifyVanilla(T[] items)
             {
-                T expectedItem = default(T);
+                T expectedItem = default;
                 PooledList<T> list = new PooledList<T>();
                 bool expectedItemDelegate(T item) { return expectedItem == null ? item != null : !expectedItem.Equals(item); }
                 bool typeNullable = default(T) == null;
@@ -496,7 +500,6 @@ namespace Core.Collections.Tests
             public void TrueForAll_VerifyExceptions(T[] items)
             {
                 PooledList<T> list = new PooledList<T>();
-                Predicate<T> predicate = delegate (T item) { return true; };
                 for (int i = 0; i < items.Length; ++i)
                     list.Add(items[i]);
 
@@ -516,7 +519,7 @@ namespace Core.Collections.Tests
 
                 for (int i = 0; i < items.Length; i++)
                 {
-                    Assert.Equal(((object)arr[i]), items[i]); //"Should be equal."
+                    Assert.Equal((object)arr[i], items[i]); //"Should be equal."
                 }
             }
 
@@ -528,7 +531,7 @@ namespace Core.Collections.Tests
                 if (((object)arr[0]) == null)
                     Assert.NotNull(list[0]); //"Should NOT be null"
                 else
-                    Assert.NotEqual(((object)arr[0]), list[0]); //"Should NOT be equal."
+                    Assert.NotEqual((object)arr[0], list[0]); //"Should NOT be equal."
             }
 
             #endregion
@@ -669,8 +672,8 @@ namespace Core.Collections.Tests
             IntDriver.BasicGetRange(intArr1, 0, 99);
             IntDriver.BasicGetRange(intArr1, 1, 1);
             IntDriver.BasicGetRange(intArr1, 99, 1);
-            IntDriver.EnsureRangeIsReference(intArr1, 101, 0, 10);
-            IntDriver.EnsureThrowsAfterModification(intArr1, 10, 10, 10);
+            //IntDriver.EnsureRangeIsReference(intArr1, 101, 0, 10);
+            //IntDriver.EnsureThrowsAfterModification(intArr1, 10, 10, 10);
 
             Driver<string> StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
@@ -686,8 +689,8 @@ namespace Core.Collections.Tests
             StringDriver.BasicGetRange(stringArr1, 0, 99);
             StringDriver.BasicGetRange(stringArr1, 1, 1);
             StringDriver.BasicGetRange(stringArr1, 99, 1);
-            StringDriver.EnsureRangeIsReference(stringArr1, "SometestString101", 0, 10);
-            StringDriver.EnsureThrowsAfterModification(stringArr1, "str", 10, 10);
+            //StringDriver.EnsureRangeIsReference(stringArr1, "SometestString101", 0, 10);
+            //StringDriver.EnsureThrowsAfterModification(stringArr1, "str", 10, 10);
         }
 
         [Fact]

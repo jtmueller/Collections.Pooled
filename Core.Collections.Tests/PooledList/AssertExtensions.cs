@@ -63,7 +63,7 @@ namespace System
         {
             T exception = Assert.Throws<T>(action);
 
-            if (!RuntimeInformation.FrameworkDescription.StartsWith(".NET Native"))
+            if (!string.IsNullOrEmpty(paramName) && !RuntimeInformation.FrameworkDescription.StartsWith(".NET Native"))
                 Assert.Equal(paramName, exception.ParamName);
 
             return exception;

@@ -117,8 +117,9 @@ namespace Core.Collections.Tests
 
             Assert.All(InvalidParameters, invalidSet =>
             {
-                if (invalidSet.Item1 >= 0 && invalidSet.Item2 >= 0)
-                    AssertExtensions.Throws<ArgumentOutOfRangeException>(null, () => list.RemoveRange(invalidSet.Item1, invalidSet.Item2));
+                var (index, count) = invalidSet;
+                //if (index >= 0 && count >= 0)
+                    AssertExtensions.Throws<ArgumentOutOfRangeException>(null, () => list.RemoveRange(index, count));
             });
         }
 
