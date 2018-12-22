@@ -89,6 +89,9 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(i, IndexOf(list, expectedList[i]));
             });
+
+            list.Dispose();
+            expectedList.Dispose();
         }
 
         [Theory]
@@ -103,19 +106,23 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(-1, IndexOf(list, nonexistentValue));
             });
+
+            list.Dispose();
         }
 
         [Theory]
         [MemberData(nameof(IndexOfTestData))]
         public void IndexOf_DefaultValue(IndexOfMethod indexOfMethod, int count, bool frontToBackOrder)
         {
-            T defaultValue = default(T);
+            T defaultValue = default;
             PooledList<T> list = GenericListFactory(count);
             IndexOfDelegate IndexOf = IndexOfDelegateFromType(indexOfMethod);
             while (list.Remove(defaultValue))
                 count--;
             list.Add(defaultValue);
             Assert.Equal(count, IndexOf(list, defaultValue));
+
+            list.Dispose();
         }
 
         [Theory]
@@ -134,6 +141,9 @@ namespace Core.Collections.Tests
                 else
                     Assert.Equal(count + i, IndexOf(list, withoutDuplicates[i]));
             });
+
+            list.Dispose();
+            withoutDuplicates.Dispose();
         }
 
         [Theory]
@@ -155,6 +165,9 @@ namespace Core.Collections.Tests
                     Assert.Equal(expectedIndex, list.IndexOf(withoutDuplicates[i], (count * j), count));
                 });
             });
+
+            list.Dispose();
+            withoutDuplicates.Dispose();
         }
 
         [Theory]
@@ -176,6 +189,9 @@ namespace Core.Collections.Tests
                     Assert.Equal(expectedIndex, list.LastIndexOf(withoutDuplicates[i], (count * (j + 1)) - 1, count));
                 });
             });
+
+            list.Dispose();
+            withoutDuplicates.Dispose();
         }
 
         [Theory]
@@ -188,6 +204,7 @@ namespace Core.Collections.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, count + 10)); //"Expect ArgumentOutOfRangeException for index greater than length of list.."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, -1)); //"Expect ArgumentOutOfRangeException for negative index."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, int.MinValue)); //"Expect ArgumentOutOfRangeException for negative index."
+            list.Dispose();
         }
 
         [Theory]
@@ -203,6 +220,7 @@ namespace Core.Collections.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, 0, count + 1)); //"ArgumentOutOfRangeException expected  on count larger than array."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, 0, -1)); //"ArgumentOutOfRangeException expected on negative count."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, -1, 1)); //"ArgumentOutOfRangeException expected on negative index."
+            list.Dispose();
         }
 
         [Theory]
@@ -216,6 +234,7 @@ namespace Core.Collections.Tests
                 Assert.Equal(-1, list.LastIndexOf(element, -1));
             else
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.LastIndexOf(element, -1));
+            list.Dispose();
         }
 
         [Theory]
@@ -246,6 +265,8 @@ namespace Core.Collections.Tests
                 Assert.Equal(-1, list.LastIndexOf(element, count, 0));
                 Assert.Equal(-1, list.LastIndexOf(element, count, 1));
             }
+
+            list.Dispose();
         }
 
         #endregion

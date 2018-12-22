@@ -32,41 +32,43 @@ namespace Core.Collections.Tests
 
             public void BasicInsert(T[] items, T item, int index, int repeat)
             {
-                PooledList<T> list = new PooledList<T>(items);
-
-                for (int i = 0; i < repeat; i++)
+                using (var list = new PooledList<T>(items))
                 {
-                    list.Insert(index, item);
-                }
+                    for (int i = 0; i < repeat; i++)
+                    {
+                        list.Insert(index, item);
+                    }
 
-                Assert.True(list.Contains(item)); //"Expect it to contain the item."
-                Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
+                    Assert.True(list.Contains(item)); //"Expect it to contain the item."
+                    Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
+                                       
+                    for (int i = 0; i < index; i++)
+                    {
+                        Assert.Equal(list[i], items[i]); //"Expect to be the same."
+                    }
+
+                    for (int i = index; i < index + repeat; i++)
+                    {
+                        Assert.Equal(list[i], item); //"Expect to be the same."
+                    }
 
 
-                for (int i = 0; i < index; i++)
-                {
-                    Assert.Equal(list[i], items[i]); //"Expect to be the same."
-                }
-
-                for (int i = index; i < index + repeat; i++)
-                {
-                    Assert.Equal(list[i], item); //"Expect to be the same."
-                }
-
-
-                for (int i = index + repeat; i < list.Count; i++)
-                {
-                    Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
+                    for (int i = index + repeat; i < list.Count; i++)
+                    {
+                        Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
+                    }
                 }
             }
 
             public void InsertValidations(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
-                int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
-                for (int i = 0; i < bad.Length; i++)
+                using (var list = new PooledList<T>(items))
                 {
-                    Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(bad[i], items[0])); //"ArgumentOutOfRangeException expected."
+                    int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
+                    for (int i = 0; i < bad.Length; i++)
+                    {
+                        Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(bad[i], items[0])); //"ArgumentOutOfRangeException expected."
+                    }
                 }
             }
 
@@ -105,6 +107,7 @@ namespace Core.Collections.Tests
                 }
 
                 //InsertRange into itself
+                list.Dispose();
                 list = new PooledList<T>(constructIEnumerable(itemsX));
                 list.InsertRange(index, list);
 
@@ -128,18 +131,22 @@ namespace Core.Collections.Tests
                 {
                     Assert.Equal(list[i], itemsX[i - (itemsX.Length)]); //"Should have the same result."
                 }
+
+                list.Dispose();
             }
 
             public void InsertRangeValidations(T[] items, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
-                PooledList<T> list = new PooledList<T>(constructIEnumerable(items));
-                int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
-                for (int i = 0; i < bad.Length; i++)
+                using (var list = new PooledList<T>(constructIEnumerable(items)))
                 {
-                    Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertRange(bad[i], constructIEnumerable(items))); //"ArgumentOutOfRangeException expected"
-                }
+                    int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
+                    for (int i = 0; i < bad.Length; i++)
+                    {
+                        Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertRange(bad[i], constructIEnumerable(items))); //"ArgumentOutOfRangeException expected"
+                    }
 
-                Assert.Throws<ArgumentNullException>(() => list.InsertRange(0, null)); //"ArgumentNullException expected."
+                    Assert.Throws<ArgumentNullException>(() => list.InsertRange(0, null)); //"ArgumentNullException expected."
+                }
             }
 
             public IEnumerable<T> ConstructTestEnumerable(T[] items)
@@ -155,7 +162,7 @@ namespace Core.Collections.Tests
 
             public IEnumerable<T> ConstructTestList(T[] items)
             {
-                return items.ToList();
+                return items.ToPooledList();
             }
 
             #endregion
@@ -178,6 +185,8 @@ namespace Core.Collections.Tests
                 {
                     Assert.Equal(list[i], items[i]); //String.Format("Err_00125698ahpap Expected item: {0} at: {1} actual: {2}", items[i], i, list[i])
                 }
+
+                list.Dispose();
             }
 
             //// We explicitly don't want this behavior in PooledList. We want it to return
@@ -265,6 +274,8 @@ namespace Core.Collections.Tests
                 {
                     Assert.Throws<ArgumentOutOfRangeException>(() => list.GetRange(bad[i], bad[++i])); //"ArgumentOutOfRangeException expected."
                 }
+
+                list.Dispose();
             }
 
             #endregion
@@ -279,47 +290,50 @@ namespace Core.Collections.Tests
 
             public void Exists_VerifyExceptions(T[] items)
             {
-                PooledList<T> list = new PooledList<T>();
+                using (var list = new PooledList<T>())
+                {
+                    for (int i = 0; i < items.Length; ++i)
+                        list.Add(items[i]);
 
-                for (int i = 0; i < items.Length; ++i)
-                    list.Add(items[i]);
-
-                //[] Verify Null match
-                Assert.Throws<ArgumentNullException>(() => list.Exists(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
+                    //[] Verify Null match
+                    Assert.Throws<ArgumentNullException>(() => list.Exists(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
+                }
             }
 
             private void Exists_VerifyVanilla(T[] items)
             {
                 T expectedItem = default;
-                PooledList<T> list = new PooledList<T>();
-                bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
-                bool typeNullable = default(T) == null;
-
-                for (int i = 0; i < items.Length; ++i)
-                    list.Add(items[i]);
-
-                //[] Verify Exists returns the correct index
-                for (int i = 0; i < items.Length; ++i)
+                using (var list = new PooledList<T>())
                 {
-                    expectedItem = items[i];
+                    bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
+                    bool typeNullable = default(T) == null;
 
-                    Assert.True(list.Exists(expectedItemDelegate),
-                        "Err_282308ahid Verifying Nullable returned FAILED\n");
+                    for (int i = 0; i < items.Length; ++i)
+                        list.Add(items[i]);
+
+                    //[] Verify Exists returns the correct index
+                    for (int i = 0; i < items.Length; ++i)
+                    {
+                        expectedItem = items[i];
+
+                        Assert.True(list.Exists(expectedItemDelegate),
+                            "Err_282308ahid Verifying Nullable returned FAILED\n");
+                    }
+
+                    //[] Verify Exists returns true if the match returns true on every item
+                    Assert.True((0 < items.Length) == list.Exists((T item) => { return true; }),
+                            "Err_548ahid Verify Exists returns 0 if the match returns true on every item FAILED\n");
+
+                    //[] Verify Exists returns false if the match returns false on every item
+                    Assert.True(!list.Exists((T item) => { return false; }),
+                            "Err_30848ahidi Verify Exists returns -1 if the match returns false on every item FAILED\n");
+
+                    //[] Verify with default(T)
+                    list.Add(default);
+                    Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
+                            "Err_541848ajodi Verify with default(T) FAILED\n");
+                    list.RemoveAt(list.Count - 1);
                 }
-
-                //[] Verify Exists returns true if the match returns true on every item
-                Assert.True((0 < items.Length) == list.Exists((T item) => { return true; }),
-                        "Err_548ahid Verify Exists returns 0 if the match returns true on every item FAILED\n");
-
-                //[] Verify Exists returns false if the match returns false on every item
-                Assert.True(!list.Exists((T item) => { return false; }),
-                        "Err_30848ahidi Verify Exists returns -1 if the match returns false on every item FAILED\n");
-
-                //[] Verify with default(T)
-                list.Add(default);
-                Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
-                        "Err_541848ajodi Verify with default(T) FAILED\n");
-                list.RemoveAt(list.Count - 1);
             }
 
             private void Exists_VerifyDuplicates(T[] items)
@@ -353,6 +367,8 @@ namespace Core.Collections.Tests
                     Assert.True(list.Exists((T item) => { return item != null && (item.Equals(items[0]) || item.Equals(items[1])); }),
                             "Err_4489ajodoi Verify with match that matches more then one item FAILED\n");
                 }
+
+                list.Dispose();
             }
 
             #endregion
@@ -367,6 +383,8 @@ namespace Core.Collections.Tests
                 {
                     Assert.True(list.Contains(items[i])); //"Should contain item."
                 }
+
+                list.Dispose();
             }
 
             public void NonExistingValues(T[] itemsX, T[] itemsY)
@@ -377,6 +395,8 @@ namespace Core.Collections.Tests
                 {
                     Assert.False(list.Contains(itemsY[i])); //"Should not contain item"
                 }
+
+                list.Dispose();
             }
 
             public void RemovedValues(T[] items)
@@ -387,6 +407,8 @@ namespace Core.Collections.Tests
                     list.Remove(items[i]);
                     Assert.False(list.Contains(items[i])); //"Should not contain item"
                 }
+
+                list.Dispose();
             }
 
             public void AddRemoveValues(T[] items)
@@ -399,6 +421,7 @@ namespace Core.Collections.Tests
                     list.Add(items[i]);
                     Assert.True(list.Contains(items[i])); //"Should contain item."
                 }
+                list.Dispose();
             }
 
             public void MultipleValues(T[] items, int times)
@@ -416,6 +439,7 @@ namespace Core.Collections.Tests
                     list.Remove(items[items.Length / 2]);
                 }
                 Assert.False(list.Contains(items[items.Length / 2])); //"Should not contain item"
+                list.Dispose();
             }
 
             public void ContainsNullWhenReference(T[] items, T value)
@@ -427,6 +451,7 @@ namespace Core.Collections.Tests
 
                 var list = new PooledList<T>(items) { value };
                 Assert.True(list.Contains(value)); //"Should contain item."
+                list.Dispose();
             }
 
             #endregion
@@ -455,6 +480,7 @@ namespace Core.Collections.Tests
                 PooledList<T> list = new PooledList<T>(items);
                 list.Clear();
                 Assert.Equal(0, list.Count); //"Should be equal to 0."
+                list.Dispose();
             }
 
             public void ClearMultipleTimesNonEmptyList(T[] items, int times)
@@ -495,6 +521,8 @@ namespace Core.Collections.Tests
                 //[] Verify TrueForAll returns false if the match returns false on every item
                 Assert.True((0 == items.Length) == list.TrueForAll(delegate (T item) { return false; }),
                         "Err_30848ahidi Verify TrueForAll returns " + (0 == items.Length) + " if the match returns false on every item FAILED\n");
+
+                list.Dispose();
             }
 
             public void TrueForAll_VerifyExceptions(T[] items)
@@ -505,6 +533,7 @@ namespace Core.Collections.Tests
 
                 //[] Verify Null match
                 Assert.Throws<ArgumentNullException>(() => list.TrueForAll(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
+                list.Dispose();
             }
 
             #endregion
@@ -521,6 +550,8 @@ namespace Core.Collections.Tests
                 {
                     Assert.Equal((object)arr[i], items[i]); //"Should be equal."
                 }
+
+                list.Dispose();
             }
 
             public void EnsureNotUnderlyingToArray(T[] items, T item)
@@ -532,6 +563,8 @@ namespace Core.Collections.Tests
                     Assert.NotNull(list[0]); //"Should NOT be null"
                 else
                     Assert.NotEqual((object)arr[0], list[0]); //"Should NOT be equal."
+
+                list.Dispose();
             }
 
             #endregion

@@ -62,6 +62,7 @@ namespace Core.Collections.Tests
             PooledList<T> list = GenericListFactory(count);
             AssertExtensions.Throws<ArgumentException>(null, () => list.CopyTo(0, new T[0], 0, count + 1));
             AssertExtensions.Throws<ArgumentException>(null, () => list.CopyTo(count, new T[0], 0, 1));
+            list.Dispose();
         }
     }
 }

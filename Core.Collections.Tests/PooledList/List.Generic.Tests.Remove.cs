@@ -26,6 +26,9 @@ namespace Core.Collections.Tests
             int removedCount = list.RemoveAll((value) => { return true; });
             Assert.Equal(count, removedCount);
             Assert.Equal(0, list.Count);
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -38,6 +41,9 @@ namespace Core.Collections.Tests
             Assert.Equal(0, removedCount);
             Assert.Equal(count, list.Count);
             VerifyList(list, beforeList);
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -50,6 +56,9 @@ namespace Core.Collections.Tests
             int expectedCount = beforeList.Count((value) => EqualsDefaultElement(value));
             int removedCount = list.RemoveAll(EqualsDefaultElement);
             Assert.Equal(expectedCount, removedCount);
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Fact]
@@ -88,6 +97,9 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(list[i], beforeList[i + count]); //"Expected them to be the same."
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -121,6 +133,8 @@ namespace Core.Collections.Tests
                 //if (index >= 0 && count >= 0)
                     AssertExtensions.Throws<ArgumentOutOfRangeException>(null, () => list.RemoveRange(index, count));
             });
+
+            list.Dispose();
         }
 
         [Theory]
@@ -145,6 +159,8 @@ namespace Core.Collections.Tests
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.RemoveRange(invalidSet.Item1, invalidSet.Item2));
             });
+
+            list.Dispose();
         }
 
         #endregion

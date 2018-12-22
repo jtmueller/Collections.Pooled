@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Tests;
 using Xunit;
 
@@ -26,6 +25,9 @@ namespace Core.Collections.Tests
             visitedItems.Clear();
             list.ForEach(action);
             VerifyList(list, visitedItems);
+
+            list.Dispose();
+            visitedItems.Dispose();
         }
 
         [Fact]
@@ -33,6 +35,7 @@ namespace Core.Collections.Tests
         {
             PooledList<T> list = GenericListFactory();
             Assert.Throws<ArgumentNullException>(() => list.ForEach(null));
+            list.Dispose();
         }
     }
 }

@@ -28,6 +28,9 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(list[i], listBefore[listBefore.Count - (i + 1)]); //"Expect them to be the same."
             }
+
+            list.Dispose();
+            listBefore.Dispose();
         }
 
         [Theory]
@@ -63,6 +66,9 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
+
+            list.Dispose();
+            listBefore.Dispose();
         }
 
         [Theory]
@@ -100,6 +106,9 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
+
+            list.Dispose();
+            listBefore.Dispose();
         }
 
         [Theory]
@@ -129,9 +138,12 @@ namespace Core.Collections.Tests
 
             Assert.All(InvalidParameters, invalidSet =>
             {
-                if (invalidSet.Item1 >= 0 && invalidSet.Item2 >= 0)
-                    AssertExtensions.Throws<ArgumentException>(null, () => list.Reverse(invalidSet.Item1, invalidSet.Item2));
+                var (index, count) = invalidSet;
+                if (index >= 0 && count >= 0)
+                    AssertExtensions.Throws<ArgumentException>(null, () => list.Reverse(index, count));
             });
+
+            list.Dispose();
         }
 
         [Theory]
@@ -156,6 +168,8 @@ namespace Core.Collections.Tests
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.Reverse(invalidSet.Item1, invalidSet.Item2));
             });
+
+            list.Dispose();
         }
     }
 }

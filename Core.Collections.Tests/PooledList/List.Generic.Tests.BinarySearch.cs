@@ -32,6 +32,7 @@ namespace Core.Collections.Tests
                 Assert.Equal(index, list.BinarySearch(beforeList[index], GetIComparer()));
                 Assert.Equal(beforeList[index], list[index]);
             });
+            list.Dispose();
         }
 
         [Theory]
@@ -51,6 +52,7 @@ namespace Core.Collections.Tests
                     Assert.True(list.BinarySearch(beforeList[index], GetIComparer()) >= 0);
                     Assert.Equal(beforeList[index], list[index]);
                 });
+                list.Dispose();
             }
         }
 
@@ -65,6 +67,7 @@ namespace Core.Collections.Tests
             Assert.Throws<ArgumentOutOfRangeException>(() => list.BinarySearch(-1, count, element, GetIComparer())); //"ArgumentOutOfRangeException should be thrown on negative index."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.BinarySearch(0, -1, element, GetIComparer())); //"ArgumentOutOfRangeException should be thrown on negative count."
             AssertExtensions.Throws<ArgumentException>(null, () => list.BinarySearch(count + 1, count, element, GetIComparer())); //"ArgumentException should be thrown on index greater than length of array."
+            list.Dispose();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Core.Collections.Tests
     /// </summary>
     public abstract partial class List_Generic_Tests<T> : IList_Generic_Tests<T>
     {
-        private readonly Func<T, bool> _equalsDefaultDelegate = (T item) => { return default(T) == null ? item == null : default(T).Equals(item); };
+        private readonly Func<T, bool> _equalsDefaultDelegate = (T item) => default(T) == null ? item == null : default(T).Equals(item);
         private readonly Func<T, bool> _alwaysTrueDelegate = (T item) => true;
         private readonly Func<T, bool> _alwaysFalseDelegate = (T item) => false;
 
@@ -36,6 +36,9 @@ namespace Core.Collections.Tests
 
             //[] Verify Null match FindAll
             Assert.Throws<ArgumentNullException>(() => list.FindAll(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -70,6 +73,9 @@ namespace Core.Collections.Tests
 
             //[] Verify index=Int32.MaxValue
             Assert.Throws<ArgumentOutOfRangeException>(() => list.FindLastIndex(int.MaxValue, predicate)); //"Err_238ajwisa Expected index=Int32.MaxValue to throw ArgumentOutOfRangeException"
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -128,6 +134,9 @@ namespace Core.Collections.Tests
                 //[] Verify index=0 count=list.Length + 1
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.FindIndex(0, count + 1, predicate)); //"Err_6848ajiodxbz Expected index=0 count=list.Length + 1 to throw ArgumentOutOfRangeException"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -188,6 +197,9 @@ namespace Core.Collections.Tests
                 //[] Verify index=0 count=list.Length + 1
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.FindLastIndex(count - 1, count + 1, predicate)); //"Err_6848ajiodxbz Expected index=0 count=list.Length + 1 to throw ArgumentOutOfRangeException"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -215,6 +227,9 @@ namespace Core.Collections.Tests
 
             //[] Verify index=Int32.MaxValue
             Assert.Throws<ArgumentOutOfRangeException>(() => list.FindIndex(int.MaxValue, predicate)); //"Err_238ajwisa Expected index=Int32.MaxValue to throw ArgumentOutOfRangeException"
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #region Find
@@ -251,6 +266,9 @@ namespace Core.Collections.Tests
             list.TryFind((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
             list.RemoveAt(list.Count - 1);
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -287,6 +305,9 @@ namespace Core.Collections.Tests
                 list.TryFind(EqualsDelegate, out foundItem);
                 Assert.Equal(expectedItem, foundItem); //"Err_4489ajodoi Verify with match that matches more then one item FAILED\n"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -329,6 +350,9 @@ namespace Core.Collections.Tests
             list.TryFindLast((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
             list.RemoveAt(list.Count - 1);
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -364,6 +388,9 @@ namespace Core.Collections.Tests
                 list.TryFindLast((T item) => { return item != null && (item.Equals(beforeList[0]) || item.Equals(beforeList[1])); }, out foundItem);
                 Assert.Equal(beforeList[1], foundItem); //"Err_4489ajodoi Verify with match that matches more then one item FAILED\n"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -399,6 +426,9 @@ namespace Core.Collections.Tests
             //[] Verify FindIndex returns -1 if the match returns false on every item
             index = list.FindIndex(_alwaysFalseDelegate);
             Assert.Equal(-1, index); //"Err_305981ajodd Verify FindIndex returns -1 if the match returns false on every item"
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -430,6 +460,9 @@ namespace Core.Collections.Tests
                 index = list.FindIndex(EqualsDelegate);
                 Assert.Equal(1, index); //"Err_29892adewiu Verify second item is duplicated"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -487,6 +520,9 @@ namespace Core.Collections.Tests
                 index = list.FindIndex(1, EqualsDelegate);
                 Assert.Equal(count - 1, index); //"Err_51488ajod Verify POS FindIndex uses the index UPPER"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -528,6 +564,9 @@ namespace Core.Collections.Tests
                 index = list.FindIndex(2, EqualsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2 "
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -610,6 +649,9 @@ namespace Core.Collections.Tests
                 index = list.FindIndex(1, count - 2, EqualsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindIndex uses the index and count UPPER "
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -651,6 +693,9 @@ namespace Core.Collections.Tests
                 index = list.FindIndex(2, list.Count - 2, EqualsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -684,6 +729,9 @@ namespace Core.Collections.Tests
             //[] Verify FindLastIndex returns -1 if the match returns false on every item
             index = list.FindLastIndex(_alwaysFalseDelegate);
             Assert.Equal(-1, index); //"Err_305981ajodd Verify FindLastIndex returns -1 if the match returns false on every item"
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -715,6 +763,9 @@ namespace Core.Collections.Tests
                 index = list.FindLastIndex(EqualsDelegate);
                 Assert.Equal(count + 1, index); //"Err_29892adewiu Verify second item is duplicated."
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -771,6 +822,9 @@ namespace Core.Collections.Tests
                 index = list.FindLastIndex(count - 2, EqualsDelegate);
                 Assert.Equal(expected, index); //"Err_51488ajod Verify POS FindLastIndex uses the index UPPER"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -812,6 +866,9 @@ namespace Core.Collections.Tests
                 index = list.FindLastIndex(list.Count - 3, EqualsDelegate);
                 Assert.Equal(1, index); //"Err_1580ahisdf Verify second item is duplicated and index is on less then the index of the last duplicate"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -897,6 +954,9 @@ namespace Core.Collections.Tests
                 index = list.FindLastIndex(count - 2, count - 2, EqualsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindLastIndex uses the index and count UPPER"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -928,6 +988,9 @@ namespace Core.Collections.Tests
                 index = list.FindLastIndex(list.Count - 1, list.Count, EqualsDelegate);
                 Assert.Equal(list.Count - 1, index); //"Err_29892adewiu Verify second item is duplicated"
             }
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion
@@ -956,6 +1019,9 @@ namespace Core.Collections.Tests
 
             //[] Verify FindAll returns an empty List if the match returns false on every item
             VerifyList(list.FindAll(_alwaysFalseDelegate), new PooledList<T>());
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         [Theory]
@@ -981,6 +1047,9 @@ namespace Core.Collections.Tests
 
             //[] Verify FindAll returns an empty List if the match returns false on every item
             VerifyList(list.FindAll(_alwaysFalseDelegate), new PooledList<T>());
+
+            list.Dispose();
+            beforeList.Dispose();
         }
 
         #endregion

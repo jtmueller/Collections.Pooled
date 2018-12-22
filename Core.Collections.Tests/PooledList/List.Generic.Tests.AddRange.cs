@@ -37,6 +37,8 @@ namespace Core.Collections.Tests
             {
                 Assert.Equal(enumerable.ElementAt(index), list[index + listLength]);
             });
+
+            list.Dispose();
         }
 
         [Theory]
@@ -47,6 +49,8 @@ namespace Core.Collections.Tests
             var listBeforeAdd = list.ToPooledList();
             Assert.Throws<ArgumentNullException>(() => list.AddRange((IEnumerable<T>)null));
             Assert.Equal(listBeforeAdd, list);
+            list.Dispose();
+            listBeforeAdd.Dispose();
         }
 
         [Fact]
@@ -71,6 +75,7 @@ namespace Core.Collections.Tests
             Assert.Equal(5, list.Count);
             Assert.Throws<InvalidOperationException>(() => list.AddRange(list.Where(_ => true)));
             Assert.Equal(6, list.Count);
+            list.Dispose();
         }
     }
 }

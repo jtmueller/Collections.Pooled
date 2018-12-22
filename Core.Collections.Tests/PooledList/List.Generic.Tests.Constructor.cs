@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Tests;
-using System.Linq;
 using Xunit;
 
 namespace Core.Collections.Tests
@@ -37,6 +36,7 @@ namespace Core.Collections.Tests
             Assert.True(capacity <= list.Capacity); //"Expected capacity of list to be at least the same as given."
             Assert.Empty(list); //"Do not expect anything to be in the list."
             Assert.False(((IList<T>)list).IsReadOnly); //"List should not be readonly"
+            list.Dispose();
         }
 
         [Theory]
@@ -61,6 +61,8 @@ namespace Core.Collections.Tests
                 Assert.Equal(expected[i], list[i]); //"Expected object in item array to be the same as in the list"
 
             Assert.False(((IList<T>)list).IsReadOnly); //"List should not be readonly"
+            list.Dispose();
+            expected.Dispose();
         }
 
         [Fact]

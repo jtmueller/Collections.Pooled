@@ -127,11 +127,15 @@ namespace Core.Collections.Tests
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 1; sortCount < count - startIndex; sortCount++)
                 {
-                    PooledList<T> list = new PooledList<T>(unsortedList);
-                    list.Sort(startIndex, sortCount + 1, comparer);
-                    for (int i = startIndex; i < sortCount; i++)
-                        Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 0);
+                    using (var list = new PooledList<T>(unsortedList))
+                    {
+                        list.Sort(startIndex, sortCount + 1, comparer);
+                        for (int i = startIndex; i < sortCount; i++)
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 0);
+                    }
                 }
+
+            unsortedList.Dispose();
         }
 
         [Theory]
@@ -144,11 +148,15 @@ namespace Core.Collections.Tests
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 2; sortCount < count - startIndex; sortCount++)
                 {
-                    PooledList<T> list = new PooledList<T>(unsortedList);
-                    list.Sort(startIndex, sortCount + 1, comparer);
-                    for (int i = startIndex; i < sortCount; i++)
-                        Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 1);
+                    using (var list = new PooledList<T>(unsortedList))
+                    {
+                        list.Sort(startIndex, sortCount + 1, comparer);
+                        for (int i = startIndex; i < sortCount; i++)
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 1);
+                    }
                 }
+
+            unsortedList.Dispose();
         }
 
         [Theory]
@@ -175,6 +183,8 @@ namespace Core.Collections.Tests
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.Sort(invalidSet.Item1, invalidSet.Item2, GetIComparer()));
             });
+
+            list.Dispose();
         }
 
         [Theory]
@@ -182,17 +192,19 @@ namespace Core.Collections.Tests
         public void Sort_intintIComparer_InvalidRange_ThrowsArgumentException(int count)
         {
             PooledList<T> list = GenericListFactory(count);
-            Tuple<int, int>[] InvalidParameters = new Tuple<int, int>[]
+            var InvalidParameters = new[]
             {
-                Tuple.Create(count, 1),
-                Tuple.Create(count + 1, 0),
-                Tuple.Create(int.MaxValue, 0),
+                (count, 1),
+                (count + 1, 0),
+                (int.MaxValue, 0),
             };
 
             Assert.All(InvalidParameters, invalidSet =>
             {
                 AssertExtensions.Throws<ArgumentException>(null, () => list.Sort(invalidSet.Item1, invalidSet.Item2, GetIComparer()));
             });
+
+            list.Dispose();
         }
 
         #endregion
