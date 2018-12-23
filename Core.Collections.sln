@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Collections.Benchmarks", "Core.Collections.Benchmarks\Core.Collections.Benchmarks.csproj", "{39EF9237-C14F-49FE-B68A-B2F645AA47B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{6853DE32-29E8-4790-BB7B-586016091379}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6853DE32-29E8-4790-BB7B-586016091379}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6853DE32-29E8-4790-BB7B-586016091379}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39EF9237-C14F-49FE-B68A-B2F645AA47B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39EF9237-C14F-49FE-B68A-B2F645AA47B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39EF9237-C14F-49FE-B68A-B2F645AA47B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39EF9237-C14F-49FE-B68A-B2F645AA47B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
