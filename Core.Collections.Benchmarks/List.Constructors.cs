@@ -8,18 +8,81 @@ namespace Core.Collections.Benchmarks
     public class List_Constructors : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListArrayConstructor()
+        public void ListArrayConstructor_Int()
         {
+            List<int> list;
             for (int i = 0; i < 1000; i++)
-                new List<int>(array);
+                list = new List<int>(intArray);
         }
 
         [Benchmark]
-        public void PooledArrayConstructor()
+        public void PooledArrayConstructor_Int()
         {
+            PooledList<int> list;
             for (int i = 0; i < 1000; i++)
             {
-                var list = new PooledList<int>(array);
+                list = new PooledList<int>(intArray);
+                list.Dispose();
+            }
+        }
+
+        [Benchmark]
+        public void ListArrayConstructor_String()
+        {
+            List<string> list;
+            for (int i = 0; i < 1000; i++)
+                list = new List<string>(stringArray);
+        }
+
+        [Benchmark]
+        public void PooledArrayConstructor_String()
+        {
+            PooledList<string> list;
+            for (int i = 0; i < 1000; i++)
+            {
+                list = new PooledList<string>(stringArray);
+                list.Dispose();
+            }
+        }
+
+        [Benchmark]
+        public void ListICollectionConstructor_Int()
+        {
+            List<int> list;
+            for (int i = 0; i < 1000; i++)
+            {
+                list = new List<int>(intArray);
+            }
+        }
+
+        [Benchmark]
+        public void PooledICollectionConstructor_Int()
+        {
+            PooledList<int> list;
+            for (int i = 0; i < 1000; i++)
+            {
+                list = new PooledList<int>(intArray);
+                list.Dispose();
+            }
+        }
+
+        [Benchmark]
+        public void ListICollectionConstructor_String()
+        {
+            List<string> list;
+            for (int i = 0; i < 1000; i++)
+            {
+                list = new List<string>(stringList);
+            }
+        }
+
+        [Benchmark]
+        public void PooledICollectionConstructor_String()
+        {
+            PooledList<string> list;
+            for (int i = 0; i < 1000; i++)
+            {
+                list = new PooledList<string>(stringList);
                 list.Dispose();
             }
         }
@@ -27,17 +90,29 @@ namespace Core.Collections.Benchmarks
         [Params(1000, 10000, 100000)]
         public int N;
 
-        private int[] array;
+        private int[] intArray;
+        private string[] stringArray;
+        private List<int> intList;
+        private List<string> stringList;
 
         [GlobalSetup]
         public void ArraySetup()
         {
-            array = new int[N];
+            intArray = new int[N];
             var rand = new Random(RAND_SEED);
             for (int i = 0; i < N; i++)
             {
-                array[i] = rand.Next();
+                intArray[i] = rand.Next();
             }
+
+            stringArray = new string[N];
+            for (int i = 0; i < N; i++)
+            {
+                stringArray[i] = intArray[i].ToString();
+            }
+
+            intList = new List<int>(intArray);
+            stringList = new List<string>(stringArray);
         }
     }
 }

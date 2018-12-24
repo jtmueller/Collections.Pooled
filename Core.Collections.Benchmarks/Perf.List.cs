@@ -599,106 +599,106 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Contains_ValueType()
-        {
-            List<int> collection = new List<int>();
-            int nonexistentItem, firstItem, middleItem, lastItem;
+        //[Benchmark]
+        //public static void Contains_ValueType()
+        //{
+        //    List<int> collection = new List<int>();
+        //    int nonexistentItem, firstItem, middleItem, lastItem;
 
-            //[] Initialize
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i);
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i);
+        //    }
 
-            nonexistentItem = -1;
-            firstItem = 0;
-            middleItem = collection.Count / 2;
-            lastItem = collection.Count - 1;
+        //    nonexistentItem = -1;
+        //    firstItem = 0;
+        //    middleItem = collection.Count / 2;
+        //    lastItem = collection.Count - 1;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    collection.Contains(nonexistentItem);
-                    collection.Contains(firstItem);
-                    collection.Contains(middleItem);
-                    collection.Contains(lastItem);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            collection.Contains(nonexistentItem);
+        //            collection.Contains(firstItem);
+        //            collection.Contains(middleItem);
+        //            collection.Contains(lastItem);
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Contains_ReferenceType()
-        {
-            List<string> collection = new List<string>();
-            string nonexistentItem, firstItem, middleItem, lastItem;
+        //[Benchmark]
+        //public static void Contains_ReferenceType()
+        //{
+        //    List<string> collection = new List<string>();
+        //    string nonexistentItem, firstItem, middleItem, lastItem;
 
-            //[] Initialize
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i.ToString());
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i.ToString());
+        //    }
 
-            nonexistentItem = "foo";
-            firstItem = 0.ToString();
-            middleItem = (collection.Count / 2).ToString();
-            lastItem = (collection.Count - 1).ToString();
+        //    nonexistentItem = "foo";
+        //    firstItem = 0.ToString();
+        //    middleItem = (collection.Count / 2).ToString();
+        //    lastItem = (collection.Count - 1).ToString();
 
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    collection.Contains(nonexistentItem);
-                    collection.Contains(firstItem);
-                    collection.Contains(middleItem);
-                    collection.Contains(lastItem);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            collection.Contains(nonexistentItem);
+        //            collection.Contains(firstItem);
+        //            collection.Contains(middleItem);
+        //            collection.Contains(lastItem);
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void ctor_ICollection_ValueType()
-        {
-            List<int> originalCollection = new List<int>();
-            List<int> newCollection;
+        //[Benchmark]
+        //public static void ctor_ICollection_ValueType()
+        //{
+        //    List<int> originalCollection = new List<int>();
+        //    List<int> newCollection;
 
-            //[] Initialize
-            for (int i = 0; i < 1024; ++i)
-            {
-                originalCollection.Add(i);
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 1024; ++i)
+        //    {
+        //        originalCollection.Add(i);
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    newCollection = new List<int>(originalCollection);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            newCollection = new List<int>(originalCollection);
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void ctor_ICollection_ReferenceType()
-        {
-            List<string> originalCollection = new List<string>();
-            List<string> newCollection;
+        //[Benchmark]
+        //public static void ctor_ICollection_ReferenceType()
+        //{
+        //    List<string> originalCollection = new List<string>();
+        //    List<string> newCollection;
 
-            //[] Initialize
-            for (int i = 0; i < 1024; ++i)
-            {
-                originalCollection.Add(i.ToString());
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 1024; ++i)
+        //    {
+        //        originalCollection.Add(i.ToString());
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    newCollection = new List<string>(originalCollection);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            newCollection = new List<string>(originalCollection);
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Indexer_ValueType()
