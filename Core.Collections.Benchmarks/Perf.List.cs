@@ -59,25 +59,25 @@ namespace System.Collections.Tests
         //            }
         //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        public void Clear(int size)
-        {
-            List<object> list = CreateList(size);
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                // Setup lists to clear
-                List<object>[] listlist = new List<object>[5000];
-                for (int i = 0; i < 5000; i++)
-                    listlist[i] = new List<object>(list);
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //public void Clear(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        // Setup lists to clear
+        //        List<object>[] listlist = new List<object>[5000];
+        //        for (int i = 0; i < 5000; i++)
+        //            listlist[i] = new List<object>(list);
 
-                // Clear the lists
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i < 5000; i++)
-                        listlist[i].Clear();
-            }
-        }
+        //        // Clear the lists
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i < 5000; i++)
+        //                listlist[i].Clear();
+        //    }
+        //}
 
         [Benchmark]
         [InlineData(1000)]

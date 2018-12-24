@@ -38,12 +38,7 @@ namespace Core.Collections.Benchmarks
         [GlobalSetup]
         public void GlobalSetup()
         {
-            list = new PooledList<int>(N);
-            var rand = new Random(RAND_SEED);
-            for (int i = 0; i < N; i++)
-            {
-                list.Add(rand.Next());
-            }
+            list = CreatePooled(N);
         }
 
         [GlobalCleanup]
