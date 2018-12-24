@@ -4,50 +4,78 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
+#if NETCOREAPP2_2
     [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
+    [MemoryDiagnoser]
     public class List_Sort : ListBase
     {
+        [IterationSetup(Target = nameof(ListSort_Int))]
+        public void SetupListInt()
+            => listInt = new List<int>(intItems);
+
         [Benchmark(Baseline = true)]
         public void ListSort_Int()
         {
-            var list = new List<int>(listInt);
-            list.Sort();
+            listInt.Sort();
         }
+
+        [IterationSetup(Target = nameof(PooledSort_Int))]
+        public void SetupPooledInt()
+            => pooledInt = new PooledList<int>(intItems);
+
+        [IterationCleanup(Target = nameof(PooledSort_Int))]
+        public void CleanupPooledInt()
+            => pooledInt?.Dispose();
 
         [Benchmark]
         public void PooledSort_Int()
         {
-            var list = new PooledList<int>(listInt);
-            list.Sort();
-            list.Dispose();
+            pooledInt.Sort();
         }
+
+        [IterationSetup(Target = nameof(ListSort_String))]
+        public void SetupListString()
+            => listString = new List<string>(stringItems);
 
         [Benchmark]
         public void ListSort_String()
         {
-            var list = new List<string>(listString);
-            list.Sort();
+            listString.Sort();
         }
+
+        [IterationSetup(Target = nameof(PooledSort_String))]
+        public void SetupPooledString()
+            => pooledString = new PooledList<string>(stringItems);
+
+        [IterationCleanup(Target = nameof(PooledSort_String))]
+        public void CleanupPooledString()
+            => pooledString?.Dispose();
 
         [Benchmark]
         public void PooledSort_String()
         {
-            var list = new PooledList<string>(listString);
-            list.Sort();
-            list.Dispose();
+            pooledString.Sort();
         }
 
         private List<int> listInt;
+        private PooledList<int> pooledInt;
         private List<string> listString;
+        private PooledList<string> pooledString;
 
-        [Params(1000, 10000)]
+        private int[] intItems;
+        private string[] stringItems;
+
+        [Params(100_000, 200_000)]
         public int N;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
-            listInt = CreateList(N);
-            listString = listInt.ConvertAll(i => i.ToString());
+            intItems = CreatePooled(N).ToArray();
+            stringItems = Array.ConvertAll(intItems, i => i.ToString());
         }
     }
 }

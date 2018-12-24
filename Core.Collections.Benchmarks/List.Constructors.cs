@@ -4,7 +4,12 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+#if NETCOREAPP2_2
+    [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
+    [MemoryDiagnoser]
     public class List_Constructors : ListBase
     {
         [Benchmark(Baseline = true)]
@@ -87,7 +92,7 @@ namespace Core.Collections.Benchmarks
             }
         }
 
-        [Params(1000, 10000, 100000)]
+        [Params(1_000, 10_000, 100_000)]
         public int N;
 
         private int[] intArray;

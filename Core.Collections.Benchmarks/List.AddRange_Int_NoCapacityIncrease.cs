@@ -4,7 +4,12 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+#if NETCOREAPP2_2
+    [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
+    [MemoryDiagnoser]
     public class List_AddRange_Int_NoCapacityIncrease : ListBase
     {
         [Benchmark(Baseline = true)]

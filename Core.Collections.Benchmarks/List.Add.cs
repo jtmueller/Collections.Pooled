@@ -4,7 +4,16 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+    // TODO: some assembly-binding redirect bug related to System.Buffers
+    // prevents us from running CoreJob with a CLR host, or ClrJob with a Core host.
+    // When this is resolved, should change all the tests to run both job types at the same time.
+
+#if NETCOREAPP2_2
+    [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
+    [MemoryDiagnoser]
     public class List_Add : ListBase
     {
         [Benchmark(Baseline = true)]
@@ -32,7 +41,7 @@ namespace Core.Collections.Benchmarks
 
         private PooledList<int> list;
 
-        [Params(10000, 100000, 1000000)]
+        [Params(10_000, 100_000, 1_000_000)]
         public int N;
 
         [GlobalSetup]

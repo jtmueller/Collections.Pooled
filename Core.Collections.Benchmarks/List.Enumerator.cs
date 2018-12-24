@@ -4,7 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
+#if NETCOREAPP2_2
     [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
     public class List_Enumerator : ListBase
     {
         [Benchmark(Baseline = true)]
@@ -72,7 +76,7 @@ namespace Core.Collections.Benchmarks
         private PooledList<int> pooledInt;
         private PooledList<string> pooledString;
 
-        [Params(1000, 10000, 100000)]
+        [Params(1_000, 10_000, 100_000)]
         public int N;
 
         [GlobalSetup]

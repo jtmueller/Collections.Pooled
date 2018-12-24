@@ -4,7 +4,12 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+#if NETCOREAPP2_2
+    [CoreJob]
+#elif NET472
+    [ClrJob]
+#endif
+    [MemoryDiagnoser]
     public class List_Add_Types : ListBase
     {
         [Benchmark(Baseline = true)]
@@ -88,6 +93,6 @@ namespace Core.Collections.Benchmarks
         [Params(256, 512, 2048)]
         public int N;
 
-        private string stringToAdd = "foo";
+        private readonly string stringToAdd = "foo";
     }
 }
