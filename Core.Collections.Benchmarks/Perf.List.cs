@@ -951,56 +951,56 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Insert_ValueType()
-        {
-            List<int> collection;
+        //[Benchmark]
+        //public static void Insert_ValueType()
+        //{
+        //    List<int> collection;
 
-            collection = new List<int>();
-            for (int j = 0; j < 1024; ++j)
-            {
-                collection.Insert(0, j);//Insert at the begining of the list
-                collection.Insert(j / 2, j);//Insert in the middle of the list
-                collection.Insert(collection.Count, j);//Insert at the end of the list
-            }
+        //    collection = new List<int>();
+        //    for (int j = 0; j < 1024; ++j)
+        //    {
+        //        collection.Insert(0, j);//Insert at the begining of the list
+        //        collection.Insert(j / 2, j);//Insert in the middle of the list
+        //        collection.Insert(collection.Count, j);//Insert at the end of the list
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<int>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<int>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 1024; ++j)
-                    {
-                        collection.Insert(0, j);//Insert at the begining of the list
-                        collection.Insert(j / 2, j);//Insert in the middle of the list
-                        collection.Insert(collection.Count, j);//Insert at the end of the list
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 1024; ++j)
+        //            {
+        //                collection.Insert(0, j);//Insert at the begining of the list
+        //                collection.Insert(j / 2, j);//Insert in the middle of the list
+        //                collection.Insert(collection.Count, j);//Insert at the end of the list
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Insert_ReferenceType()
-        {
-            List<string> collection;
-            string itemToAdd = "foo";
+        //[Benchmark]
+        //public static void Insert_ReferenceType()
+        //{
+        //    List<string> collection;
+        //    string itemToAdd = "foo";
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<string>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<string>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 1024; ++j)
-                    {
-                        collection.Insert(0, itemToAdd);//Insert at the begining of the list
-                        collection.Insert(j / 2, itemToAdd);//Insert in the middle of the list
-                        collection.Insert(collection.Count, itemToAdd);//Insert at the end of the list
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 1024; ++j)
+        //            {
+        //                collection.Insert(0, itemToAdd);//Insert at the begining of the list
+        //                collection.Insert(j / 2, itemToAdd);//Insert in the middle of the list
+        //                collection.Insert(collection.Count, itemToAdd);//Insert at the end of the list
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Enumeration_ValueType()
