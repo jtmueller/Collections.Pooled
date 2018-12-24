@@ -211,61 +211,61 @@ namespace System.Collections.Tests
         //                list.ToArray();
         //}
 
-        [Benchmark]
-        public static void IndexOf_ValueType()
-        {
-            List<int> collection = new List<int>();
-            int nonexistentItem, firstItem, middleItem, lastItem;
+        //[Benchmark]
+        //public static void IndexOf_ValueType()
+        //{
+        //    List<int> collection = new List<int>();
+        //    int nonexistentItem, firstItem, middleItem, lastItem;
 
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i);
-            }
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i);
+        //    }
 
-            nonexistentItem = -1;
-            firstItem = 0;
-            middleItem = collection.Count / 2;
-            lastItem = collection.Count - 1;
+        //    nonexistentItem = -1;
+        //    firstItem = 0;
+        //    middleItem = collection.Count / 2;
+        //    lastItem = collection.Count - 1;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    collection.IndexOf(nonexistentItem);
-                    collection.IndexOf(firstItem);
-                    collection.IndexOf(middleItem);
-                    collection.IndexOf(lastItem);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            collection.IndexOf(nonexistentItem);
+        //            collection.IndexOf(firstItem);
+        //            collection.IndexOf(middleItem);
+        //            collection.IndexOf(lastItem);
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void IndexOf_ReferenceType()
-        {
-            List<string> collection = new List<string>();
-            string nonexistentItem, firstItem, middleItem, lastItem;
+        //[Benchmark]
+        //public static void IndexOf_ReferenceType()
+        //{
+        //    List<string> collection = new List<string>();
+        //    string nonexistentItem, firstItem, middleItem, lastItem;
 
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i.ToString());
-            }
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i.ToString());
+        //    }
 
-            nonexistentItem = "foo";
-            firstItem = 0.ToString();
-            middleItem = (collection.Count / 2).ToString();
-            lastItem = (collection.Count - 1).ToString();
+        //    nonexistentItem = "foo";
+        //    firstItem = 0.ToString();
+        //    middleItem = (collection.Count / 2).ToString();
+        //    lastItem = (collection.Count - 1).ToString();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    collection.IndexOf(nonexistentItem);
-                    collection.IndexOf(firstItem);
-                    collection.IndexOf(middleItem);
-                    collection.IndexOf(lastItem);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            collection.IndexOf(nonexistentItem);
+        //            collection.IndexOf(firstItem);
+        //            collection.IndexOf(middleItem);
+        //            collection.IndexOf(lastItem);
+        //        }
+        //    }
+        //}
 
         private static int getSampleLength(bool largeSets)
         {
