@@ -41,6 +41,8 @@ There are some API changes worth noting:
     directly to that section of the internal storage. Caveats about "collection modified during enumeration"
     checks apply here as well.
   * Delegate types such as `Predicate<T>` and `Converter<T1, T2>` have been replaced with standard `Func<>` equivalents.
+  * **PooledList implements IDisposable.** Disposing the list returns the internal array to the ArrayPool.
+    If you forget to dispose the list, nothing will break, but memory allocations will go up, and so will GC pauses.
 
 #### Performance
 

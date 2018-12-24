@@ -424,9 +424,7 @@ namespace Core.Collections
         public bool TryFind(Func<T, bool> match, out T result)
         {
             if (match == null)
-            {
                 throw new ArgumentNullException(nameof(match));
-            }
 
             for (int i = 0; i < _size; i++)
             {
@@ -468,20 +466,13 @@ namespace Core.Collections
         public int FindIndex(int startIndex, int count, Func<T, bool> match)
         {
             if ((uint)startIndex > (uint)_size)
-            {
                 throw new ArgumentOutOfRangeException(nameof(startIndex));
-            }
 
             if (count < 0 || startIndex > _size - count)
-            {
                 throw new ArgumentOutOfRangeException(nameof(count));
-            }
 
             if (match is null)
-            {
                 throw new ArgumentNullException(nameof(match));
-                
-            }
 
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
@@ -522,32 +513,24 @@ namespace Core.Collections
         public int FindLastIndex(int startIndex, int count, Func<T, bool> match)
         {
             if (match == null)
-            {
                 throw new ArgumentNullException(nameof(match));
-            }
 
             if (_size == 0)
             {
                 // Special case for 0 length List
                 if (startIndex != -1)
-                {
                     throw new ArgumentOutOfRangeException(nameof(startIndex));
-                }
             }
             else
             {
                 // Make sure we're not out of range
                 if ((uint)startIndex >= (uint)_size)
-                {
                     throw new ArgumentOutOfRangeException(nameof(startIndex));
-                }
             }
 
             // 2nd half of this also catches when startIndex == MAXINT, so MAXINT - 0 + 1 == -1, which is < 0.
             if (count < 0 || startIndex - count + 1 < 0)
-            {
                 throw new ArgumentOutOfRangeException(nameof(count));
-            }
 
             int endIndex = startIndex - count;
             for (int i = startIndex; i > endIndex; i--)
