@@ -51,4 +51,4 @@ both range from "on par with `List<T>`" to "far better than `List<T>`" depending
 
 For example, [AddRange is a particular strength for PooledList](https://github.com/jtmueller/Collections.Pooled/blob/master/docs/benchmarks/netcoreapp2.2/List_AddRange_Int_CapacityIncrease-report-github.md). 
 In the extreme case of using AddRange to add a million integers 5000 times, `List<T>` 
-allocates 19.5 GB while `PooledList<T>` allocates 156 KB and gets it done in 12% of the time.
+allocates 19.5 GB while `PooledList<T>` allocates 156 KB and gets it done in 13% of the time.
