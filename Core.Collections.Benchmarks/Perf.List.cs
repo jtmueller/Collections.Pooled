@@ -700,71 +700,71 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Indexer_ValueType()
-        {
-            List<int> collection = new List<int>();
-            int item = 0;
+        //[Benchmark]
+        //public static void Indexer_ValueType()
+        //{
+        //    List<int> collection = new List<int>();
+        //    int item = 0;
 
-            //[] Initialize
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i);
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i);
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 8192; ++j)
-                    {
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                    }
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 8192; ++j)
+        //            {
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Indexer_ReferenceType()
-        {
-            List<string> collection = new List<string>();
-            string item = null;
+        //[Benchmark]
+        //public static void Indexer_ReferenceType()
+        //{
+        //    List<string> collection = new List<string>();
+        //    string item = null;
 
-            //[] Initialize
-            for (int i = 0; i < 8192; ++i)
-            {
-                collection.Add(i.ToString());
-            }
+        //    //[] Initialize
+        //    for (int i = 0; i < 8192; ++i)
+        //    {
+        //        collection.Add(i.ToString());
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 8192; ++j)
-                    {
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                        item = collection[j];
-                    }
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 8192; ++j)
+        //            {
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //                item = collection[j];
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Sort_ValueType()

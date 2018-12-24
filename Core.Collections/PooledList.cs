@@ -185,7 +185,9 @@ namespace Core.Collections
             {
                 // Following trick can reduce the range check by one
                 if ((uint)index >= (uint)_size)
+                {
                     throw new ArgumentOutOfRangeException(nameof(index));
+                }
                 return _items[index];
             }
 
@@ -748,7 +750,11 @@ namespace Core.Collections
         /// to the end of the list by setting index to the List's size.
         /// </summary>
         public void InsertRange(int index, T[] array)
-            => InsertRange(index, array.AsSpan());
+        {
+            if (array is null)
+                throw new ArgumentNullException(nameof(array));
+            InsertRange(index, array.AsSpan());
+        }
 
         /// <summary>
         /// Advances the <see cref="Count"/> by the number of items specified,
