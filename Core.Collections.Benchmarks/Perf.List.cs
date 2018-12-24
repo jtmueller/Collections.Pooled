@@ -766,61 +766,61 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Sort_ValueType()
-        {
-            Random random = new Random(32829);
-            int size = 3000;
-            int[] items;
-            List<int> collection;
+        //[Benchmark]
+        //public static void Sort_ValueType()
+        //{
+        //    Random random = new Random(32829);
+        //    int size = 3000;
+        //    int[] items;
+        //    List<int> collection;
 
-            //[] Initialize
-            items = new int[size];
+        //    //[] Initialize
+        //    items = new int[size];
 
-            for (int i = 0; i < size; ++i)
-                items[i] = random.Next();
+        //    for (int i = 0; i < size; ++i)
+        //        items[i] = random.Next();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<int>(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<int>(size);
 
-                for (int j = 0; j < size; ++j)
-                    collection.Add(items[j]);
+        //        for (int j = 0; j < size; ++j)
+        //            collection.Add(items[j]);
 
-                using (iteration.StartMeasurement())
-                    collection.Sort();
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //            collection.Sort();
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Sort_ReferenceType()
-        {
-            Random random = new Random(32829);
-            int size = 3000;
-            string[] items;
-            List<string> collection;
+        //[Benchmark]
+        //public static void Sort_ReferenceType()
+        //{
+        //    Random random = new Random(32829);
+        //    int size = 3000;
+        //    string[] items;
+        //    List<string> collection;
 
-            //[] Initialize
-            items = new string[size];
+        //    //[] Initialize
+        //    items = new string[size];
 
-            for (int i = 0; i < size; ++i)
-            {
-                items[i] = random.Next().ToString();
-            }
+        //    for (int i = 0; i < size; ++i)
+        //    {
+        //        items[i] = random.Next().ToString();
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<string>(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<string>(size);
 
-                for (int j = 0; j < size; ++j)
-                {
-                    collection.Add(items[j]);
-                }
+        //        for (int j = 0; j < size; ++j)
+        //        {
+        //            collection.Add(items[j]);
+        //        }
 
-                using (iteration.StartMeasurement())
-                    collection.Sort();
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //            collection.Sort();
+        //    }
+        //}
 
         [Benchmark]
         public static void GenericList_Reverse_Int()
