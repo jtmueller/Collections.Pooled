@@ -292,7 +292,7 @@ namespace Core.Collections
         /// the search value should be inserted into the list in order for the list
         /// to remain sorted.
         /// </para></remarks>
-        public int BinarySearch(int index, int count, T item, IComparer<T>? comparer)
+        public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
@@ -1029,7 +1029,7 @@ namespace Core.Collections
         /// 
         /// This method uses the Array.Sort method to sort the elements.
         /// </summary>
-        public void Sort(int index, int count, IComparer<T>? comparer)
+        public void Sort(int index, int count, IComparer<T> comparer)
         {
             if (index < 0)
                 throw new ArgumentOutOfRangeException(nameof(index));
