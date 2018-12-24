@@ -198,18 +198,18 @@ namespace System.Collections.Tests
         //            }
         //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void ToArray(int size)
-        {
-            List<object> list = CreateList(size);
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i < 10000; i++)
-                        list.ToArray();
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void ToArray(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i < 10000; i++)
+        //                list.ToArray();
+        //}
 
         [Benchmark]
         public static void IndexOf_ValueType()
