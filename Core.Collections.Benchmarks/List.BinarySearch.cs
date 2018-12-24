@@ -52,9 +52,14 @@ namespace Core.Collections.Benchmarks
         [GlobalSetup]
         public void GlobalSetup()
         {
-            listInt = CreateList(N);
+            listInt = new List<int>();
+            for (int i = 0; i < N; i++)
+            {
+                listInt.Add(i);
+            }
+
             listString = listInt.ConvertAll(i => i.ToString());
-            pooledInt = CreatePooled(N);
+            pooledInt = new PooledList<int>(listInt);
             pooledString = pooledInt.ConvertAll(i => i.ToString());
         }
 
