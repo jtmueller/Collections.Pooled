@@ -492,59 +492,59 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Add_ValueType()
-        {
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                List<int> collection = new List<int>();
+        //[Benchmark]
+        //public static void Add_ValueType()
+        //{
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        List<int> collection = new List<int>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 256; ++j)
-                    {
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                        collection.Add(j);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 256; ++j)
+        //            {
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //                collection.Add(j);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Add_ReferenceType()
-        {
-            string itemToAdd = "foo";
+        //[Benchmark]
+        //public static void Add_ReferenceType()
+        //{
+        //    string itemToAdd = "foo";
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                List<string> collection = new List<string>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        List<string> collection = new List<string>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < 256; ++j)
-                    {
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                        collection.Add(itemToAdd);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < 256; ++j)
+        //            {
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //                collection.Add(itemToAdd);
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void GenericList_BinarySearch_Int()
