@@ -87,21 +87,6 @@ namespace Core.Collections
             }
         }
 
-        public PooledList(Span<T> span)
-        {
-            int count = span.Length;
-            if (count == 0)
-            {
-                _items = s_emptyArray;
-            }
-            else
-            {
-                _items = s_pool.Rent(count);
-                span.CopyTo(_items);
-                _size = count;
-            }
-        }
-
         /// <summary>
         /// Constructs a List, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
@@ -253,13 +238,21 @@ namespace Core.Collections
             => InsertRange(_size, collection);
 
         /// <summary>
+        /// Adds the elements of the given array to the end of this list. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.
+        /// </summary>
+        public void AddRange(T[] array)
+            => AddRange(array.AsSpan());
+
+        /// <summary>
         /// Adds the elements of the given <see cref="ReadOnlySpan{T}"/> to the end of this list. If
         /// required, the capacity of the list is increased to twice the previous
         /// capacity or the new size, whichever is larger.
         /// </summary>
         public void AddRange(ReadOnlySpan<T> span)
         {
-            var newSpan = InsertSpan(_size, span.Length);
+            var newSpan = InsertSpan(_size, span.Length, false);
             span.CopyTo(newSpan);
         }
 
@@ -736,6 +729,26 @@ namespace Core.Collections
             _version++;
         }
 
+        /// <summary>
+        /// Inserts the elements of the given collection at a given index. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.  Ranges may be added
+        /// to the end of the list by setting index to the List's size.
+        /// </summary>
+        public void InsertRange(int index, ReadOnlySpan<T> span)
+        {
+            var newSpan = InsertSpan(index, span.Length, false);
+            span.CopyTo(newSpan);
+        }
+
+        /// <summary>
+        /// Inserts the elements of the given collection at a given index. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.  Ranges may be added
+        /// to the end of the list by setting index to the List's size.
+        /// </summary>
+        public void InsertRange(int index, T[] array)
+            => InsertRange(index, array.AsSpan());
 
         /// <summary>
         /// Advances the <see cref="Count"/> by the number of items specified,
@@ -745,6 +758,9 @@ namespace Core.Collections
         /// </summary>
         /// <param name="count">The number of items to add.</param>
         public Span<T> InsertSpan(int index, int count)
+            => InsertSpan(index, count, true);
+
+        private Span<T> InsertSpan(int index, int count, bool clearOutput)
         {
             EnsureCapacity(_size + count);
 
@@ -757,14 +773,19 @@ namespace Core.Collections
             _version++;
 
             var output = _items.AsSpan(index, count);
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+
+            if (clearOutput)
             {
-                output.Clear();
-            }
+#if NETCOREAPP2_1
+                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                {
+                    output.Clear();
+                }
 #else
-            output.Clear();
+                output.Clear();
 #endif
+            }
+
             return output;
         }
 

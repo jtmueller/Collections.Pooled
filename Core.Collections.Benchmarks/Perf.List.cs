@@ -275,222 +275,222 @@ namespace System.Collections.Tests
                 return smallSampleLength;
         }
 
-        [Benchmark]
-        [InlineData(true)]
-        [InlineData(false)]
-        public static void GenericList_AddRange_Int_NoCapacityIncrease(bool largeSets)
-        {
-            int sampleLength = getSampleLength(largeSets);
+        //[Benchmark]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void GenericList_AddRange_Int_NoCapacityIncrease(bool largeSets)
+        //{
+        //    int sampleLength = getSampleLength(largeSets);
 
-            int[] sampleSet = new int[sampleLength];
+        //    int[] sampleSet = new int[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i;
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i;
+        //    }
 
-            int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
+        //    int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
 
-            //Create an ArrayList big enough to hold 17 copies of the sample set
-            int startingCapacity = 17 * sampleLength * addLoops;
-            List<int> list = new List<int>(startingCapacity);
+        //    //Create an ArrayList big enough to hold 17 copies of the sample set
+        //    int startingCapacity = 17 * sampleLength * addLoops;
+        //    List<int> list = new List<int>(startingCapacity);
 
-            //Add the data to the array list.
+        //    //Add the data to the array list.
 
-            for (int j = 0; j < addLoops; j++)
-            {
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-                list.AddRange(sampleSet);
-            }
+        //    for (int j = 0; j < addLoops; j++)
+        //    {
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //        list.AddRange(sampleSet);
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                //Clear the ArrayList without changing its capacity, so that when more data is added to the list its
-                //capacity will not need to increase.
-                list.RemoveRange(0, startingCapacity);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        //Clear the ArrayList without changing its capacity, so that when more data is added to the list its
+        //        //capacity will not need to increase.
+        //        list.RemoveRange(0, startingCapacity);
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < addLoops; j++)
-                    {
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < addLoops; j++)
+        //            {
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(true)]
-        [InlineData(false)]
-        public static void GenericList_AddRange_Int_CapacityIncrease(bool largeSets)
-        {
-            int sampleLength = getSampleLength(largeSets);
+        //[Benchmark]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void GenericList_AddRange_Int_CapacityIncrease(bool largeSets)
+        //{
+        //    int sampleLength = getSampleLength(largeSets);
 
-            int[] sampleSet = new int[sampleLength];
+        //    int[] sampleSet = new int[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i;
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i;
+        //    }
 
-            int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
+        //    int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                List<int> list = new List<int>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        List<int> list = new List<int>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < addLoops; j++)
-                    {
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < addLoops; j++)
+        //            {
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(true)]
-        [InlineData(false)]
-        public static void GenericList_AddRange_String_NoCapacityIncrease(bool largeSets)
-        {
-            int sampleLength = getSampleLength(largeSets);
+        //[Benchmark]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void GenericList_AddRange_String_NoCapacityIncrease(bool largeSets)
+        //{
+        //    int sampleLength = getSampleLength(largeSets);
 
-            string[] sampleSet = new string[sampleLength];
+        //    string[] sampleSet = new string[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i.ToString();
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i.ToString();
+        //    }
 
-            int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
+        //    int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
 
-            //Create an ArrayList big enough to hold 17 copies of the sample set
-            int startingCapacity = 17 * sampleLength * addLoops;
-            List<string> list = new List<string>(startingCapacity);
+        //    //Create an ArrayList big enough to hold 17 copies of the sample set
+        //    int startingCapacity = 17 * sampleLength * addLoops;
+        //    List<string> list = new List<string>(startingCapacity);
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < addLoops; j++)
-                    {
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                    }
-                }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < addLoops; j++)
+        //            {
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //            }
+        //        }
 
-                list.RemoveRange(0, startingCapacity);
-            }
-        }
+        //        list.RemoveRange(0, startingCapacity);
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(true)]
-        [InlineData(false)]
-        public static void GenericList_AddRange_String_CapacityIncrease(bool largeSets)
-        {
-            int sampleLength = getSampleLength(largeSets);
+        //[Benchmark]
+        //[InlineData(true)]
+        //[InlineData(false)]
+        //public static void GenericList_AddRange_String_CapacityIncrease(bool largeSets)
+        //{
+        //    int sampleLength = getSampleLength(largeSets);
 
-            string[] sampleSet = new string[sampleLength];
+        //    string[] sampleSet = new string[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i.ToString();
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i.ToString();
+        //    }
 
-            int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
+        //    int addLoops = LARGE_SAMPLE_LENGTH / sampleLength;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                List<string> list = new List<string>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        List<string> list = new List<string>();
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < addLoops; j++)
-                    {
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                        list.AddRange(sampleSet);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < addLoops; j++)
+        //            {
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //                list.AddRange(sampleSet);
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Add_ValueType()
