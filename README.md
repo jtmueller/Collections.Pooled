@@ -46,3 +46,22 @@ There are some API changes worth noting:
 
 Please review the benchmark links above for complete details. Performance and memory allocations
 both range from "on par with `List<T>`" to "far better than `List<T>`" depending on the operation.
+
+For example, AddRange is a particular strength for PooledList:
+
+|         Method |       N |            Mean | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|--------------- |-------- |----------------:|--------------:|--------------:|------:|------------:|------------:|------------:|--------------------:|
+|   **ListAddRange** |    **1000** |      **1,290.5 us** |  **1.00** |   **6451.1719** |           **-** |           **-** |         **19843.75 KB** |
+| PooledAddRange |    1000 |        677.6 us |  0.53 |     50.7813 |           - |           - |           156.25 KB |
+|                |         |                 |       |             |             |             |                     |
+|   **ListAddRange** |   **10000** |     **13,279.8 us** |  **1.00** |  **63281.2500** |           **-** |           **-** |           **195625 KB** |
+| PooledAddRange |   10000 |      4,899.8 us |  0.37 |     46.8750 |           - |           - |           156.25 KB |
+|                |         |                 |       |             |             |             |                     |
+|   **ListAddRange** |  **100000** |    **342,688.0 us** |  **1.00** | **519000.0000** | **510000.0000** | **510000.0000** |       **1956398.97 KB** |
+| PooledAddRange |  100000 |     72,609.7 us |  0.21 |           - |           - |           - |           156.25 KB |
+|                |         |                 |       |             |             |             |                     |
+|   **ListAddRange** | **1000000** | **11,534,038.8 us** |  **1.00** | **769000.0000** | **768000.0000** | **768000.0000** |       **19531562.5 KB** |
+| PooledAddRange | 1000000 |  1,357,305.1 us |  0.12 |           - |           - |           - |           156.25 KB |
+
+That's right, the extreme case of adding a million integers 5000 times allocates 19.5 GB with `List<T>` and 156 KB 
+with `PooledList<T>`, while `PooledList<T>` gets it done in 12% of the time.
