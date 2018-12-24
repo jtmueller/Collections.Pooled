@@ -4,32 +4,73 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+    [CoreJob]
     public class List_Enumerator : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListEnumerate()
+        public void ListEnumerate_Int()
         {
-            for (int i = 0; i < 10000; i++)
-                foreach (var element in list) { }
+            int item;
+            foreach (int x in listInt)
+            {
+                item = x;
+            }
         }
 
         [Benchmark]
-        public void PooledEnumerate()
+        public void PooledEnumerate_Int()
         {
-            for (int i = 0; i < 10000; i++)
-                foreach (var element in pooled) { }
+            int item;
+            foreach (int x in pooledInt)
+            {
+                item = x;
+            }
         }
 
         [Benchmark]
-        public void PooledSpanEnumerate()
+        public void PooledEnumerateSpan_Int()
         {
-            for (int i = 0; i < 10000; i++)
-                foreach (var element in pooled.Span) { }
+            int item;
+            foreach (int x in pooledInt.Span)
+            {
+                item = x;
+            }
         }
 
-        private List<int> list;
-        private PooledList<int> pooled;
+        [Benchmark]
+        public void ListEnumerate_String()
+        {
+            string item;
+            foreach (string x in listString)
+            {
+                item = x;
+            }
+        }
+
+        [Benchmark]
+        public void PooledEnumerate_String()
+        {
+            string item;
+            foreach (string x in pooledString)
+            {
+                item = x;
+            }
+        }
+
+        [Benchmark]
+        public void PooledEnumerateSpan_String()
+        {
+            string item;
+            foreach (string x in pooledString.Span)
+            {
+                item = x;
+            }
+        }
+
+        private List<int> listInt;
+        private List<string> listString;
+        private PooledList<int> pooledInt;
+        private PooledList<string> pooledString;
 
         [Params(1000, 10000, 100000)]
         public int N;
@@ -37,14 +78,17 @@ namespace Core.Collections.Benchmarks
         [GlobalSetup]
         public void GlobalSetup()
         {
-            list = CreateList(N);
-            pooled = CreatePooled(N);
+            listInt = CreateList(N);
+            listString = listInt.ConvertAll(i => i.ToString());
+            pooledInt = new PooledList<int>(listInt);
+            pooledString = pooledInt.ConvertAll(i => i.ToString());
         }
 
         [GlobalCleanup]
         public void GlobalCleanup()
         {
-            pooled?.Dispose();
+            pooledInt?.Dispose();
+            pooledString?.Dispose();
         }
     }
 }
