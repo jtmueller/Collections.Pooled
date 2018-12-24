@@ -822,134 +822,134 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void GenericList_Reverse_Int()
-        {
-            int sampleLength = 100000;
+        //[Benchmark]
+        //public static void GenericList_Reverse_Int()
+        //{
+        //    int sampleLength = 100000;
 
-            int[] sampleSet = new int[sampleLength];
+        //    int[] sampleSet = new int[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i;
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i;
+        //    }
 
-            List<int> list = new List<int>(sampleSet);
+        //    List<int> list = new List<int>(sampleSet);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    list.Reverse();
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            list.Reverse();
+        //}
 
-        [Benchmark]
-        public static void GenericList_Reverse_String()
-        {
-            int sampleLength = 100000;
+        //[Benchmark]
+        //public static void GenericList_Reverse_String()
+        //{
+        //    int sampleLength = 100000;
 
-            string[] sampleSet = new string[sampleLength];
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i.ToString();
-            }
+        //    string[] sampleSet = new string[sampleLength];
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i.ToString();
+        //    }
 
-            List<string> list = new List<string>(sampleSet);
+        //    List<string> list = new List<string>(sampleSet);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    list.Reverse();
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            list.Reverse();
+        //}
 
-        [Benchmark]
-        public static void Remove_ValueType()
-        {
-            int size = 3000;
-            int[] items;
-            List<int> collection;
-            int start, middle, end;
+        //[Benchmark]
+        //public static void Remove_ValueType()
+        //{
+        //    int size = 3000;
+        //    int[] items;
+        //    List<int> collection;
+        //    int start, middle, end;
 
-            //[] Initialize
-            items = new int[size];
+        //    //[] Initialize
+        //    items = new int[size];
 
-            for (int i = 0; i < size; ++i)
-            {
-                items[i] = i;
-            }
+        //    for (int i = 0; i < size; ++i)
+        //    {
+        //        items[i] = i;
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<int>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<int>();
 
-                for (int j = 0; j < size; ++j)
-                {
-                    collection.Add(items[j]);
-                }
+        //        for (int j = 0; j < size; ++j)
+        //        {
+        //            collection.Add(items[j]);
+        //        }
 
-                start = 0;
-                middle = size / 3;
-                end = size - 1;
+        //        start = 0;
+        //        middle = size / 3;
+        //        end = size - 1;
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < size / 3; j++)
-                    {
-                        collection.Remove(-1);
-                        collection.Remove(items[start]);
-                        collection.Remove(items[middle]);
-                        collection.Remove(items[end]);
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < size / 3; j++)
+        //            {
+        //                collection.Remove(-1);
+        //                collection.Remove(items[start]);
+        //                collection.Remove(items[middle]);
+        //                collection.Remove(items[end]);
 
-                        ++start;
-                        ++middle;
-                        --end;
-                    }
-                }
-            }
-        }
+        //                ++start;
+        //                ++middle;
+        //                --end;
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void Remove_ReferenceType()
-        {
-            int size = 3000;
-            string[] items;
-            List<string> collection;
-            int start, middle, end;
+        //[Benchmark]
+        //public static void Remove_ReferenceType()
+        //{
+        //    int size = 3000;
+        //    string[] items;
+        //    List<string> collection;
+        //    int start, middle, end;
 
-            //[] Initialize
-            items = new string[size];
+        //    //[] Initialize
+        //    items = new string[size];
 
-            for (int i = 0; i < size; ++i)
-            {
-                items[i] = i.ToString();
-            }
+        //    for (int i = 0; i < size; ++i)
+        //    {
+        //        items[i] = i.ToString();
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                collection = new List<string>();
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        collection = new List<string>();
 
-                for (int j = 0; j < size; ++j)
-                {
-                    collection.Add(items[j]);
-                }
+        //        for (int j = 0; j < size; ++j)
+        //        {
+        //            collection.Add(items[j]);
+        //        }
 
-                start = 0;
-                middle = size / 3;
-                end = size - 1;
+        //        start = 0;
+        //        middle = size / 3;
+        //        end = size - 1;
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < size / 3; j++)
-                    {
-                        collection.Remove("-1");
-                        collection.Remove(items[start]);
-                        collection.Remove(items[middle]);
-                        collection.Remove(items[end]);
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < size / 3; j++)
+        //            {
+        //                collection.Remove("-1");
+        //                collection.Remove(items[start]);
+        //                collection.Remove(items[middle]);
+        //                collection.Remove(items[end]);
 
-                        ++start;
-                        ++middle;
-                        --end;
-                    }
-                }
-            }
-        }
+        //                ++start;
+        //                ++middle;
+        //                --end;
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Insert_ValueType()
