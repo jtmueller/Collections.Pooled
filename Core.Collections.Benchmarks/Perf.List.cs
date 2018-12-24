@@ -79,25 +79,25 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void Contains(int size)
-        {
-            List<object> list = CreateList(size);
-            object contained = list[list.Count / 2];
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                {
-                    for (int i = 0; i < 500; i++)
-                    {
-                        list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
-                        list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
-                        list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
-                    }
-                }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void Contains(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    object contained = list[list.Count / 2];
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int i = 0; i < 500; i++)
+        //            {
+        //                list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
+        //                list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
+        //                list.Contains(contained); list.Contains(contained); list.Contains(contained); list.Contains(contained);
+        //            }
+        //        }
+        //}
 
         //[Benchmark]
         //public void ctor()
@@ -128,59 +128,59 @@ namespace System.Collections.Tests
         //                new List<object>(array);
         //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void GetCount(int size)
-        {
-            List<object> list = CreateList(size);
-            int temp;
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                {
-                    for (int i = 0; i < 10000; i++)
-                    {
-                        temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
-                        temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
-                        temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
-                    }
-                }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void GetCount(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    int temp;
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int i = 0; i < 10000; i++)
+        //            {
+        //                temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
+        //                temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
+        //                temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count; temp = list.Count;
+        //            }
+        //        }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void GetItem(int size)
-        {
-            List<object> list = CreateList(size);
-            object temp;
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                {
-                    for (int i = 0; i < 10000; i++)
-                    {
-                        temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
-                        temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
-                        temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
-                        temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
-                    }
-                }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void GetItem(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    object temp;
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int i = 0; i < 10000; i++)
+        //            {
+        //                temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
+        //                temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
+        //                temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
+        //                temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50]; temp = list[50];
+        //            }
+        //        }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void Enumerator(int size)
-        {
-            List<object> list = CreateList(size);
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i < 10000; i++)
-                        foreach (var element in list) { }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void Enumerator(int size)
+        //{
+        //    List<object> list = CreateList(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i < 10000; i++)
+        //                foreach (var element in list) { }
+        //}
 
         [Benchmark]
         [InlineData(1000)]
