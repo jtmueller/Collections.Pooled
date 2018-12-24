@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Core.Collections.Benchmarks
 {
-    [CoreJob, MemoryDiagnoser]
+    [ClrJob, MemoryDiagnoser]
     public class List_Indexer_Types : ListBase
     {
         [Benchmark(Baseline = true)]
