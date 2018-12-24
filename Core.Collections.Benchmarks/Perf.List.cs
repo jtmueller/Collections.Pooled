@@ -546,58 +546,58 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void GenericList_BinarySearch_Int()
-        {
-            int sampleLength = 10000;
+        //[Benchmark]
+        //public static void GenericList_BinarySearch_Int()
+        //{
+        //    int sampleLength = 10000;
 
-            int[] sampleSet = new int[sampleLength];
+        //    int[] sampleSet = new int[sampleLength];
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i;
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i;
+        //    }
 
-            List<int> list = new List<int>(sampleSet);
-            IComparer<int> comparer = Comparer<int>.Default;
+        //    List<int> list = new List<int>(sampleSet);
+        //    IComparer<int> comparer = Comparer<int>.Default;
 
-            int result = 0;
+        //    int result = 0;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < sampleLength; j++)
-                        result = list.BinarySearch(sampleSet[j], comparer);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < sampleLength; j++)
+        //                result = list.BinarySearch(sampleSet[j], comparer);
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        public static void GenericList_BinarySearch_String()
-        {
-            int sampleLength = 1000;
+        //[Benchmark]
+        //public static void GenericList_BinarySearch_String()
+        //{
+        //    int sampleLength = 1000;
 
-            string[] sampleSet = new string[sampleLength];
-            for (int i = 0; i < sampleLength; i++)
-            {
-                sampleSet[i] = i.ToString();
-            }
+        //    string[] sampleSet = new string[sampleLength];
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        sampleSet[i] = i.ToString();
+        //    }
 
-            List<string> list = new List<string>(sampleSet);
-            IComparer<string> comparer = Comparer<string>.Default;
+        //    List<string> list = new List<string>(sampleSet);
+        //    IComparer<string> comparer = Comparer<string>.Default;
 
-            int result = 0;
+        //    int result = 0;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < sampleLength; j++)
-                        result = list.BinarySearch(sampleSet[j], comparer);
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < sampleLength; j++)
+        //                result = list.BinarySearch(sampleSet[j], comparer);
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Contains_ValueType()

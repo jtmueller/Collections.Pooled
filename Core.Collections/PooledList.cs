@@ -367,7 +367,7 @@ namespace Core.Collections
             return _size != 0 && IndexOf(item) != -1;
         }
 
-        public PooledList<TOutput> ConvertAll<TOutput>(Converter<T, TOutput> converter)
+        public PooledList<TOutput> ConvertAll<TOutput>(Func<T, TOutput> converter)
         {
             if (converter == null)
                 throw new ArgumentNullException(nameof(converter));
