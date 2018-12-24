@@ -384,29 +384,18 @@ namespace Core.Collections
         }
 
         /// <summary>
-        /// Copies this List into array, which must be of a 
-        /// compatible array type.
-        /// </summary> 
-        public void CopyTo(T[] array)
-            => CopyTo(array, 0);
-
-        /// <summary>
-        /// Copies a section of this list to the given array at the given index.
+        /// Copies this list to the given span.
         /// </summary>
-        public void CopyTo(int index, T[] array, int arrayIndex, int count)
+        public void CopyTo(Span<T> span)
         {
-            if (_size - index < count)
-            {
-                throw new ArgumentException("Invalid offset length.");
-            }
+            if (span.Length < Count)
+                throw new ArgumentException("Destination span is shorter than the list to be copied.");
 
-            // Delegate rest of error checking to Array.Copy.
-            Array.Copy(_items, index, array, arrayIndex, count);
+            Span.CopyTo(span);
         }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
-            // Delegate rest of error checking to Array.Copy.
             Array.Copy(_items, 0, array, arrayIndex, _size);
         }
 
