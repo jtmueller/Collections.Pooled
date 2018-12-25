@@ -15,6 +15,7 @@
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

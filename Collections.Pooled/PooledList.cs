@@ -1019,7 +1019,7 @@ namespace Collections.Pooled
             _version++;
         }
 
-        public void Sort(Comparison<T> comparison)
+        public void Sort(Func<T, T, int> comparison)
         {
             if (comparison == null)
             {
@@ -1189,9 +1189,9 @@ namespace Collections.Pooled
 
         private readonly struct Comparer : IComparer<T>
         {
-            private readonly Comparison<T> _comparison;
+            private readonly Func<T, T, int> _comparison;
 
-            public Comparer(Comparison<T> comparison)
+            public Comparer(Func<T, T, int> comparison)
             {
                 _comparison = comparison;
             }

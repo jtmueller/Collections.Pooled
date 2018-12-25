@@ -91,7 +91,7 @@ namespace Collections.Pooled.Tests
         {
             PooledList<T> list = GenericListFactory(count);
             IComparer<T> iComparer = GetIComparer();
-            Comparison<T> comparer = ((T first, T second) => { return iComparer.Compare(first, second); });
+            int comparer(T first, T second) { return iComparer.Compare(first, second); }
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
@@ -106,7 +106,7 @@ namespace Collections.Pooled.Tests
             PooledList<T> list = GenericListFactory(count);
             list.Add(list[0]);
             IComparer<T> iComparer = GetIComparer();
-            Comparison<T> comparer = ((T first, T second) => { return iComparer.Compare(first, second); });
+            int comparer(T first, T second) { return iComparer.Compare(first, second); }
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
