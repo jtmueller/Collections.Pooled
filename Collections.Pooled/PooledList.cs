@@ -354,7 +354,7 @@ namespace Collections.Pooled
         /// <summary>
         /// Contains returns true if the specified element is in the List.
         /// It does a linear, O(n) search.  Equality is determined by calling
-        /// EqualityComparer<T>.Default.Equals().
+        /// <see cref="EqualityComparer{T}.Default.Equals"/>.
         /// </summary>
         public bool Contains(T item)
         {

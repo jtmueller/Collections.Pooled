@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,7 +36,8 @@ namespace Collections.Pooled
 
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>, ISerializable, IDeserializationCallback
+    public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
+        ISerializable, IDeserializationCallback, IDisposable
     {
         private struct Entry
         {
@@ -45,9 +47,15 @@ namespace Collections.Pooled
             public TValue value;         // Value of entry
         }
 
+        // DO NOT USE THE FOLLOWING ARRAYS DIRECTLY:
+        // It's important that the number of buckets be prime, and these arrays could exceed
+        // that size as they come from ArrayPool. Use the private properties, which slice the
+        // arrays down to the correct length.
         private int[] _buckets;
         private Entry[] _entries;
+
         private int _count;
+        private int _size;
         private int _freeList;
         private int _freeCount;
         private int _version;
@@ -61,6 +69,9 @@ namespace Collections.Pooled
         private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
         private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
         private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
+
+        private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
+        private static readonly ArrayPool<Entry> s_entryPool = ArrayPool<Entry>.Shared;
 
         public PooledDictionary() : this(0, null) { }
 
@@ -99,7 +110,7 @@ namespace Collections.Pooled
             {
                 var d = (PooledDictionary<TKey, TValue>)dictionary;
                 int count = d._count;
-                Entry[] entries = d._entries;
+                var entries = d.Entries;
                 for (int i = 0; i < count; i++)
                 {
                     if (entries[i].hashCode >= 0)
@@ -167,7 +178,11 @@ namespace Collections.Pooled
             HashHelpers.SerializationInfoTable.Add(this, info);
         }
 
-        public IEqualityComparer<TKey> Comparer 
+        private Span<int> Buckets => _buckets.AsSpan(0, _size);
+
+        private Span<Entry> Entries => _entries.AsSpan(0, _size);
+
+        public IEqualityComparer<TKey> Comparer
             => _comparer ?? EqualityComparer<TKey>.Default;
 
         public int Count => _count - _freeCount;
@@ -231,7 +246,7 @@ namespace Collections.Pooled
             get
             {
                 int i = FindEntry(key);
-                if (i >= 0) return _entries[i].value;
+                if (i >= 0) return Entries[i].value;
                 throw new KeyNotFoundException($"Key not found: '{key}'.");
             }
             set
@@ -253,7 +268,7 @@ namespace Collections.Pooled
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> keyValuePair)
         {
             int i = FindEntry(keyValuePair.Key);
-            if (i >= 0 && EqualityComparer<TValue>.Default.Equals(_entries[i].value, keyValuePair.Value))
+            if (i >= 0 && EqualityComparer<TValue>.Default.Equals(Entries[i].value, keyValuePair.Value))
             {
                 return true;
             }
@@ -263,7 +278,7 @@ namespace Collections.Pooled
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> keyValuePair)
         {
             int i = FindEntry(keyValuePair.Key);
-            if (i >= 0 && EqualityComparer<TValue>.Default.Equals(_entries[i].value, keyValuePair.Value))
+            if (i >= 0 && EqualityComparer<TValue>.Default.Equals(Entries[i].value, keyValuePair.Value))
             {
                 Remove(keyValuePair.Key);
                 return true;
@@ -276,12 +291,12 @@ namespace Collections.Pooled
             int count = _count;
             if (count > 0)
             {
-                Array.Clear(_buckets, 0, _buckets.Length);
+                Buckets.Clear();
 
                 _count = 0;
                 _freeList = -1;
                 _freeCount = 0;
-                Array.Clear(_entries, 0, count);
+                Entries.Slice(0, count).Clear();
             }
         }
 
@@ -290,7 +305,7 @@ namespace Collections.Pooled
 
         public bool ContainsValue(TValue value)
         {
-            Entry[] entries = _entries;
+            var entries = Entries;
             if (value == null)
             {
                 for (int i = 0; i < _count; i++)
@@ -335,7 +350,7 @@ namespace Collections.Pooled
                 throw new ArgumentException("Destination array too small.");
 
             int count = _count;
-            Entry[] entries = _entries;
+            var entries = Entries;
             for (int i = 0; i < count; i++)
             {
                 if (entries[i].hashCode >= 0)
@@ -358,9 +373,9 @@ namespace Collections.Pooled
 
             info.AddValue(VersionName, _version);
             info.AddValue(ComparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
-            info.AddValue(HashSizeName, _buckets == null ? 0 : _buckets.Length); // This is the length of the bucket array
+            info.AddValue(HashSizeName, Buckets == null ? 0 : Buckets.Length); // This is the length of the bucket array
 
-            if (_buckets != null)
+            if (Buckets != null)
             {
                 var array = new KeyValuePair<TKey, TValue>[Count];
                 CopyTo(array, 0);
@@ -374,76 +389,48 @@ namespace Collections.Pooled
                 throw new ArgumentNullException(nameof(key));
 
             int i = -1;
-            int[] buckets = _buckets;
-            Entry[] entries = _entries;
+            var buckets = Buckets;
+            var entries = Entries;
             int collisionCount = 0;
-            if (buckets != null)
+            IEqualityComparer<TKey> comparer = _comparer;
+            if (comparer == null)
             {
-                IEqualityComparer<TKey> comparer = _comparer;
-                if (comparer == null)
+                int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                // Value in _buckets is 1-based
+                i = buckets[hashCode % buckets.Length] - 1;
+                if (default(TKey) != null)
                 {
-                    int hashCode = key.GetHashCode() & 0x7FFFFFFF;
-                    // Value in _buckets is 1-based
-                    i = buckets[hashCode % buckets.Length] - 1;
-                    if (default(TKey) != null)
-                    {
-                        // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
-                        do
-                        {
-                            // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
-                            // Test in if to drop range check for following array access
-                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
-                            {
-                                break;
-                            }
-
-                            i = entries[i].next;
-                            if (collisionCount >= entries.Length)
-                            {
-                                // The chain of entries forms a loop; which means a concurrent update has happened.
-                                // Break out of the loop and throw, rather than looping forever.
-                                throw new InvalidOperationException("Concurrent operations are not supported.");
-                            }
-                            collisionCount++;
-                        } while (true);
-                    }
-                    else
-                    {
-                        // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
-                        // https://github.com/dotnet/coreclr/issues/17273
-                        // So cache in a local rather than get EqualityComparer per loop iteration
-                        EqualityComparer<TKey> defaultComparer = EqualityComparer<TKey>.Default;
-                        do
-                        {
-                            // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
-                            // Test in if to drop range check for following array access
-                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
-                            {
-                                break;
-                            }
-
-                            i = entries[i].next;
-                            if (collisionCount >= entries.Length)
-                            {
-                                // The chain of entries forms a loop; which means a concurrent update has happened.
-                                // Break out of the loop and throw, rather than looping forever.
-                                throw new InvalidOperationException("Concurrent operations are not supported.");
-                            }
-                            collisionCount++;
-                        } while (true);
-                    }
-                }
-                else
-                {
-                    int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
-                    // Value in _buckets is 1-based
-                    i = buckets[hashCode % buckets.Length] - 1;
+                    // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
                     do
                     {
                         // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
                         // Test in if to drop range check for following array access
-                        if ((uint)i >= (uint)entries.Length ||
-                            (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key)))
+                        if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
+                        {
+                            break;
+                        }
+
+                        i = entries[i].next;
+                        if (collisionCount >= entries.Length)
+                        {
+                            // The chain of entries forms a loop; which means a concurrent update has happened.
+                            // Break out of the loop and throw, rather than looping forever.
+                            throw new InvalidOperationException("Concurrent operations are not supported.");
+                        }
+                        collisionCount++;
+                    } while (true);
+                }
+                else
+                {
+                    // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
+                    // https://github.com/dotnet/coreclr/issues/17273
+                    // So cache in a local rather than get EqualityComparer per loop iteration
+                    EqualityComparer<TKey> defaultComparer = EqualityComparer<TKey>.Default;
+                    do
+                    {
+                        // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
+                        // Test in if to drop range check for following array access
+                        if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
                         {
                             break;
                         }
@@ -459,19 +446,43 @@ namespace Collections.Pooled
                     } while (true);
                 }
             }
+            else
+            {
+                int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                // Value in _buckets is 1-based
+                i = buckets[hashCode % buckets.Length] - 1;
+                do
+                {
+                    // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
+                    // Test in if to drop range check for following array access
+                    if ((uint)i >= (uint)entries.Length ||
+                        (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key)))
+                    {
+                        break;
+                    }
+
+                    i = entries[i].next;
+                    if (collisionCount >= entries.Length)
+                    {
+                        // The chain of entries forms a loop; which means a concurrent update has happened.
+                        // Break out of the loop and throw, rather than looping forever.
+                        throw new InvalidOperationException("Concurrent operations are not supported.");
+                    }
+                    collisionCount++;
+                } while (true);
+            }
 
             return i;
         }
 
         private int Initialize(int capacity)
         {
-            int size = HashHelpers.GetPrime(capacity);
-
+            _size = HashHelpers.GetPrime(capacity);
             _freeList = -1;
-            _buckets = new int[size];
-            _entries = new Entry[size];
+            _buckets = s_bucketPool.Rent(_size);
+            _entries = s_entryPool.Rent(_size);
 
-            return size;
+            return _size;
         }
 
         private bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
@@ -484,13 +495,13 @@ namespace Collections.Pooled
                 Initialize(0);
             }
 
-            Entry[] entries = _entries;
+            var entries = Entries;
             IEqualityComparer<TKey> comparer = _comparer;
 
             int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & 0x7FFFFFFF;
 
             int collisionCount = 0;
-            ref int bucket = ref _buckets[hashCode % _buckets.Length];
+            ref int bucket = ref Buckets[hashCode % Buckets.Length];
             // Value in _buckets is 1-based
             int i = bucket - 1;
 
@@ -632,11 +643,11 @@ namespace Collections.Pooled
                 if (count == entries.Length)
                 {
                     Resize();
-                    bucket = ref _buckets[hashCode % _buckets.Length];
+                    bucket = ref Buckets[hashCode % Buckets.Length];
                 }
                 index = count;
                 _count = count + 1;
-                entries = _entries;
+                entries = Entries;
             }
 
             ref Entry entry = ref entries[index];
@@ -718,10 +729,10 @@ namespace Collections.Pooled
         {
             // Value types never rehash
             Debug.Assert(!forceNewHashCodes || default(TKey) == null);
-            Debug.Assert(newSize >= _entries.Length);
+            Debug.Assert(newSize >= Entries.Length);
 
-            int[] buckets = new int[newSize];
-            Entry[] entries = new Entry[newSize];
+            int[] buckets = s_bucketPool.Rent(newSize);
+            Entry[] entries = s_entryPool.Rent(newSize);
 
             int count = _count;
             Array.Copy(_entries, 0, entries, 0, count);
@@ -750,8 +761,11 @@ namespace Collections.Pooled
                 }
             }
 
+            s_bucketPool.Return(_buckets);
             _buckets = buckets;
+            s_entryPool.Return(_entries);
             _entries = entries;
+            _size = newSize;
         }
 
         // The overload Remove(TKey key, out TValue value) is a copy of this method with one additional
@@ -762,8 +776,8 @@ namespace Collections.Pooled
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            int[] buckets = _buckets;
-            Entry[] entries = _entries;
+            var buckets = Buckets;
+            var entries = Entries;
             int collisionCount = 0;
             if (buckets != null)
             {
@@ -830,8 +844,8 @@ namespace Collections.Pooled
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            int[] buckets = _buckets;
-            Entry[] entries = _entries;
+            var buckets = Buckets;
+            var entries = Entries;
             int collisionCount = 0;
             if (buckets != null)
             {
@@ -899,7 +913,7 @@ namespace Collections.Pooled
             int i = FindEntry(key);
             if (i >= 0)
             {
-                value = _entries[i].value;
+                value = Entries[i].value;
                 return true;
             }
             value = default;
@@ -942,7 +956,7 @@ namespace Collections.Pooled
                 try
                 {
                     int count = _count;
-                    Entry[] entries = _entries;
+                    var entries = Entries;
                     for (int i = 0; i < count; i++)
                     {
                         if (entries[i].hashCode >= 0)
@@ -968,7 +982,7 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity));
-            int currentCapacity = _entries == null ? 0 : _entries.Length;
+            int currentCapacity = Entries == null ? 0 : Entries.Length;
             if (currentCapacity >= capacity)
                 return currentCapacity;
             _version++;
@@ -1006,6 +1020,7 @@ namespace Collections.Pooled
             int newSize = HashHelpers.GetPrime(capacity);
 
             Entry[] oldEntries = _entries;
+            int[] oldBuckets = _buckets;
             int currentCapacity = oldEntries == null ? 0 : oldEntries.Length;
             if (newSize >= currentCapacity)
                 return;
@@ -1013,8 +1028,8 @@ namespace Collections.Pooled
             int oldCount = _count;
             _version++;
             Initialize(newSize);
-            Entry[] entries = _entries;
-            int[] buckets = _buckets;
+            var entries = Entries;
+            var buckets = Buckets;
             int count = 0;
             for (int i = 0; i < oldCount; i++)
             {
@@ -1033,6 +1048,8 @@ namespace Collections.Pooled
             }
             _count = count;
             _freeCount = 0;
+            s_bucketPool.Return(oldBuckets);
+            s_entryPool.Return(oldEntries);
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1066,7 +1083,7 @@ namespace Collections.Pooled
                     int i = FindEntry((TKey)key);
                     if (i >= 0)
                     {
-                        return _entries[i].value;
+                        return Entries[i].value;
                     }
                 }
                 return null;
@@ -1151,6 +1168,20 @@ namespace Collections.Pooled
             }
         }
 
+        public void Dispose()
+        {
+            if (_buckets != null)
+            {
+                s_bucketPool.Return(_buckets);
+                _buckets = null;
+            }
+            if (_entries != null)
+            {
+                s_entryPool.Return(_entries);
+                _entries = null;
+            }
+        }
+
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -1182,7 +1213,7 @@ namespace Collections.Pooled
                 // dictionary.count+1 could be negative if dictionary.count is int.MaxValue
                 while ((uint)_index < (uint)_dictionary._count)
                 {
-                    ref Entry entry = ref _dictionary._entries[_index++];
+                    ref Entry entry = ref _dictionary.Entries[_index++];
 
                     if (entry.hashCode >= 0)
                     {
@@ -1298,7 +1329,7 @@ namespace Collections.Pooled
                     throw new ArgumentException("Destination array too small.");
 
                 int count = _dictionary._count;
-                Entry[] entries = _dictionary._entries;
+                var entries = _dictionary.Entries;
                 for (int i = 0; i < count; i++)
                 {
                     if (entries[i].hashCode >= 0) array[index++] = entries[i].key;
@@ -1353,7 +1384,7 @@ namespace Collections.Pooled
                     }
 
                     int count = _dictionary._count;
-                    Entry[] entries = _dictionary._entries;
+                    var entries = _dictionary.Entries;
                     try
                     {
                         for (int i = 0; i < count; i++)
@@ -1400,7 +1431,7 @@ namespace Collections.Pooled
 
                     while ((uint)_index < (uint)_dictionary._count)
                     {
-                        ref Entry entry = ref _dictionary._entries[_index++];
+                        ref Entry entry = ref _dictionary.Entries[_index++];
 
                         if (entry.hashCode >= 0)
                         {
@@ -1467,7 +1498,7 @@ namespace Collections.Pooled
                     throw new ArgumentException("Destination array is too small.");
 
                 int count = _dictionary._count;
-                Entry[] entries = _dictionary._entries;
+                var entries = _dictionary.Entries;
                 for (int i = 0; i < count; i++)
                 {
                     if (entries[i].hashCode >= 0) array[index++] = entries[i].value;
@@ -1522,7 +1553,7 @@ namespace Collections.Pooled
                     }
 
                     int count = _dictionary._count;
-                    Entry[] entries = _dictionary._entries;
+                    var entries = _dictionary.Entries;
                     try
                     {
                         for (int i = 0; i < count; i++)
@@ -1569,7 +1600,7 @@ namespace Collections.Pooled
 
                     while ((uint)_index < (uint)_dictionary._count)
                     {
-                        ref Entry entry = ref _dictionary._entries[_index++];
+                        ref Entry entry = ref _dictionary.Entries[_index++];
 
                         if (entry.hashCode >= 0)
                         {

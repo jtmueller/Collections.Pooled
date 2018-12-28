@@ -181,7 +181,13 @@
             then that is used for comparison, otherwise <see cref="P:System.Collections.Generic.Comparer`1.Default"/> is used.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "M:Collections.Pooled.PooledList`1.Contains(`0)" -->
+        <member name="M:Collections.Pooled.PooledList`1.Contains(`0)">
+            <summary>
+            Contains returns true if the specified element is in the List.
+            It does a linear, O(n) search.  Equality is determined by calling
+            <see cref="!:EqualityComparer&lt;T&gt;.Default.Equals"/>.
+            </summary>
+        </member>
         <member name="M:Collections.Pooled.PooledList`1.CopyTo(System.Span{`0})">
             <summary>
             Copies this list to the given span.
