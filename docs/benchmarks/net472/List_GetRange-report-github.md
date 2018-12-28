@@ -8,7 +8,7 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|         Method |          Mean |         Error |        StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|--------------- |--------------:|--------------:|--------------:|------:|------------:|------------:|------------:|--------------------:|
-|   ListGetRange | 494,702.73 us | 8,829.5922 us | 8,259.2060 us | 1.000 | 683000.0000 | 552000.0000 | 552000.0000 |        2915638960 B |
-| PooledGetRange |      82.32 us |     0.9020 us |     0.7996 us | 0.000 |           - |           - |           - |                   - |
+|         Method |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|--------------- |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|   ListGetRange | 2,079.3 ms | 51.575 ms | 50.653 ms |  1.00 | 765000.0000 | 657000.0000 | 636000.0000 |        2913064088 B |
+| PooledGetRange |   861.6 ms |  1.626 ms |  1.269 ms |  0.41 |           - |           - |           - |                   - |

@@ -15,22 +15,36 @@ namespace Collections.Pooled.Benchmarks
         [Benchmark(Baseline = true)]
         public void ListGetRange()
         {
+            int item;
             for (int i = 0; i < 5000; i++)
             {
                 var range = list.GetRange(0, list.Count);
+                foreach (var x in range)
+                    item = x;
                 range = list.GetRange(list.Count / 3, list.Count / 4);
+                foreach (var x in range)
+                    item = x;
                 range = list.GetRange(list.Count / 2, list.Count / 5);
+                foreach (var x in range)
+                    item = x;
             }
         }
 
         [Benchmark]
         public void PooledGetRange()
         {
+            int item;
             for (int i = 0; i < 5000; i++)
             {
                 var range = pooled.GetRange(0, pooled.Count);
+                foreach (var x in range)
+                    item = x;
                 range = pooled.GetRange(pooled.Count / 3, pooled.Count / 4);
+                foreach (var x in range)
+                    item = x;
                 range = pooled.GetRange(pooled.Count / 2, pooled.Count / 5);
+                foreach (var x in range)
+                    item = x;
             }
         }
 
