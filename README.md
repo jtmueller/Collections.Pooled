@@ -62,7 +62,7 @@ modified to use ArrayPool for internal storage allocation, and to support `Span<
 
 There are some API changes worth noting:
 
-  * There is a new AddRange method.
+  * New methods include: `AddRange`, `GetOrAdd`, `AddOrUpdate`
   * Both constructors and AddRange can take a sequence of `KeyValuePair<TKey, TValue>` objects, or a sequence of 
     `ValueTuple<TKey, TValue>` objects.
   * The built-in Dictionary with a string key and less than 100 items uses a more-efficient unsafe string-hashing that is not

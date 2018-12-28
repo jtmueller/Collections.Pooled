@@ -91,7 +91,7 @@ namespace Collections.Pooled
             // Dictionary uses NonRandomizedStringEqualityComparer as default comparer for string keys as it doesnt use the 
             // randomized string hashing which keeps the performance not affected till we hit collision threshold and then 
             // it switches to the comparer which is using randomized string hashing.
-            // We can't do this as it requires access to unsafe internal methods on String.
+            // We can't do this in PooledDictionary as it requires access to unsafe internal methods on String.
         }
 
         public PooledDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
@@ -120,7 +120,7 @@ namespace Collections.Pooled
                 return;
             }
 
-            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
+            foreach (var pair in dictionary)
             {
                 Add(pair.Key, pair.Value);
             }
@@ -271,7 +271,7 @@ namespace Collections.Pooled
 
             foreach (var pair in enumerable)
             {
-                Add(pair.Key, pair.Value);
+                TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
@@ -285,7 +285,7 @@ namespace Collections.Pooled
 
             foreach (var (key, value) in enumerable)
             {
-                Add(key, value);
+                TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
@@ -295,11 +295,39 @@ namespace Collections.Pooled
 
             foreach (var (key, value) in span)
             {
-                Add(key, value);
+                TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
-        public void AddRange((TKey key, TValue value)[] array) => AddRange(array.AsSpan());
+        public void AddRange((TKey key, TValue value)[] array) 
+            => AddRange(array.AsSpan());
+
+        public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
+        {
+            if (TryGetValue(key, out TValue value))
+            {
+                var updatedValue = updater(key, value);
+                TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
+            }
+            else
+            {
+                TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
+            }
+        }
+
+        public void AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updater)
+        {
+            if (TryGetValue(key, out TValue value))
+            {
+                var updatedValue = updater(key, value);
+                TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
+            }
+            else
+            {
+                var addValue = addValueFactory(key);
+                TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
+            }
+        }
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
             => Add(keyValuePair.Key, keyValuePair.Value);
@@ -368,7 +396,7 @@ namespace Collections.Pooled
                     // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
                     // https://github.com/dotnet/coreclr/issues/17273
                     // So cache in a local rather than get EqualityComparer per loop iteration
-                    EqualityComparer<TValue> defaultComparer = EqualityComparer<TValue>.Default;
+                    var defaultComparer = EqualityComparer<TValue>.Default;
                     for (int i = 0; i < _count; i++)
                     {
                         if (entries[i].hashCode >= 0 && defaultComparer.Equals(entries[i].value, value)) return true;
@@ -413,9 +441,9 @@ namespace Collections.Pooled
 
             info.AddValue(VersionName, _version);
             info.AddValue(ComparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
-            info.AddValue(HashSizeName, Buckets == null ? 0 : Buckets.Length); // This is the length of the bucket array
+            info.AddValue(HashSizeName, _size); // This is the length of the bucket array
 
-            if (Buckets != null)
+            if (_buckets != null)
             {
                 var array = new KeyValuePair<TKey, TValue>[Count];
                 CopyTo(array, 0);
@@ -465,7 +493,7 @@ namespace Collections.Pooled
                     // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
                     // https://github.com/dotnet/coreclr/issues/17273
                     // So cache in a local rather than get EqualityComparer per loop iteration
-                    EqualityComparer<TKey> defaultComparer = EqualityComparer<TKey>.Default;
+                    var defaultComparer = EqualityComparer<TKey>.Default;
                     do
                     {
                         // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
@@ -536,7 +564,7 @@ namespace Collections.Pooled
             }
 
             var entries = Entries;
-            IEqualityComparer<TKey> comparer = _comparer;
+            var comparer = _comparer;
 
             int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & 0x7FFFFFFF;
 
@@ -962,6 +990,25 @@ namespace Collections.Pooled
 
         public bool TryAdd(TKey key, TValue value)
             => TryInsert(key, value, InsertionBehavior.None);
+
+        public TValue GetOrAdd(TKey key, TValue addValue)
+        {
+            if (TryGetValue(key, out TValue value))
+                return value;
+
+            Add(key, addValue);
+            return addValue;
+        }
+
+        public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
+        {
+            if (TryGetValue(key, out TValue value))
+                return value;
+
+            var addValue = valueFactory(key);
+            Add(key, addValue);
+            return addValue;
+        }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly => false;
 
