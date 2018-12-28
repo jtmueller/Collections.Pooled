@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Collections.Pooled</name>
+    </assembly>
+    <members>
+        <member name="T:Collections.Pooled.InsertionBehavior">
+            <summary>
+            Used internally to control behavior of insertion into a <see cref="T:Collections.Pooled.PooledDictionary`2"/>.
+            </summary>
+        </member>
+        <member name="F:Collections.Pooled.InsertionBehavior.None">
+            <summary>
+            The default insertion behavior.
+            </summary>
+        </member>
+        <member name="F:Collections.Pooled.InsertionBehavior.OverwriteExisting">
+            <summary>
+            Specifies that an existing entry with the same key should be overwritten if encountered.
+            </summary>
+        </member>
+        <member name="F:Collections.Pooled.InsertionBehavior.ThrowOnExisting">
+            <summary>
+            Specifies that if an existing entry with the same key is encountered, an exception should be thrown.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionary`2.EnsureCapacity(System.Int32)">
+            <summary>
+            Ensures that the dictionary can hold up to 'capacity' entries without any further expansion of its backing storage
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionary`2.TrimExcess">
+            <summary>
+            Sets the capacity of this dictionary to what it would be if it had been originally initialized with all its entries
+            
+            This method can be used to minimize the memory overhead 
+            once it is known that no new elements will be added. 
+            
+            To allocate minimum size storage array, execute the following statements:
+            
+            dictionary.Clear();
+            dictionary.TrimExcess();
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionary`2.TrimExcess(System.Int32)">
+            <summary>
+            Sets the capacity of this dictionary to hold up 'capacity' entries without any further expansion of its backing storage
+            
+            This method can be used to minimize the memory overhead 
+            once it is known that no new elements will be added. 
+            </summary>
+        </member>
+        <member name="T:Collections.Pooled.PooledList`1">
+            <summary>
+            Implements a variable-size list that uses a pooled array to store the
+            elements. A PooledList has a capacity, which is the allocated length
+            of the internal array. As elements are added to a PooledList, the capacity
+            of the PooledList is automatically increased as required by reallocating the
+            internal array.
+            </summary>
+            <remarks>
+            This class is based on the code for <see cref="T:System.Collections.Generic.List`1"/> but it supports <see cref="T:System.Span`1"/>
+            and uses <see cref="T:System.Buffers.ArrayPool`1"/> when allocating internal arrays.
+            </remarks>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.#ctor">
+            <summary>
+            Constructs a PooledList. The list is initially empty and has a capacity
+            of zero. Upon adding the first element to the list the capacity is
+            increased to DefaultCapacity, and then increased in multiples of two
+            as required.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.#ctor(System.Int32)">
+            <summary>
+            Constructs a List with a given initial capacity. The list is
+            initially empty, but will have room for the given number of elements
+            before any reallocations are required.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.#ctor(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Constructs a List, copying the contents of the given collection. The
+            size and capacity of the new list will both be equal to the size of the
+            given collection.
+            </summary>
+        </member>
+        <member name="P:Collections.Pooled.PooledList`1.Span">
+            <summary>
+            Gets a <see cref="T:System.Span`1"/> for the items currently in the collection.
+            </summary>
+        </member>
+        <member name="P:Collections.Pooled.PooledList`1.Capacity">
+            <summary>
+            Gets and sets the capacity of this list.  The capacity is the size of
+            the internal array used to hold items.  When set, the internal 
+            Memory of the list is reallocated to the given capacity.
+            </summary>
+        </member>
+        <member name="P:Collections.Pooled.PooledList`1.Count">
+            <summary>
+            Read-only property describing how many elements are in the List.
+            </summary>
+        </member>
+        <member name="P:Collections.Pooled.PooledList`1.Item(System.Int32)">
+            <summary>
+            Gets or sets the element at the given index.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Add(`0)">
+            <summary>
+            Adds the given object to the end of this list. The size of the list is
+            increased by one. If required, the capacity of the list is doubled
+            before adding the new element.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.AddRange(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Adds the elements of the given collection to the end of this list. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.AddRange(`0[])">
+            <summary>
+            Adds the elements of the given array to the end of this list. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.AddRange(System.ReadOnlySpan{`0})">
+            <summary>
+            Adds the elements of the given <see cref="T:System.ReadOnlySpan`1"/> to the end of this list. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.AddSpan(System.Int32)">
+            <summary>
+            Advances the <see cref="P:Collections.Pooled.PooledList`1.Count"/> by the number of items specified,
+            increasing the capacity if required, then returns a Span representing
+            the set of items to be added, allowing direct writes to that section
+            of the collection.
+            </summary>
+            <param name="count">The number of items to add.</param>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.BinarySearch(System.Int32,System.Int32,`0,System.Collections.Generic.IComparer{`0})">
+             <summary>
+             Searches a section of the list for a given element using a binary search
+             algorithm. 
+             </summary>
+             
+             <remarks><para>Elements of the list are compared to the search value using
+             the given IComparer interface. If comparer is null, elements of
+             the list are compared to the search value using the IComparable
+             interface, which in that case must be implemented by all elements of the
+             list and the given search value. This method assumes that the given
+             section of the list is already sorted; if this is not the case, the
+             result will be incorrect.</para>
+            
+             <para>The method returns the index of the given value in the list. If the
+             list does not contain the given value, the method returns a negative
+             integer. The bitwise complement operator (~) can be applied to a
+             negative result to produce the index of the first element (if any) that
+             is larger than the given search value. This is also the index at which
+             the search value should be inserted into the list in order for the list
+             to remain sorted.
+             </para></remarks>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.BinarySearch(`0)">
+            <summary>
+            Searches the list for a given element using a binary search
+            algorithm. If the item implements <see cref="T:System.IComparable`1"/>
+            then that is used for comparison, otherwise <see cref="P:System.Collections.Generic.Comparer`1.Default"/> is used.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.BinarySearch(`0,System.Collections.Generic.IComparer{`0})">
+            <summary>
+            Searches the list for a given element using a binary search
+            algorithm. If the item implements <see cref="T:System.IComparable`1"/>
+            then that is used for comparison, otherwise <see cref="P:System.Collections.Generic.Comparer`1.Default"/> is used.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:Collections.Pooled.PooledList`1.Contains(`0)" -->
+        <member name="M:Collections.Pooled.PooledList`1.CopyTo(System.Span{`0})">
+            <summary>
+            Copies this list to the given span.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.EnsureCapacity(System.Int32)">
+            <summary>
+            Ensures that the capacity of this list is at least the given minimum
+            value. If the current capacity of the list is less than min, the
+            capacity is increased to twice the current capacity or to min,
+            whichever is larger.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.IndexOf(`0)">
+            <summary>
+            Returns the index of the first occurrence of a given value in
+            this list. The list is searched forwards from beginning to end.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.IndexOf(`0,System.Int32)">
+            <summary>
+            Returns the index of the first occurrence of a given value in a range of
+            this list. The list is searched forwards, starting at index
+            index and ending at count number of elements. 
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.IndexOf(`0,System.Int32,System.Int32)">
+            <summary>
+            Returns the index of the first occurrence of a given value in a range of
+            this list. The list is searched forwards, starting at index
+            index and upto count number of elements. 
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Insert(System.Int32,`0)">
+            <summary>
+            Inserts an element into this list at a given index. The size of the list
+            is increased by one. If required, the capacity of the list is doubled
+            before inserting the new element.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.InsertRange(System.Int32,System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Inserts the elements of the given collection at a given index. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.  Ranges may be added
+            to the end of the list by setting index to the List's size.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.InsertRange(System.Int32,System.ReadOnlySpan{`0})">
+            <summary>
+            Inserts the elements of the given collection at a given index. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.  Ranges may be added
+            to the end of the list by setting index to the List's size.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.InsertRange(System.Int32,`0[])">
+            <summary>
+            Inserts the elements of the given collection at a given index. If
+            required, the capacity of the list is increased to twice the previous
+            capacity or the new size, whichever is larger.  Ranges may be added
+            to the end of the list by setting index to the List's size.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.InsertSpan(System.Int32,System.Int32)">
+            <summary>
+            Advances the <see cref="P:Collections.Pooled.PooledList`1.Count"/> by the number of items specified,
+            increasing the capacity if required, then returns a Span representing
+            the set of items to be added, allowing direct writes to that section
+            of the collection.
+            </summary>
+            <param name="count">The number of items to add.</param>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.LastIndexOf(`0)">
+            <summary>
+            Returns the index of the last occurrence of a given value in a range of
+            this list. The list is searched backwards, starting at the end 
+            and ending at the first element in the list.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.LastIndexOf(`0,System.Int32)">
+            <summary>
+            Returns the index of the last occurrence of a given value in a range of
+            this list. The list is searched backwards, starting at index
+            index and ending at the first element in the list.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.LastIndexOf(`0,System.Int32,System.Int32)">
+            <summary>
+            Returns the index of the last occurrence of a given value in a range of
+            this list. The list is searched backwards, starting at index
+            index and upto count elements
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.RemoveAll(System.Func{`0,System.Boolean})">
+            <summary>
+            This method removes all items which match the predicate.
+            The complexity is O(n).
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.RemoveAt(System.Int32)">
+            <summary>
+            Removes the element at the given index. The size of the list is
+            decreased by one.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.RemoveRange(System.Int32,System.Int32)">
+            <summary>
+            Removes a range of elements from this list.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Reverse">
+            <summary>
+            Reverses the elements in this list.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Reverse(System.Int32,System.Int32)">
+            <summary>
+            Reverses the elements in a range of this list. Following a call to this
+            method, an element in the range given by index and count
+            which was previously located at index i will now be located at
+            index index + (index + count - i - 1).
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Sort">
+            <summary>
+            Sorts the elements in this list.  Uses the default comparer and 
+            Array.Sort.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Sort(System.Collections.Generic.IComparer{`0})">
+            <summary>
+            Sorts the elements in this list.  Uses Array.Sort with the
+            provided comparer.
+            </summary>
+            <param name="comparer"></param>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.Sort(System.Int32,System.Int32,System.Collections.Generic.IComparer{`0})">
+            <summary>
+            Sorts the elements in a section of this list. The sort compares the
+            elements to each other using the given IComparer interface. If
+            comparer is null, the elements are compared to each other using
+            the IComparable interface, which in that case must be implemented by all
+            elements of the list.
+            
+            This method uses the Array.Sort method to sort the elements.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.ToArray">
+            <summary>
+            ToArray returns an array containing the contents of the List.
+            This requires copying the List, which is an O(n) operation.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledList`1.TrimExcess">
+            <summary>
+            Sets the capacity of this list to the size of the list. This method can
+            be used to minimize a list's memory overhead once it is known that no
+            new elements will be added to the list. To completely clear a list and
+            release all memory referenced by the list, execute the following
+            statements:
+            <code>
+            list.Clear();
+            list.TrimExcess();
+            </code>
+            </summary>
+        </member>
+    </members>
+</doc>
