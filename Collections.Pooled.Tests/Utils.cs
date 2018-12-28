@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace System.Collections.Tests
+namespace Collections.Pooled.Tests
 {
     public static class Extensions
     {

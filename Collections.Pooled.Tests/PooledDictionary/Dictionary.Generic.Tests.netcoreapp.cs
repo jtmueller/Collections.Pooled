@@ -6,7 +6,7 @@
 //using System.Linq;
 //using Xunit;
 
-//namespace System.Collections.Tests
+//namespace Collections.Pooled.Tests.PooledDictionary
 //{
 //    /// <summary>
 //    /// Contains tests that ensure the correctness of the Dictionary class.

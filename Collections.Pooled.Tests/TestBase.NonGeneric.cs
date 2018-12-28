@@ -2,9 +2,10 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 
-namespace System.Collections.Tests
+namespace Collections.Pooled.Tests
 {
     /// <summary>
     /// Provides a base set of nongeneric operations that are used by all other testing interfaces.

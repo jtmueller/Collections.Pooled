@@ -5,7 +5,7 @@
 //using System.Collections.Generic;
 //using Xunit;
 
-//namespace System.Collections.Tests
+//namespace Collections.Pooled.Tests
 //{
 //    /// <summary>
 //    /// Contains tests that ensure the correctness of any class that implements the generic

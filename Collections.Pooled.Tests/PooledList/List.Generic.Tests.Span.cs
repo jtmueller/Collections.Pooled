@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Tests;
 using Xunit;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     public abstract partial class List_Generic_Tests<T> : IList_Generic_Tests<T>
     {

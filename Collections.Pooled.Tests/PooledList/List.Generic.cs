@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using Collections.Pooled;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     public class List_Generic_Tests_string : List_Generic_Tests<string>
     {
