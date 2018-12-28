@@ -43,6 +43,7 @@ There are some API changes worth noting:
   * Delegate types such as `Predicate<T>` and `Converter<T1, T2>` have been replaced with standard `Func<>` equivalents.
   * **PooledList implements IDisposable.** Disposing the list returns the internal array to the ArrayPool.
     If you forget to dispose the list, nothing will break, but memory allocations will go up, and so will GC pauses.
+  * Non-generic `IList` is not supported (`IList<T>` is supported).
 
 #### Performance
 
