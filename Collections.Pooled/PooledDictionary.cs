@@ -49,7 +49,7 @@ namespace Collections.Pooled
 
         // DO NOT USE THE FOLLOWING ARRAYS DIRECTLY:
         // It's important that the number of buckets be prime, and these arrays could exceed
-        // that size as they come from ArrayPool. Use the private properties, which slice the
+        // that size as they come from ArrayPool. Use the private properties Buckets and Entries, which slice the
         // arrays down to the correct length.
         private int[] _buckets;
         private Entry[] _entries;
@@ -106,9 +106,8 @@ namespace Collections.Pooled
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
             // We only do this when dictionary is Dictionary<TKey,TValue> and not a subclass, to maintain
             // back-compat with subclasses that may have overridden the enumerator behavior.
-            if (dictionary.GetType() == typeof(PooledDictionary<TKey, TValue>))
+            if (dictionary is PooledDictionary<TKey, TValue> d)
             {
-                var d = (PooledDictionary<TKey, TValue>)dictionary;
                 int count = d._count;
                 var entries = d.Entries;
                 for (int i = 0; i < count; i++)
@@ -262,6 +261,46 @@ namespace Collections.Pooled
             Debug.Assert(modified); // If there was an existing key and the Add failed, an exception will already have been thrown.
         }
 
+        public void AddRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
+        {
+            if (enumerable is null)
+                throw new ArgumentNullException(nameof(enumerable));
+
+            if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
+                EnsureCapacity(_count + collection.Count);
+
+            foreach (var pair in enumerable)
+            {
+                Add(pair.Key, pair.Value);
+            }
+        }
+
+        public void AddRange(IEnumerable<(TKey key, TValue value)> enumerable)
+        {
+            if (enumerable is null)
+                throw new ArgumentNullException(nameof(enumerable));
+
+            if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
+                EnsureCapacity(_count + collection.Count);
+
+            foreach (var (key, value) in enumerable)
+            {
+                Add(key, value);
+            }
+        }
+
+        public void AddRange(ReadOnlySpan<(TKey key, TValue value)> span)
+        {
+            EnsureCapacity(_count + span.Length);
+
+            foreach (var (key, value) in span)
+            {
+                Add(key, value);
+            }
+        }
+
+        public void AddRange((TKey key, TValue value)[] array) => AddRange(array.AsSpan());
+
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
             => Add(keyValuePair.Key, keyValuePair.Value);
 
@@ -297,6 +336,7 @@ namespace Collections.Pooled
                 _freeList = -1;
                 _freeCount = 0;
                 Entries.Slice(0, count).Clear();
+                _size = 0;
             }
         }
 
@@ -947,8 +987,7 @@ namespace Collections.Pooled
             }
             else
             {
-                object[] objects = array as object[];
-                if (objects == null)
+                if (!(array is object[] objects))
                 {
                     throw new ArgumentException("Invalid array type.");
                 }
@@ -1377,8 +1416,7 @@ namespace Collections.Pooled
                 }
                 else
                 {
-                    object[] objects = array as object[];
-                    if (objects == null)
+                    if (!(array is object[] objects))
                     {
                         throw new ArgumentException("Invalid array type.");
                     }
@@ -1546,8 +1584,7 @@ namespace Collections.Pooled
                 }
                 else
                 {
-                    object[] objects = array as object[];
-                    if (objects == null)
+                    if (!(array is object[] objects))
                     {
                         throw new ArgumentException("Invalid array type.");
                     }
