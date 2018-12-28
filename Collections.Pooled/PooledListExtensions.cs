@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled
 {
+    /// <summary>
+    /// Extension methods for creating <see cref="PooledList{T}"/> instances.
+    /// </summary>
     public static class PooledListExtensions
     {
         public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
