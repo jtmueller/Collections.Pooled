@@ -915,33 +915,31 @@ namespace Collections.Pooled
             var buckets = Buckets;
             var entries = Entries;
             int collisionCount = 0;
-            if (buckets != null)
+            int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & 0x7FFFFFFF;
+            int bucket = hashCode % buckets.Length;
+            int last = -1;
+            // Value in buckets is 1-based
+            int i = buckets[bucket] - 1;
+            while (i >= 0)
             {
-                int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & 0x7FFFFFFF;
-                int bucket = hashCode % buckets.Length;
-                int last = -1;
-                // Value in buckets is 1-based
-                int i = buckets[bucket] - 1;
-                while (i >= 0)
+                ref Entry entry = ref entries[i];
+
+                if (entry.hashCode == hashCode && (_comparer?.Equals(entry.key, key) ?? EqualityComparer<TKey>.Default.Equals(entry.key, key)))
                 {
-                    ref Entry entry = ref entries[i];
-
-                    if (entry.hashCode == hashCode && (_comparer?.Equals(entry.key, key) ?? EqualityComparer<TKey>.Default.Equals(entry.key, key)))
+                    if (last < 0)
                     {
-                        if (last < 0)
-                        {
-                            // Value in buckets is 1-based
-                            buckets[bucket] = entry.next + 1;
-                        }
-                        else
-                        {
-                            entries[last].next = entry.next;
-                        }
+                        // Value in buckets is 1-based
+                        buckets[bucket] = entry.next + 1;
+                    }
+                    else
+                    {
+                        entries[last].next = entry.next;
+                    }
 
-                        value = entry.value;
+                    value = entry.value;
 
-                        entry.hashCode = -1;
-                        entry.next = _freeList;
+                    entry.hashCode = -1;
+                    entry.next = _freeList;
 
 #if NETCOREAPP2_2
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
@@ -953,24 +951,23 @@ namespace Collections.Pooled
                             entry.value = default;
                         }
 #else
-                        entry.key = default;
-                        entry.value = default;
+                    entry.key = default;
+                    entry.value = default;
 #endif
-                        _freeList = i;
-                        _freeCount++;
-                        return true;
-                    }
-
-                    last = i;
-                    i = entry.next;
-                    if (collisionCount >= entries.Length)
-                    {
-                        // The chain of entries forms a loop; which means a concurrent update has happened.
-                        // Break out of the loop and throw, rather than looping forever.
-                        throw new InvalidOperationException("Concurrent operations are not supported.");
-                    }
-                    collisionCount++;
+                    _freeList = i;
+                    _freeCount++;
+                    return true;
                 }
+
+                last = i;
+                i = entry.next;
+                if (collisionCount >= entries.Length)
+                {
+                    // The chain of entries forms a loop; which means a concurrent update has happened.
+                    // Break out of the loop and throw, rather than looping forever.
+                    throw new InvalidOperationException("Concurrent operations are not supported.");
+                }
+                collisionCount++;
             }
             value = default;
             return false;
@@ -1032,13 +1029,8 @@ namespace Collections.Pooled
             {
                 CopyTo(pairs, index);
             }
-            else
+            else if (array is object[] objects)
             {
-                if (!(array is object[] objects))
-                {
-                    throw new ArgumentException("Invalid array type.");
-                }
-
                 try
                 {
                     int count = _count;
@@ -1056,6 +1048,10 @@ namespace Collections.Pooled
                     throw new ArgumentException("Invalid array type.");
                 }
             }
+            else
+            {
+                throw new ArgumentException("Invalid array type.");
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -1068,7 +1064,7 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity));
-            int currentCapacity = Entries == null ? 0 : Entries.Length;
+            int currentCapacity = Entries.Length;
             if (currentCapacity >= capacity)
                 return currentCapacity;
             _version++;
@@ -1266,6 +1262,8 @@ namespace Collections.Pooled
                 s_entryPool.Return(_entries);
                 _entries = null;
             }
+            _count = 0;
+            _size = 0;
         }
 
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
@@ -1629,13 +1627,8 @@ namespace Collections.Pooled
                 {
                     CopyTo(values, index);
                 }
-                else
+                else if (array is object[] objects)
                 {
-                    if (!(array is object[] objects))
-                    {
-                        throw new ArgumentException("Invalid array type.");
-                    }
-
                     int count = _dictionary._count;
                     var entries = _dictionary.Entries;
                     try
@@ -1649,6 +1642,10 @@ namespace Collections.Pooled
                     {
                         throw new ArgumentException("Invalid array type.");
                     }
+                }
+                else
+                {
+                    throw new ArgumentException("Invalid array type.");
                 }
             }
 

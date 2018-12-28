@@ -50,6 +50,71 @@
             once it is known that no new elements will be added. 
             </summary>
         </member>
+        <member name="T:Collections.Pooled.PooledDictionaryExtensions">
+            <summary>
+            Extension methods for creating <see cref="T:Collections.Pooled.PooledDictionary`2"/> instances.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``3(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Func{``0,``2},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.Collections.Generic.IEnumerable`1"/> according to specified 
+            key selector and element selector functions, as well as a comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``3(System.ReadOnlySpan{``0},System.Func{``0,``1},System.Func{``0,``2},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from a <see cref="T:System.ReadOnlySpan`1"/> according to specified 
+            key selector and element selector functions, as well as a comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``3(System.Span{``0},System.Func{``0,``1},System.Func{``0,``2},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from a <see cref="T:System.Span`1"/> according to specified 
+            key selector and element selector functions, as well as a comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``3(System.ReadOnlyMemory{``0},System.Func{``0,``1},System.Func{``0,``2},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from a <see cref="T:System.ReadOnlyMemory`1"/> according to specified 
+            key selector and element selector functions, as well as a comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``3(System.Memory{``0},System.Func{``0,``1},System.Func{``0,``2},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from a <see cref="T:System.Memory`1"/> according to specified 
+            key selector and element selector functions, as well as a comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``2(System.Collections.Generic.IEnumerable{``0},System.Func{``0,``1},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.Collections.Generic.IEnumerable`1"/> according to specified 
+            key selector and comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``2(System.ReadOnlySpan{``0},System.Func{``0,``1},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.ReadOnlySpan`1"/> according to specified 
+            key selector and comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``2(System.Span{``0},System.Func{``0,``1},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.Span`1"/> according to specified 
+            key selector and comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``2(System.ReadOnlyMemory{``0},System.Func{``0,``1},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.ReadOnlyMemory`1"/> according to specified 
+            key selector and comparer.
+            </summary>
+        </member>
+        <member name="M:Collections.Pooled.PooledDictionaryExtensions.ToPooledDictionary``2(System.Memory{``0},System.Func{``0,``1},System.Collections.Generic.IEqualityComparer{``1})">
+            <summary>
+            Creates a <see cref="T:Collections.Pooled.PooledDictionary`2"/> from an <see cref="T:System.Memory`1"/> according to specified 
+            key selector and comparer.
+            </summary>
+        </member>
         <member name="T:Collections.Pooled.PooledList`1">
             <summary>
             Implements a variable-size list that uses a pooled array to store the
@@ -353,6 +418,11 @@
             list.Clear();
             list.TrimExcess();
             </code>
+            </summary>
+        </member>
+        <member name="T:Collections.Pooled.PooledListExtensions">
+            <summary>
+            Extension methods for creating <see cref="T:Collections.Pooled.PooledList`1"/> instances.
             </summary>
         </member>
     </members>
