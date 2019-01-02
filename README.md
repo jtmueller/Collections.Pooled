@@ -9,6 +9,15 @@ Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as we
 optimized build for .NET Core 2.2+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
 
+## Installation
+
+Available on NuGet:
+```
+Install-Package Collections.Pooled
+dotnet add package Collections.Pooled
+paket add Collections.Pooled
+```
+
 ## Benchmarks
 
   * [.NET Core](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/netcoreapp2.2)
