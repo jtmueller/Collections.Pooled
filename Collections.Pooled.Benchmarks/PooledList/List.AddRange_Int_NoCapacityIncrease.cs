@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
-namespace Collections.Pooled.Benchmarks
+namespace Collections.Pooled.Benchmarks.PooledList
 {
 #if NETCOREAPP2_2
     [CoreJob]

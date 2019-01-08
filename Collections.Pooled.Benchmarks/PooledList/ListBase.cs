@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Collections.Pooled.Benchmarks
+namespace Collections.Pooled.Benchmarks.PooledList
 {
     public abstract class ListBase
     {

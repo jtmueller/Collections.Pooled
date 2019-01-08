@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
-namespace Collections.Pooled.Benchmarks
+namespace Collections.Pooled.Benchmarks.PooledList
 {
     // TODO: some assembly-binding redirect bug related to System.Buffers
     // prevents us from running CoreJob with a CLR host, or ClrJob with a Core host.

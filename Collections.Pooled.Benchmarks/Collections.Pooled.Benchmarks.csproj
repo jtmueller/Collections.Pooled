@@ -13,6 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="PooledList\555pgwod.srn~" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="PooledDictionary\Perf.Dictionary.cs" />
   </ItemGroup>
 
