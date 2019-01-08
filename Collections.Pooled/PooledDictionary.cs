@@ -47,6 +47,15 @@ namespace Collections.Pooled
             public TValue value;         // Value of entry
         }
 
+        // constants for serialization
+        private const string VersionName = "Version"; // Do not rename (binary serialization)
+        private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
+        private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
+        private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
+
+        private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
+        private static readonly ArrayPool<Entry> s_entryPool = ArrayPool<Entry>.Shared;
+
         // DO NOT USE THE FOLLOWING ARRAYS DIRECTLY:
         // It's important that the number of buckets be prime, and these arrays could exceed
         // that size as they come from ArrayPool. Use the private properties Buckets and Entries, which slice the
@@ -63,15 +72,6 @@ namespace Collections.Pooled
         private KeyCollection _keys;
         private ValueCollection _values;
         private object _syncRoot;
-
-        // constants for serialization
-        private const string VersionName = "Version"; // Do not rename (binary serialization)
-        private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
-        private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
-        private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
-
-        private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
-        private static readonly ArrayPool<Entry> s_entryPool = ArrayPool<Entry>.Shared;
 
         public PooledDictionary() : this(0, null) { }
 
@@ -365,6 +365,7 @@ namespace Collections.Pooled
                 _freeCount = 0;
                 Entries.Slice(0, count).Clear();
                 _size = 0;
+                _version++;
             }
         }
 
@@ -460,45 +461,73 @@ namespace Collections.Pooled
             var buckets = Buckets;
             var entries = Entries;
             int collisionCount = 0;
-            IEqualityComparer<TKey> comparer = _comparer;
-            if (comparer == null)
+            if (buckets.Length > 0)
             {
-                int hashCode = key.GetHashCode() & 0x7FFFFFFF;
-                // Value in _buckets is 1-based
-                i = buckets[hashCode % buckets.Length] - 1;
-                if (default(TKey) != null)
+                IEqualityComparer<TKey> comparer = _comparer;
+                if (comparer == null)
                 {
-                    // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
-                    do
+                    int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                    // Value in _buckets is 1-based
+                    i = buckets[hashCode % buckets.Length] - 1;
+                    if (default(TKey) != null)
                     {
-                        // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
-                        // Test in if to drop range check for following array access
-                        if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
+                        // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
+                        do
                         {
-                            break;
-                        }
+                            // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
+                            // Test in if to drop range check for following array access
+                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
+                            {
+                                break;
+                            }
 
-                        i = entries[i].next;
-                        if (collisionCount >= entries.Length)
+                            i = entries[i].next;
+                            if (collisionCount >= entries.Length)
+                            {
+                                // The chain of entries forms a loop; which means a concurrent update has happened.
+                                // Break out of the loop and throw, rather than looping forever.
+                                throw new InvalidOperationException("Concurrent operations are not supported.");
+                            }
+                            collisionCount++;
+                        } while (true);
+                    }
+                    else
+                    {
+                        // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
+                        // https://github.com/dotnet/coreclr/issues/17273
+                        // So cache in a local rather than get EqualityComparer per loop iteration
+                        var defaultComparer = EqualityComparer<TKey>.Default;
+                        do
                         {
-                            // The chain of entries forms a loop; which means a concurrent update has happened.
-                            // Break out of the loop and throw, rather than looping forever.
-                            throw new InvalidOperationException("Concurrent operations are not supported.");
-                        }
-                        collisionCount++;
-                    } while (true);
+                            // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
+                            // Test in if to drop range check for following array access
+                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
+                            {
+                                break;
+                            }
+
+                            i = entries[i].next;
+                            if (collisionCount >= entries.Length)
+                            {
+                                // The chain of entries forms a loop; which means a concurrent update has happened.
+                                // Break out of the loop and throw, rather than looping forever.
+                                throw new InvalidOperationException("Concurrent operations are not supported.");
+                            }
+                            collisionCount++;
+                        } while (true);
+                    }
                 }
                 else
                 {
-                    // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
-                    // https://github.com/dotnet/coreclr/issues/17273
-                    // So cache in a local rather than get EqualityComparer per loop iteration
-                    var defaultComparer = EqualityComparer<TKey>.Default;
+                    int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                    // Value in _buckets is 1-based
+                    i = buckets[hashCode % buckets.Length] - 1;
                     do
                     {
                         // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
                         // Test in if to drop range check for following array access
-                        if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
+                        if ((uint)i >= (uint)entries.Length ||
+                            (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key)))
                         {
                             break;
                         }
@@ -513,31 +542,6 @@ namespace Collections.Pooled
                         collisionCount++;
                     } while (true);
                 }
-            }
-            else
-            {
-                int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
-                // Value in _buckets is 1-based
-                i = buckets[hashCode % buckets.Length] - 1;
-                do
-                {
-                    // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
-                    // Test in if to drop range check for following array access
-                    if ((uint)i >= (uint)entries.Length ||
-                        (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key)))
-                    {
-                        break;
-                    }
-
-                    i = entries[i].next;
-                    if (collisionCount >= entries.Length)
-                    {
-                        // The chain of entries forms a loop; which means a concurrent update has happened.
-                        // Break out of the loop and throw, rather than looping forever.
-                        throw new InvalidOperationException("Concurrent operations are not supported.");
-                    }
-                    collisionCount++;
-                } while (true);
             }
 
             return i;
@@ -558,18 +562,19 @@ namespace Collections.Pooled
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
 
-            if (_buckets == null)
+            if (_buckets == null || _size == 0)
             {
                 Initialize(0);
             }
 
             var entries = Entries;
+            var buckets = Buckets;
             var comparer = _comparer;
 
             int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & 0x7FFFFFFF;
 
             int collisionCount = 0;
-            ref int bucket = ref Buckets[hashCode % Buckets.Length];
+            ref int bucket = ref buckets[hashCode % buckets.Length];
             // Value in _buckets is 1-based
             int i = bucket - 1;
 
@@ -619,7 +624,7 @@ namespace Collections.Pooled
                     // Object type: Shared Generic, EqualityComparer<TValue>.Default won't devirtualize
                     // https://github.com/dotnet/coreclr/issues/17273
                     // So cache in a local rather than get EqualityComparer per loop iteration
-                    EqualityComparer<TKey> defaultComparer = EqualityComparer<TKey>.Default;
+                    var defaultComparer = EqualityComparer<TKey>.Default;
                     do
                     {
                         // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
@@ -711,7 +716,9 @@ namespace Collections.Pooled
                 if (count == entries.Length)
                 {
                     Resize();
-                    bucket = ref Buckets[hashCode % Buckets.Length];
+                    buckets = Buckets;
+                    entries = Entries;
+                    bucket = ref buckets[hashCode % buckets.Length];
                 }
                 index = count;
                 _count = count + 1;
@@ -829,9 +836,9 @@ namespace Collections.Pooled
                 }
             }
 
-            s_bucketPool.Return(_buckets);
+            s_bucketPool.Return(_buckets, clearArray: true);
             _buckets = buckets;
-            s_entryPool.Return(_entries);
+            s_entryPool.Return(_entries, clearArray: true);
             _entries = entries;
             _size = newSize;
         }
@@ -847,7 +854,7 @@ namespace Collections.Pooled
             var buckets = Buckets;
             var entries = Entries;
             int collisionCount = 0;
-            if (buckets != null)
+            if (_size > 0)
             {
                 int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & 0x7FFFFFFF;
                 int bucket = hashCode % buckets.Length;
@@ -887,6 +894,7 @@ namespace Collections.Pooled
 #endif
                         _freeList = i;
                         _freeCount++;
+                        _version++;
                         return true;
                     }
 
@@ -1068,7 +1076,7 @@ namespace Collections.Pooled
             if (currentCapacity >= capacity)
                 return currentCapacity;
             _version++;
-            if (_buckets == null)
+            if (_buckets == null || _size == 0)
                 return Initialize(capacity);
             int newSize = HashHelpers.GetPrime(capacity);
             Resize(newSize, forceNewHashCodes: false);
@@ -1130,8 +1138,8 @@ namespace Collections.Pooled
             }
             _count = count;
             _freeCount = 0;
-            s_bucketPool.Return(oldBuckets);
-            s_entryPool.Return(oldEntries);
+            s_bucketPool.Return(oldBuckets, clearArray: true);
+            s_entryPool.Return(oldEntries, clearArray: true);
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1254,12 +1262,12 @@ namespace Collections.Pooled
         {
             if (_buckets != null)
             {
-                s_bucketPool.Return(_buckets);
+                s_bucketPool.Return(_buckets, clearArray: true);
                 _buckets = null;
             }
             if (_entries != null)
             {
-                s_entryPool.Return(_entries);
+                s_entryPool.Return(_entries, clearArray: true);
                 _entries = null;
             }
             _count = 0;

@@ -9,11 +9,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Generic.Dictionary
+namespace Collections.Pooled.Tests.PooledDictionary
 {
     public class DictionaryConcurrentAccessDetectionTests
     {
-        private async Task DictionaryConcurrentAccessDetection<TKey, TValue>(Dictionary<TKey, TValue> dictionary, bool isValueType, object comparer, Action<Dictionary<TKey, TValue>> add, Action<Dictionary<TKey, TValue>> get, Action<Dictionary<TKey, TValue>> remove, Action<Dictionary<TKey, TValue>> removeOutParam)
+        private async Task DictionaryConcurrentAccessDetection<TKey, TValue>(PooledDictionary<TKey, TValue> dictionary, bool isValueType, object comparer, Action<PooledDictionary<TKey, TValue>> add, Action<PooledDictionary<TKey, TValue>> get, Action<PooledDictionary<TKey, TValue>> remove, Action<PooledDictionary<TKey, TValue>> removeOutParam)
         {
             Task task = Task.Factory.StartNew(() =>
             {
@@ -45,9 +45,9 @@ namespace Generic.Dictionary
         {
             IEqualityComparer<int> customComparer = null;
 
-            Dictionary<int, int> dic = comparerType == null ?
-                new Dictionary<int, int>() :
-                new Dictionary<int, int>((customComparer = (IEqualityComparer<int>)Activator.CreateInstance(comparerType)));
+            PooledDictionary<int, int> dic = comparerType == null ?
+                new PooledDictionary<int, int>() :
+                new PooledDictionary<int, int>((customComparer = (IEqualityComparer<int>)Activator.CreateInstance(comparerType)));
 
             dic.Add(1, 1);
 
@@ -67,9 +67,9 @@ namespace Generic.Dictionary
         {
             IEqualityComparer<DummyRefType> customComparer = null;
 
-            Dictionary<DummyRefType, DummyRefType> dic = comparerType == null ?
-                new Dictionary<DummyRefType, DummyRefType>() :
-                new Dictionary<DummyRefType, DummyRefType>((customComparer = (IEqualityComparer<DummyRefType>)Activator.CreateInstance(comparerType)));
+            PooledDictionary<DummyRefType, DummyRefType> dic = comparerType == null ?
+                new PooledDictionary<DummyRefType, DummyRefType>() :
+                new PooledDictionary<DummyRefType, DummyRefType>((customComparer = (IEqualityComparer<DummyRefType>)Activator.CreateInstance(comparerType)));
 
             var keyValueSample = new DummyRefType() { Value = 1 };
 

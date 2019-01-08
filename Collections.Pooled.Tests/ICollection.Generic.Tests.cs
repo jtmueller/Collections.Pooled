@@ -144,7 +144,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed && !IsReadOnly && !AddRemoveClear_ThrowsNotSupported)
             {
                 ICollection<T> collection = GenericICollectionFactory(count);
-                collection.Add(default(T));
+                collection.Add(default);
                 Assert.Equal(count + 1, collection.Count);
             }
         }
@@ -367,7 +367,7 @@ namespace Collections.Pooled.Tests
         {
             ICollection<T> collection = GenericICollectionFactory(count);
             if (DefaultValueAllowed)
-                Assert.False(collection.Contains(default(T)));
+                Assert.False(collection.Contains(default));
         }
 
         [Theory]
@@ -377,8 +377,8 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed && !IsReadOnly && !AddRemoveClear_ThrowsNotSupported)
             {
                 ICollection<T> collection = GenericICollectionFactory(count);
-                collection.Add(default(T));
-                Assert.True(collection.Contains(default(T)));
+                collection.Add(default);
+                Assert.True(collection.Contains(default));
             }
         }
 
@@ -414,9 +414,9 @@ namespace Collections.Pooled.Tests
             {
                 ICollection<T> collection = GenericICollectionFactory(count);
                 if (DefaultValueWhenNotAllowed_Throws)
-                    AssertExtensions.Throws<ArgumentNullException>("item", () => collection.Contains(default(T)));
+                    AssertExtensions.Throws<ArgumentNullException>("item", () => collection.Contains(default));
                 else
-                    Assert.False(collection.Contains(default(T)));
+                    Assert.False(collection.Contains(default));
             }
         }
 
@@ -514,11 +514,11 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_Generic_Remove_DefaultValueNotContainedInCollection(int count)
         {
-            if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed && !Enumerable.Contains(InvalidValues, default(T)))
+            if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed && !Enumerable.Contains(InvalidValues, default))
             {
                 int seed = count * 21;
                 ICollection<T> collection = GenericICollectionFactory(count);
-                T value = default(T);
+                T value = default;
                 while (collection.Contains(value))
                 {
                     collection.Remove(value);
@@ -549,11 +549,11 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void ICollection_Generic_Remove_DefaultValueContainedInCollection(int count)
         {
-            if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed && !Enumerable.Contains(InvalidValues, default(T)))
+            if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed && !Enumerable.Contains(InvalidValues, default))
             {
                 int seed = count * 21;
                 ICollection<T> collection = GenericICollectionFactory(count);
-                T value = default(T);
+                T value = default;
                 if (!collection.Contains(value))
                 {
                     collection.Add(value);
@@ -636,9 +636,9 @@ namespace Collections.Pooled.Tests
             {
                 ICollection<T> collection = GenericICollectionFactory(count);
                 if (DefaultValueWhenNotAllowed_Throws)
-                    Assert.Throws<ArgumentNullException>(() => collection.Remove(default(T)));
+                    Assert.Throws<ArgumentNullException>(() => collection.Remove(default));
                 else
-                    Assert.False(collection.Remove(default(T)));
+                    Assert.False(collection.Remove(default));
             }
         }
 

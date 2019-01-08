@@ -18,10 +18,24 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         protected override IDictionary<TKey, TValue> GenericIDictionaryFactory()
         {
-            return new Dictionary<TKey, TValue>();
+            return new PooledDictionary<TKey, TValue>();
         }
 
         protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType => typeof(ArgumentOutOfRangeException);
+
+        protected override void AddToCollection(ICollection<KeyValuePair<TKey, TValue>> collection, int numberOfItemsToAdd)
+        {
+            int seed = 9600;
+
+            var comparer = GetIEqualityComparer();
+            var dict = (IDictionary<TKey, TValue>)collection;
+
+            while (dict.Count < numberOfItemsToAdd)
+            {
+                var toAdd = CreateT(seed++);
+                dict[toAdd.Key] = toAdd.Value;
+            }
+        }
 
         #endregion
 
@@ -32,7 +46,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_Constructor_IDictionary(int count)
         {
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            IDictionary<TKey, TValue> copied = new Dictionary<TKey, TValue>(source);
+            IDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source);
             Assert.Equal(source, copied);
         }
 
@@ -42,7 +56,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            Dictionary<TKey, TValue> copied = new Dictionary<TKey, TValue>(source, comparer);
+            PooledDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source, comparer);
             Assert.Equal(source, copied);
             Assert.Equal(comparer, copied.Comparer);
         }
@@ -53,7 +67,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            Dictionary<TKey, TValue> copied = new Dictionary<TKey, TValue>(source, comparer);
+            PooledDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source, comparer);
             Assert.Equal(source, copied);
             Assert.Equal(comparer, copied.Comparer);
         }
@@ -62,7 +76,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_Constructor_int(int count)
         {
-            IDictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>(count);
+            IDictionary<TKey, TValue> dictionary = new PooledDictionary<TKey, TValue>(count);
             Assert.Equal(0, dictionary.Count);
         }
 
@@ -71,7 +85,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_Constructor_int_IEqualityComparer(int count)
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
-            Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>(count, comparer);
+            PooledDictionary<TKey, TValue> dictionary = new PooledDictionary<TKey, TValue>(count, comparer);
             Assert.Equal(0, dictionary.Count);
             Assert.Equal(comparer, dictionary.Comparer);
         }
@@ -84,7 +98,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ContainsValue_NotPresent(int count)
         {
-            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
             int seed = 4315;
             TValue notPresent = CreateTValue(seed++);
             while (dictionary.Values.Contains(notPresent))
@@ -96,7 +110,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ContainsValue_Present(int count)
         {
-            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
             int seed = 4315;
             KeyValuePair<TKey, TValue> notPresent = CreateT(seed++);
             while (dictionary.Contains(notPresent))
@@ -109,7 +123,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ContainsValue_DefaultValueNotPresent(int count)
         {
-            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
             Assert.False(dictionary.ContainsValue(default(TValue)));
         }
 
@@ -117,7 +131,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ContainsValue_DefaultValuePresent(int count)
         {
-            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
             int seed = 4315;
             TKey notPresent = CreateTKey(seed++);
             while (dictionary.ContainsKey(notPresent))
@@ -128,7 +142,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         #endregion
 
-        #region IReadOnlyDictionary<TKey, TValue>.Keys
+        #region IReadOnlyPooledDictionary<TKey, TValue>.Keys
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]

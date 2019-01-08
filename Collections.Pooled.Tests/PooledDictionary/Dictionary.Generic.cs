@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 namespace Collections.Pooled.Tests.PooledDictionary
@@ -18,9 +19,12 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             int stringLength = seed % 10 + 5;
             Random rand = new Random(seed);
-            byte[] bytes1 = new byte[stringLength];
-            rand.NextBytes(bytes1);
-            return Convert.ToBase64String(bytes1);
+            using (var bytesHandle = MemoryPool<byte>.Shared.Rent(stringLength))
+            {
+                var bytes = bytesHandle.Memory.Span.Slice(0, stringLength);
+                rand.NextBytes(bytes);
+                return Convert.ToBase64String(bytes);
+            }
         }
 
         protected override string CreateTValue(int seed) => CreateTKey(seed);

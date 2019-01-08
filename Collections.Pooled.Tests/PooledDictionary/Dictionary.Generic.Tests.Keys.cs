@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,18 +16,20 @@ namespace Collections.Pooled.Tests.PooledDictionary
         protected override bool DefaultValueAllowed => false;
         protected override bool DuplicateValuesAllowed => false;
         protected override bool IsReadOnly => true;
-        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations) => new List<ModifyEnumerable>();
+        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations) 
+            => new List<ModifyEnumerable>();
+
         protected override ICollection<string> GenericICollectionFactory()
         {
-            return new Dictionary<string, string>().Keys;
+            return new PooledDictionary<string, string>().Keys;
         }
 
         protected override ICollection<string> GenericICollectionFactory(int count)
         {
-            Dictionary<string, string> list = new Dictionary<string, string>();
+            PooledDictionary<string, string> list = new PooledDictionary<string, string>();
             int seed = 13453;
             for (int i = 0; i < count; i++)
-                list.Add(CreateT(seed++), CreateT(seed++));
+                list[CreateT(seed++)] = CreateT(seed++);
             return list.Keys;
         }
 
@@ -34,9 +37,12 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             int stringLength = seed % 10 + 5;
             Random rand = new Random(seed);
-            byte[] bytes = new byte[stringLength];
-            rand.NextBytes(bytes);
-            return Convert.ToBase64String(bytes);
+            using (var bytesHandle = MemoryPool<byte>.Shared.Rent(stringLength))
+            {
+                var bytes = bytesHandle.Memory.Span.Slice(0, stringLength);
+                rand.NextBytes(bytes);
+                return Convert.ToBase64String(bytes);
+            }
         }
 
         protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType => typeof(ArgumentOutOfRangeException);
@@ -45,17 +51,17 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_KeyCollection_Constructor_NullDictionary(int count)
         {
-            Assert.Throws<ArgumentNullException>(() => new Dictionary<string, string>.KeyCollection(null));
+            Assert.Throws<ArgumentNullException>(() => new PooledDictionary<string, string>.KeyCollection(null));
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_KeyCollection_GetEnumerator(int count)
         {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            PooledDictionary<string, string> dictionary = new PooledDictionary<string, string>();
             int seed = 13453;
             while (dictionary.Count < count)
-                dictionary.Add(CreateT(seed++), CreateT(seed++));
+                dictionary[CreateT(seed++)] = CreateT(seed++);
             dictionary.Keys.GetEnumerator();
         }
     }
@@ -73,12 +79,12 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         protected override ICollection NonGenericICollectionFactory()
         {
-            return new Dictionary<string, string>().Keys;
+            return new PooledDictionary<string, string>().Keys;
         }
 
         protected override ICollection NonGenericICollectionFactory(int count)
         {
-            Dictionary<string, string> list = new Dictionary<string, string>();
+            PooledDictionary<string, string> list = new PooledDictionary<string, string>();
             int seed = 13453;
             for (int i = 0; i < count; i++)
                 list.Add(CreateT(seed++), CreateT(seed++));

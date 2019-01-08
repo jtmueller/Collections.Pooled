@@ -777,7 +777,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed && !IsReadOnly)
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 dictionary.TryAdd(missingKey, CreateTValue(5341));
                 Assert.True(dictionary.Remove(missingKey));
             }

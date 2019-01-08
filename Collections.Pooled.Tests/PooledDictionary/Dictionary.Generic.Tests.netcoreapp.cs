@@ -19,7 +19,7 @@
 //        [MemberData(nameof(ValidCollectionSizes))]
 //        public void Dictionary_Generic_RemoveKey_ValidKeyNotContainedInDictionary(int count)
 //        {
-//            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            TValue value;
 //            TKey missingKey = GetNewKey(dictionary);
 
@@ -32,7 +32,7 @@
 //        [MemberData(nameof(ValidCollectionSizes))]
 //        public void Dictionary_Generic_RemoveKey_ValidKeyContainedInDictionary(int count)
 //        {
-//            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            TKey missingKey = GetNewKey(dictionary);
 //            TValue outValue;
 //            TValue inValue = CreateTValue(count);
@@ -48,7 +48,7 @@
 //        [MemberData(nameof(ValidCollectionSizes))]
 //        public void Dictionary_Generic_RemoveKey_DefaultKeyNotContainedInDictionary(int count)
 //        {
-//            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            TValue outValue;
 
 //            if (DefaultValueAllowed)
@@ -74,7 +74,7 @@
 //        {
 //            if (DefaultValueAllowed)
 //            {
-//                Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)(GenericIDictionaryFactory(count));
+//                PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)(GenericIDictionaryFactory(count));
 //                TKey missingKey = default(TKey);
 //                TValue value;
 
@@ -86,7 +86,7 @@
 //        [Fact]
 //        public void Dictionary_Generic_Remove_RemoveFirstEnumerationContinues()
 //        {
-//            Dictionary<TKey, TValue> dict = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(3);
+//            PooledDictionary<TKey, TValue> dict = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(3);
 //            using (var enumerator = dict.GetEnumerator())
 //            {
 //                enumerator.MoveNext();
@@ -101,7 +101,7 @@
 //        [Fact]
 //        public void Dictionary_Generic_Remove_RemoveCurrentEnumerationContinues()
 //        {
-//            Dictionary<TKey, TValue> dict = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(3);
+//            PooledDictionary<TKey, TValue> dict = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(3);
 //            using (var enumerator = dict.GetEnumerator())
 //            {
 //                enumerator.MoveNext();
@@ -115,7 +115,7 @@
 //        [Fact]
 //        public void Dictionary_Generic_Remove_RemoveLastEnumerationFinishes()
 //        {
-//            Dictionary<TKey, TValue> dict = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(3);
+//            PooledDictionary<TKey, TValue> dict = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(3);
 //            TKey key = default;
 //            using (var enumerator = dict.GetEnumerator())
 //            {
@@ -141,7 +141,7 @@
 //        [MemberData(nameof(ValidCollectionSizes))]
 //        public void EnsureCapacity_Generic_RequestingLargerCapacity_DoesInvalidateEnumeration(int count)
 //        {
-//            var dictionary = (Dictionary<TKey, TValue>)(GenericIDictionaryFactory(count));
+//            var dictionary = (PooledDictionary<TKey, TValue>)(GenericIDictionaryFactory(count));
 //            var capacity = dictionary.EnsureCapacity(0);
 //            var enumerator = dictionary.GetEnumerator();
 
@@ -153,14 +153,14 @@
 //        [Fact]
 //        public void EnsureCapacity_Generic_NegativeCapacityRequested_Throws()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => dictionary.EnsureCapacity(-1));
 //        }
 
 //        [Fact]
 //        public void EnsureCapacity_Generic_DictionaryNotInitialized_RequestedZero_ReturnsZero()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.Equal(0, dictionary.EnsureCapacity(0));
 //        }
 
@@ -171,7 +171,7 @@
 //        [InlineData(4)]
 //        public void EnsureCapacity_Generic_DictionaryNotInitialized_RequestedNonZero_CapacityIsSetToAtLeastTheRequested(int requestedCapacity)
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.InRange(dictionary.EnsureCapacity(requestedCapacity), requestedCapacity, int.MaxValue);
 //        }
 
@@ -180,12 +180,12 @@
 //        [InlineData(7)]
 //        public void EnsureCapacity_Generic_RequestedCapacitySmallerThanCurrent_CapacityUnchanged(int currentCapacity)
 //        {
-//            Dictionary<TKey, TValue> dictionary;
+//            PooledDictionary<TKey, TValue> dictionary;
 
 //            // assert capacity remains the same when ensuring a capacity smaller or equal than existing
 //            for (int i = 0; i <= currentCapacity; i++)
 //            {
-//                dictionary = new Dictionary<TKey, TValue>(currentCapacity);
+//                dictionary = new PooledDictionary<TKey, TValue>(currentCapacity);
 //                Assert.Equal(currentCapacity, dictionary.EnsureCapacity(i));
 //            }
 //        }
@@ -194,10 +194,10 @@
 //        [InlineData(7)]
 //        public void EnsureCapacity_Generic_ExistingCapacityRequested_SameValueReturned(int capacity)
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>(capacity);
+//            var dictionary = new PooledDictionary<TKey, TValue>(capacity);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(capacity));
 
-//            dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(capacity);
+//            dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(capacity);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(capacity));
 //        }
 
@@ -209,15 +209,15 @@
 //        [InlineData(4)]
 //        public void EnsureCapacity_Generic_EnsureCapacityCalledTwice_ReturnsSameValue(int count)
 //        {
-//            var dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            int capacity = dictionary.EnsureCapacity(0);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(0));
 
-//            dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            capacity = dictionary.EnsureCapacity(count);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(count));
 
-//            dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            capacity = dictionary.EnsureCapacity(count + 1);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(count + 1));
 //        }
@@ -228,7 +228,7 @@
 //        [InlineData(7)]
 //        public void EnsureCapacity_Generic_DictionaryNotEmpty_RequestedSmallerThanCount_ReturnsAtLeastSizeOfCount(int count)
 //        {
-//            var dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            Assert.InRange(dictionary.EnsureCapacity(count - 1), count, int.MaxValue);
 //        }
 
@@ -237,7 +237,7 @@
 //        [InlineData(20)]
 //        public void EnsureCapacity_Generic_DictionaryNotEmpty_SetsToAtLeastTheRequested(int count)
 //        {
-//            var dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 
 //            // get current capacity
 //            int currentCapacity = dictionary.EnsureCapacity(0);
@@ -250,13 +250,13 @@
 //        [Fact]
 //        public void EnsureCapacity_Generic_CapacityIsSetToPrimeNumberLargerOrEqualToRequested()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.Equal(17, dictionary.EnsureCapacity(17));
 
-//            dictionary = new Dictionary<TKey, TValue>();
+//            dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.Equal(17, dictionary.EnsureCapacity(15));
 
-//            dictionary = new Dictionary<TKey, TValue>();
+//            dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.Equal(17, dictionary.EnsureCapacity(13));
 //        }
 
@@ -267,7 +267,7 @@
 //        [Fact]
 //        public void TrimExcess_Generic_NegativeCapacity_Throw()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => dictionary.TrimExcess(-1));
 //        }
 
@@ -276,11 +276,11 @@
 //        [InlineData(23)]
 //        public void TrimExcess_Generic_CapacitySmallerThanCount_Throws(int suggestedCapacity)
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            dictionary.Add(GetNewKey(dictionary), CreateTValue(0));
 //            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => dictionary.TrimExcess(0));
 
-//            dictionary = new Dictionary<TKey, TValue>(suggestedCapacity);
+//            dictionary = new PooledDictionary<TKey, TValue>(suggestedCapacity);
 //            dictionary.Add(GetNewKey(dictionary), CreateTValue(0));
 //            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => dictionary.TrimExcess(0));
 //        }
@@ -288,7 +288,7 @@
 //        [Fact]
 //        public void TrimExcess_Generic_LargeInitialCapacity_TrimReducesSize()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>(20);
+//            var dictionary = new PooledDictionary<TKey, TValue>(20);
 //            dictionary.TrimExcess(7);
 //            Assert.Equal(7, dictionary.EnsureCapacity(0));
 //        }
@@ -298,12 +298,12 @@
 //        [InlineData(23)]
 //        public void TrimExcess_Generic_TrimToLargerThanExistingCapacity_DoesNothing(int suggestedCapacity)
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            int capacity = dictionary.EnsureCapacity(0);
 //            dictionary.TrimExcess(suggestedCapacity);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(0));
 
-//            dictionary = new Dictionary<TKey, TValue>(suggestedCapacity / 2);
+//            dictionary = new PooledDictionary<TKey, TValue>(suggestedCapacity / 2);
 //            capacity = dictionary.EnsureCapacity(0);
 //            dictionary.TrimExcess(suggestedCapacity);
 //            Assert.Equal(capacity, dictionary.EnsureCapacity(0));
@@ -312,7 +312,7 @@
 //        [Fact]
 //        public void TrimExcess_Generic_DictionaryNotInitialized_CapacityRemainsAsMinPossible()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>();
+//            var dictionary = new PooledDictionary<TKey, TValue>();
 //            Assert.Equal(0, dictionary.EnsureCapacity(0));
 //            dictionary.TrimExcess();
 //            Assert.Equal(0, dictionary.EnsureCapacity(0));
@@ -324,7 +324,7 @@
 //        [InlineData(89)]
 //        public void TrimExcess_Generic_ClearThenTrimNonEmptyDictionary_SetsCapacityTo3(int count)
 //        {
-//            Dictionary<TKey, TValue> dictionary = (Dictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+//            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
 //            Assert.Equal(count, dictionary.Count);
 //            // The smallest possible capacity size after clearing a dictionary is 3
 //            dictionary.Clear();
@@ -337,7 +337,7 @@
 //        [InlineData(89)]
 //        public void TrimExcess_NoArguments_TrimsToAtLeastCount(int count)
 //        {
-//            var dictionary = new Dictionary<int, int>(20);
+//            var dictionary = new PooledDictionary<int, int>(20);
 //            for (int i = 0; i < count; i++)
 //            {
 //                dictionary.Add(i, 0);
@@ -353,7 +353,7 @@
 //        {
 //            const int InitToFinalRatio = 10;
 //            int initialCount = InitToFinalRatio * finalCount;
-//            var dictionary = new Dictionary<int, int>(initialCount);
+//            var dictionary = new PooledDictionary<int, int>(initialCount);
 //            Assert.InRange(dictionary.EnsureCapacity(0), initialCount, int.MaxValue);
 //            for (int i = 0; i < initialCount; i++)
 //            {
@@ -379,7 +379,7 @@
 //        public void TrimExcess_NoArgument_TrimAfterEachBulkAddOrRemove_TrimsToAtLeastCount(int initialCount, int numRemove, int numAdd, int newCount, int newCapacity)
 //        {
 //            Random random = new Random(32);
-//            var dictionary = new Dictionary<int, int>();
+//            var dictionary = new PooledDictionary<int, int>();
 //            dictionary.TrimExcess();
 //            Assert.InRange(dictionary.EnsureCapacity(0), dictionary.Count, int.MaxValue);
 
@@ -435,7 +435,7 @@
 //        [Fact]
 //        public void TrimExcess_DictionaryHasElementsChainedWithSameHashcode_Success()
 //        {
-//            var dictionary = new Dictionary<string, int>(7);
+//            var dictionary = new PooledDictionary<string, int>(7);
 //            for (int i = 0; i < 4; i++)
 //            {
 //                dictionary.Add(i.ToString(), 0);
@@ -459,7 +459,7 @@
 //        [Fact]
 //        public void TrimExcess_Generic_DoesInvalidateEnumeration()
 //        {
-//            var dictionary = new Dictionary<TKey, TValue>(20);
+//            var dictionary = new PooledDictionary<TKey, TValue>(20);
 //            var enumerator = dictionary.GetEnumerator();
 
 //            dictionary.TrimExcess(7); // Verify TrimExcess does invalidate enumeration
