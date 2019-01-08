@@ -1,4 +1,4 @@
-# Collections.Pooled
+# Collections.Pooled [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
