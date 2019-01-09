@@ -25,55 +25,55 @@ namespace System.Collections.Tests
             return dict;
         }
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void Add(int size)
-        {
-            Dictionary<int, int> dict = CreateDictionary(size);
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                Dictionary<int, int> copyDict = new Dictionary<int, int>(dict);
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 20000; i++)
-                    {
-                        copyDict.Add(i * 10 + 1, 0); copyDict.Add(i * 10 + 2, 0); copyDict.Add(i * 10 + 3, 0);
-                        copyDict.Add(i * 10 + 4, 0); copyDict.Add(i * 10 + 5, 0); copyDict.Add(i * 10 + 6, 0);
-                        copyDict.Add(i * 10 + 7, 0); copyDict.Add(i * 10 + 8, 0); copyDict.Add(i * 10 + 9, 0);
-                    }
-            }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void Add(int size)
+        //{
+        //    Dictionary<int, int> dict = CreateDictionary(size);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        Dictionary<int, int> copyDict = new Dictionary<int, int>(dict);
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 20000; i++)
+        //            {
+        //                copyDict.Add(i * 10 + 1, 0); copyDict.Add(i * 10 + 2, 0); copyDict.Add(i * 10 + 3, 0);
+        //                copyDict.Add(i * 10 + 4, 0); copyDict.Add(i * 10 + 5, 0); copyDict.Add(i * 10 + 6, 0);
+        //                copyDict.Add(i * 10 + 7, 0); copyDict.Add(i * 10 + 8, 0); copyDict.Add(i * 10 + 9, 0);
+        //            }
+        //    }
+        //}
 
-        [Benchmark]
-        public void ctor()
-        {
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 20000; i++)
-                    {
-                        new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
-                        new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
-                        new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
-                    }
-        }
+        //[Benchmark]
+        //public void ctor()
+        //{
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 20000; i++)
+        //            {
+        //                new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
+        //                new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
+        //                new Dictionary<int, string>(); new Dictionary<int, string>(); new Dictionary<int, string>();
+        //            }
+        //}
 
-        [Benchmark]
-        [InlineData(0)]
-        [InlineData(1024)]
-        [InlineData(4096)]
-        [InlineData(16384)]
-        public void ctor_int(int size)
-        {
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 500; i++)
-                    {
-                        new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
-                        new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
-                        new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
-                    }
-        }
+        //[Benchmark]
+        //[InlineData(0)]
+        //[InlineData(1024)]
+        //[InlineData(4096)]
+        //[InlineData(16384)]
+        //public void ctor_int(int size)
+        //{
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 500; i++)
+        //            {
+        //                new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
+        //                new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
+        //                new Dictionary<int, string>(size); new Dictionary<int, string>(size); new Dictionary<int, string>(size);
+        //            }
+        //}
 
         [Benchmark]
         [InlineData(1000)]
