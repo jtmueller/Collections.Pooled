@@ -552,6 +552,7 @@ namespace Collections.Pooled
             _size = HashHelpers.GetPrime(capacity);
             _freeList = -1;
             _buckets = s_bucketPool.Rent(_size);
+            Array.Clear(_buckets, 0, _buckets.Length);
             _entries = s_entryPool.Rent(_size);
 
             return _size;
@@ -807,6 +808,7 @@ namespace Collections.Pooled
             Debug.Assert(newSize >= Entries.Length);
 
             int[] buckets = s_bucketPool.Rent(newSize);
+            Array.Clear(buckets, 0, buckets.Length);
             Entry[] entries = s_entryPool.Rent(newSize);
 
             int count = _count;
@@ -836,9 +838,9 @@ namespace Collections.Pooled
                 }
             }
 
-            s_bucketPool.Return(_buckets, clearArray: true);
+            s_bucketPool.Return(_buckets);
             _buckets = buckets;
-            s_entryPool.Return(_entries, clearArray: true);
+            s_entryPool.Return(_entries);
             _entries = entries;
             _size = newSize;
         }
@@ -1138,8 +1140,8 @@ namespace Collections.Pooled
             }
             _count = count;
             _freeCount = 0;
-            s_bucketPool.Return(oldBuckets, clearArray: true);
-            s_entryPool.Return(oldEntries, clearArray: true);
+            s_bucketPool.Return(oldBuckets);
+            s_entryPool.Return(oldEntries);
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1262,12 +1264,12 @@ namespace Collections.Pooled
         {
             if (_buckets != null)
             {
-                s_bucketPool.Return(_buckets, clearArray: true);
+                s_bucketPool.Return(_buckets);
                 _buckets = null;
             }
             if (_entries != null)
             {
-                s_entryPool.Return(_entries, clearArray: true);
+                s_entryPool.Return(_entries);
                 _entries = null;
             }
             _count = 0;
