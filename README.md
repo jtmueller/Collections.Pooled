@@ -1,4 +1,4 @@
-# Collections.Pooled
+# Collections.Pooled [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
@@ -8,6 +8,15 @@ with modern API's.
 Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as well as an 
 optimized build for .NET Core 2.2+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
+
+## Installation
+
+Available on NuGet:
+```
+Install-Package Collections.Pooled
+dotnet add package Collections.Pooled
+paket add Collections.Pooled
+```
 
 ## Benchmarks
 
