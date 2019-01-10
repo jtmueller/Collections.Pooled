@@ -116,7 +116,8 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_NonGeneric_Enumerator_MoveNext_FromStartToFinish(int count)
         {
             int iterations = 0;
-            IEnumerator enumerator = NonGenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable enumerable = NonGenericIEnumerableFactory(count);
+            IEnumerator enumerator = enumerable.GetEnumerator();
             while (enumerator.MoveNext())
                 iterations++;
             Assert.Equal(count, iterations);
@@ -127,7 +128,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_NonGeneric_Enumerator_MoveNext_AfterEndOfCollection(int count)
         {
-            IEnumerator enumerator = NonGenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable enumerable = NonGenericIEnumerableFactory(count);
+            IEnumerator enumerator = enumerable.GetEnumerator();
             for (int i = 0; i < count; i++)
                 enumerator.MoveNext();
             Assert.False(enumerator.MoveNext());
@@ -184,7 +186,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_NonGeneric_Enumerator_Current_FromStartToFinish(int count)
         {
-            IEnumerator enumerator = NonGenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable enumerable = NonGenericIEnumerableFactory(count);
+            IEnumerator enumerator = enumerable.GetEnumerator();
             object current;
             while (enumerator.MoveNext())
                 current = enumerator.Current;
@@ -194,7 +197,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_NonGeneric_Enumerator_Current_ReturnsSameValueOnRepeatedCalls(int count)
         {
-            IEnumerator enumerator = NonGenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable enumerable = NonGenericIEnumerableFactory(count);
+            IEnumerator enumerator = enumerable.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 object current = enumerator.Current;
@@ -276,7 +280,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_NonGeneric_Enumerator_Reset_BeforeIteration_Support(int count)
         {
-            IEnumerator enumerator = NonGenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable enumerable = NonGenericIEnumerableFactory(count);
+            IEnumerator enumerator = enumerable.GetEnumerator();
             if (ResetImplemented)
                 enumerator.Reset();
             else

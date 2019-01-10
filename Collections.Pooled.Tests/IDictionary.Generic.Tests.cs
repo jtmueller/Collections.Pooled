@@ -32,6 +32,7 @@ namespace Collections.Pooled.Tests
         protected virtual IDictionary<TKey, TValue> GenericIDictionaryFactory(int count)
         {
             IDictionary<TKey, TValue> collection = GenericIDictionaryFactory();
+            RegisterForDispose(collection);
             AddToCollection(collection, count);
             return collection;
         }
@@ -57,7 +58,7 @@ namespace Collections.Pooled.Tests
         {
             int seed = 840;
             TKey missingKey = CreateTKey(seed++);
-            while (dictionary.ContainsKey(missingKey) || missingKey.Equals(default(TKey)))
+            while (dictionary.ContainsKey(missingKey) || missingKey.Equals(default))
                 missingKey = CreateTKey(seed++);
             return missingKey;
         }
@@ -242,13 +243,13 @@ namespace Collections.Pooled.Tests
             IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
             if (!DefaultValueAllowed)
             {
-                Assert.Throws<ArgumentNullException>(() => dictionary[default(TKey)]);
+                Assert.Throws<ArgumentNullException>(() => dictionary[default]);
             }
             else
             {
                 TValue value = CreateTValue(3452);
-                dictionary[default(TKey)] = value;
-                Assert.Equal(value, dictionary[default(TKey)]);
+                dictionary[default] = value;
+                Assert.Equal(value, dictionary[default]);
             }
         }
 
@@ -268,7 +269,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed)
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 while (dictionary.ContainsKey(missingKey))
                     dictionary.Remove(missingKey);
                 Assert.Throws<KeyNotFoundException>(() => dictionary[missingKey]);
@@ -297,13 +298,13 @@ namespace Collections.Pooled.Tests
             IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
             if (!DefaultValueAllowed)
             {
-                Assert.Throws<ArgumentNullException>(() => dictionary[default(TKey)] = CreateTValue(3));
+                Assert.Throws<ArgumentNullException>(() => dictionary[default] = CreateTValue(3));
             }
             else
             {
                 TValue value = CreateTValue(3452);
-                dictionary[default(TKey)] = value;
-                Assert.Equal(value, dictionary[default(TKey)]);
+                dictionary[default] = value;
+                Assert.Equal(value, dictionary[default]);
             }
         }
 
@@ -536,8 +537,8 @@ namespace Collections.Pooled.Tests
         public void IDictionary_Generic_Add_DefaultKey_DefaultValue(int count)
         {
             IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-            TKey missingKey = default(TKey);
-            TValue value = default(TValue);
+            TKey missingKey = default;
+            TValue value = default;
             if (DefaultValueAllowed && !IsReadOnly)
             {
                 dictionary.Add(missingKey, value);
@@ -555,7 +556,7 @@ namespace Collections.Pooled.Tests
         public void IDictionary_Generic_Add_DefaultKey_NonDefaultValue(int count)
         {
             IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-            TKey missingKey = default(TKey);
+            TKey missingKey = default;
             TValue value = CreateTValue(1456);
             if (DefaultValueAllowed && !IsReadOnly)
             {
@@ -577,7 +578,7 @@ namespace Collections.Pooled.Tests
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
                 TKey missingKey = GetNewKey(dictionary);
-                TValue value = default(TValue);
+                TValue value = default;
                 dictionary.Add(missingKey, value);
                 Assert.Equal(count + 1, dictionary.Count);
                 Assert.Equal(value, dictionary[missingKey]);
@@ -666,7 +667,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed)
             {
                 // returns false
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 while (dictionary.ContainsKey(missingKey))
                     dictionary.Remove(missingKey);
                 Assert.False(dictionary.ContainsKey(missingKey));
@@ -674,7 +675,7 @@ namespace Collections.Pooled.Tests
             else
             {
                 // throws ArgumentNullException
-                Assert.Throws<ArgumentNullException>(() => dictionary.ContainsKey(default(TKey)));
+                Assert.Throws<ArgumentNullException>(() => dictionary.ContainsKey(default));
             }
         }
 
@@ -685,7 +686,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed && !IsReadOnly)
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 if (!dictionary.ContainsKey(missingKey))
                     dictionary.Add(missingKey, CreateTValue(5341));
                 Assert.True(dictionary.ContainsKey(missingKey));
@@ -758,14 +759,14 @@ namespace Collections.Pooled.Tests
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
                 if (DefaultValueAllowed)
                 {
-                    TKey missingKey = default(TKey);
+                    TKey missingKey = default;
                     while (dictionary.ContainsKey(missingKey))
                         dictionary.Remove(missingKey);
                     Assert.False(dictionary.Remove(missingKey));
                 }
                 else
                 {
-                    Assert.Throws<ArgumentNullException>(() => dictionary.Remove(default(TKey)));
+                    Assert.Throws<ArgumentNullException>(() => dictionary.Remove(default));
                 }
             }
         }
@@ -794,8 +795,7 @@ namespace Collections.Pooled.Tests
             IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
             TKey missingKey = GetNewKey(dictionary);
             TValue value = CreateTValue(5123);
-            TValue outValue;
-            Assert.False(dictionary.TryGetValue(missingKey, out outValue));
+            Assert.False(dictionary.TryGetValue(missingKey, out TValue outValue));
         }
 
         [Theory]
@@ -807,9 +807,8 @@ namespace Collections.Pooled.Tests
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
                 TKey missingKey = GetNewKey(dictionary);
                 TValue value = CreateTValue(5123);
-                TValue outValue;
                 dictionary.TryAdd(missingKey, value);
-                Assert.True(dictionary.TryGetValue(missingKey, out outValue));
+                Assert.True(dictionary.TryGetValue(missingKey, out TValue outValue));
                 Assert.Equal(value, outValue);
             }
         }
@@ -822,14 +821,14 @@ namespace Collections.Pooled.Tests
             TValue outValue;
             if (DefaultValueAllowed)
             {
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 while (dictionary.ContainsKey(missingKey))
                     dictionary.Remove(missingKey);
                 Assert.False(dictionary.TryGetValue(missingKey, out outValue));
             }
             else
             {
-                Assert.Throws<ArgumentNullException>(() => dictionary.TryGetValue(default(TKey), out outValue));
+                Assert.Throws<ArgumentNullException>(() => dictionary.TryGetValue(default, out outValue));
             }
         }
 
@@ -840,11 +839,10 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed && !IsReadOnly)
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
-                TKey missingKey = default(TKey);
+                TKey missingKey = default;
                 TValue value = CreateTValue(5123);
-                TValue outValue;
                 dictionary.TryAdd(missingKey, value);
-                Assert.True(dictionary.TryGetValue(missingKey, out outValue));
+                Assert.True(dictionary.TryGetValue(missingKey, out TValue outValue));
                 Assert.Equal(value, outValue);
             }
         }
@@ -861,8 +859,8 @@ namespace Collections.Pooled.Tests
             {
                 IDictionary<TKey, TValue> dictionary = GenericIDictionaryFactory(count);
                 TKey missingKey = GetNewKey(dictionary);
-                dictionary.Add(missingKey, default(TValue));
-                Assert.True(dictionary.Contains(new KeyValuePair<TKey, TValue>(missingKey, default(TValue))));
+                dictionary.Add(missingKey, default);
+                Assert.True(dictionary.Contains(new KeyValuePair<TKey, TValue>(missingKey, default)));
             }
         }
 
@@ -925,9 +923,9 @@ namespace Collections.Pooled.Tests
             if (!DefaultValueAllowed && !IsReadOnly)
             {
                 if (DefaultValueWhenNotAllowed_Throws)
-                    Assert.Throws<ArgumentNullException>(() => collection.Contains(default(KeyValuePair<TKey, TValue>)));
+                    Assert.Throws<ArgumentNullException>(() => collection.Contains(default));
                 else
-                    Assert.False(collection.Remove(default(KeyValuePair<TKey, TValue>)));
+                    Assert.False(collection.Remove(default));
             }
         }
 

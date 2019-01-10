@@ -21,24 +21,25 @@ namespace Collections.Pooled.Tests.PooledDictionary
                 // We this deterministically by clearing the _entries array using reflection;
                 // this means that every Entry struct has a 'next' field of zero, which causes the infinite loop
                 // that we want Dictionary to break out of
-                FieldInfo entriesType = dictionary.GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
-                Array entriesInstance = (Array)entriesType.GetValue(dictionary);
-                Array entryArray = (Array)Activator.CreateInstance(entriesInstance.GetType(), new object[] { ((IDictionary)dictionary).Count });
-                entriesType.SetValue(dictionary, entryArray);
+                FieldInfo entriesField = dictionary.GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
+                Array entriesInstance = (Array)entriesField.GetValue(dictionary);
+                Array entryArray = (Array)Activator.CreateInstance(entriesInstance.GetType(), new object[] { ((ICollection)entriesInstance).Count });
+                entriesField.SetValue(dictionary, entryArray);
 
                 Assert.Equal(comparer, dictionary.GetType().GetField("_comparer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(dictionary));
                 Assert.Equal(isValueType, dictionary.GetType().GetGenericArguments()[0].IsValueType);
-                Assert.Equal("ThrowInvalidOperationException_ConcurrentOperationsNotSupported", Assert.Throws<InvalidOperationException>(() => add(dictionary)).TargetSite.Name);
-                Assert.Equal("ThrowInvalidOperationException_ConcurrentOperationsNotSupported", Assert.Throws<InvalidOperationException>(() => get(dictionary)).TargetSite.Name);
-                Assert.Equal("ThrowInvalidOperationException_ConcurrentOperationsNotSupported", Assert.Throws<InvalidOperationException>(() => remove(dictionary)).TargetSite.Name);
-                Assert.Equal("ThrowInvalidOperationException_ConcurrentOperationsNotSupported", Assert.Throws<InvalidOperationException>(() => removeOutParam(dictionary)).TargetSite.Name);
+                var tsn = Assert.Throws<InvalidOperationException>(() => add(dictionary)).TargetSite.Name;
+                Assert.Throws<InvalidOperationException>(() => add(dictionary));
+                Assert.Throws<InvalidOperationException>(() => get(dictionary));
+                Assert.Throws<InvalidOperationException>(() => remove(dictionary));
+                Assert.Throws<InvalidOperationException>(() => removeOutParam(dictionary));
             }, TaskCreationOptions.LongRunning);
 
             // If Dictionary regresses, we do not want to hang here indefinitely
             Assert.True((await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(60))) == task) && task.IsCompletedSuccessfully);
         }
 
-        [Theory(Skip = "Takes way too long")]
+        [Theory]
         [InlineData(null)]
         [InlineData(typeof(CustomEqualityComparerInt32ValueType))]
         public async Task DictionaryConcurrentAccessDetection_ValueTypeKey(Type comparerType)
@@ -54,13 +55,13 @@ namespace Collections.Pooled.Tests.PooledDictionary
             await DictionaryConcurrentAccessDetection(dic,
                 typeof(int).IsValueType,
                 customComparer,
-                d => d.Add(1, 1),
-                d => { var v = d[1]; },
-                d => d.Remove(1),
-                d => d.Remove(1, out int value));
+                add: d => d.Add(1, 1),
+                get: d => { var v = d[1]; },
+                remove: d => d.Remove(1),
+                removeOutParam: d => d.Remove(1, out int value));
         }
 
-        [Theory(Skip = "Takes way too long")]
+        [Theory]
         [InlineData(null)]
         [InlineData(typeof(CustomEqualityComparerDummyRefType))]
         public async Task DictionaryConcurrentAccessDetection_ReferenceTypeKey(Type comparerType)
@@ -78,10 +79,10 @@ namespace Collections.Pooled.Tests.PooledDictionary
             await DictionaryConcurrentAccessDetection(dic,
                 typeof(DummyRefType).IsValueType,
                 customComparer,
-                d => d.Add(keyValueSample, keyValueSample),
-                d => { var v = d[keyValueSample]; },
-                d => d.Remove(keyValueSample),
-                d => d.Remove(keyValueSample, out DummyRefType value));
+                add: d => d.Add(keyValueSample, keyValueSample),
+                get: d => { var v = d[keyValueSample]; },
+                remove: d => d.Remove(keyValueSample),
+                removeOutParam: d => d.Remove(keyValueSample, out DummyRefType value));
         }
     }
 

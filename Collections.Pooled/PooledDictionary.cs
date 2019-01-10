@@ -881,7 +881,7 @@ namespace Collections.Pooled
                         entry.hashCode = -1;
                         entry.next = _freeList;
 
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
                         {
                             entry.key = default;
@@ -951,7 +951,7 @@ namespace Collections.Pooled
                     entry.hashCode = -1;
                     entry.next = _freeList;
 
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
                         {
                             entry.key = default;

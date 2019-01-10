@@ -10,8 +10,10 @@ namespace Collections.Pooled.Tests
     /// <summary>
     /// Provides a base set of nongeneric operations that are used by all other testing interfaces.
     /// </summary>
-    public abstract class TestBase
+    public abstract class TestBase : IDisposable
     {
+        private readonly PooledList<IDisposable> _disposables = new PooledList<IDisposable>();
+
         #region Helper Methods
 
         public static IEnumerable<object[]> ValidCollectionSizes()
@@ -19,6 +21,18 @@ namespace Collections.Pooled.Tests
             yield return new object[] { 0 };
             yield return new object[] { 1 };
             yield return new object[] { 75 };
+        }
+
+        public void RegisterForDispose(object obj)
+        {
+            if (obj is IDisposable disposable)
+                _disposables.Add(disposable);
+        }
+
+        public virtual void Dispose()
+        {
+            _disposables.ForEach(d => d?.Dispose());
+            _disposables.Dispose();
         }
 
         public enum EnumerableType

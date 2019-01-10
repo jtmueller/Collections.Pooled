@@ -20,10 +20,10 @@ namespace Collections.Pooled.Tests.PooledDictionary
             return new string(chars);
         }
 
-        [Fact(Skip = "Takes over 55% of System.Collections.Tests testing time")]
+        [Fact(/*Skip = "Takes over 55% of System.Collections.Tests testing time"*/)]
         public static void OutOfBoundsRegression()
         {
-            var dictionary = new Dictionary<string, string>();
+            var dictionary = new PooledDictionary<string, string>();
 
             foreach (var item in TestData.GetData())
             {
@@ -37,6 +37,8 @@ namespace Collections.Pooled.Tests.PooledDictionary
                 else if (operation == InputAction.Delete)
                     dictionary.Remove(key);
             }
+
+            dictionary.Dispose();
         }
     }
 }

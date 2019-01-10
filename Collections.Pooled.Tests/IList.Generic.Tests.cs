@@ -181,13 +181,13 @@ namespace Collections.Pooled.Tests
                 IList<T> list = GenericIListFactory(count);
                 if (DefaultValueAllowed)
                 {
-                    list[0] = default(T);
-                    Assert.Equal(default(T), list[0]);
+                    list[0] = default;
+                    Assert.Equal(default, list[0]);
                 }
                 else
                 {
-                    Assert.Throws<ArgumentNullException>(() => list[0] = default(T));
-                    Assert.NotEqual(default(T), list[0]);
+                    Assert.Throws<ArgumentNullException>(() => list[0] = default);
+                    Assert.NotEqual(default, list[0]);
                 }
             }
         }
@@ -216,13 +216,13 @@ namespace Collections.Pooled.Tests
                 int lastIndex = count > 0 ? count - 1 : 0;
                 if (DefaultValueAllowed)
                 {
-                    list[lastIndex] = default(T);
-                    Assert.Equal(default(T), list[lastIndex]);
+                    list[lastIndex] = default;
+                    Assert.Equal(default, list[lastIndex]);
                 }
                 else
                 {
-                    Assert.Throws<ArgumentNullException>(() => list[lastIndex] = default(T));
-                    Assert.NotEqual(default(T), list[lastIndex]);
+                    Assert.Throws<ArgumentNullException>(() => list[lastIndex] = default);
+                    Assert.NotEqual(default, list[lastIndex]);
                 }
             }
         }
@@ -267,7 +267,7 @@ namespace Collections.Pooled.Tests
             if (DefaultValueAllowed)
             {
                 IList<T> list = GenericIListFactory(count);
-                T value = default(T);
+                T value = default;
                 if (list.Contains(value))
                 {
                     if (IsReadOnly)
@@ -279,7 +279,7 @@ namespace Collections.Pooled.Tests
             else
             {
                 IList<T> list = GenericIListFactory(count);
-                Assert.Throws<ArgumentNullException>(() => list.IndexOf(default(T)));
+                Assert.Throws<ArgumentNullException>(() => list.IndexOf(default));
             }
         }
 
@@ -290,7 +290,7 @@ namespace Collections.Pooled.Tests
             if (count > 0 && DefaultValueAllowed)
             {
                 IList<T> list = GenericIListFactory(count);
-                T value = default(T);
+                T value = default;
                 if (!list.Contains(value))
                 {
                     if (IsReadOnly)
@@ -436,7 +436,7 @@ namespace Collections.Pooled.Tests
             if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed)
             {
                 IList<T> list = GenericIListFactory(count);
-                T value = default(T);
+                T value = default;
                 list.Insert(0, value);
                 Assert.Equal(value, list[0]);
                 Assert.Equal(count + 1, list.Count);
@@ -465,7 +465,7 @@ namespace Collections.Pooled.Tests
             if (!IsReadOnly && !AddRemoveClear_ThrowsNotSupported && DefaultValueAllowed)
             {
                 IList<T> list = GenericIListFactory(count);
-                T value = default(T);
+                T value = default;
                 int lastIndex = count > 0 ? count - 1 : 0;
                 list.Insert(lastIndex, value);
                 Assert.Equal(value, list[lastIndex]);
@@ -602,7 +602,7 @@ namespace Collections.Pooled.Tests
                 {
                     while (enumerator.MoveNext()) ; // Go to end of enumerator
 
-                    T current = default(T);
+                    T current = default;
                     if (Enumerator_Current_UndefinedOperation_Throws)
                     {
                         Assert.Throws<InvalidOperationException>(() => enumerator.Current); // enumerator.Current should fail
@@ -610,7 +610,7 @@ namespace Collections.Pooled.Tests
                     else
                     {
                         current = enumerator.Current;
-                        Assert.Equal(default(T), current);
+                        Assert.Equal(default, current);
                     }
 
                     // Test after add
@@ -626,7 +626,7 @@ namespace Collections.Pooled.Tests
                         else
                         {
                             current = enumerator.Current;
-                            Assert.Equal(default(T), current);
+                            Assert.Equal(default, current);
                         }
                     }
                 }

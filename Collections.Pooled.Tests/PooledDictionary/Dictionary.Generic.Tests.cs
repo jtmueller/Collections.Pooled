@@ -18,7 +18,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         protected override IDictionary<TKey, TValue> GenericIDictionaryFactory()
         {
-            return new PooledDictionary<TKey, TValue>();
+            var dict = new PooledDictionary<TKey, TValue>();
+            RegisterForDispose(dict);
+            return dict;
         }
 
         protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType => typeof(ArgumentOutOfRangeException);
@@ -46,8 +48,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_Constructor_IDictionary(int count)
         {
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            IDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source);
+            var copied = new PooledDictionary<TKey, TValue>(source);
             Assert.Equal(source, copied);
+            copied.Dispose();
         }
 
         [Theory]
@@ -56,9 +59,10 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            PooledDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source, comparer);
+            var copied = new PooledDictionary<TKey, TValue>(source, comparer);
             Assert.Equal(source, copied);
             Assert.Equal(comparer, copied.Comparer);
+            copied.Dispose();
         }
 
         [Theory]
@@ -67,9 +71,10 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
             IDictionary<TKey, TValue> source = GenericIDictionaryFactory(count);
-            PooledDictionary<TKey, TValue> copied = new PooledDictionary<TKey, TValue>(source, comparer);
+            var copied = new PooledDictionary<TKey, TValue>(source, comparer);
             Assert.Equal(source, copied);
             Assert.Equal(comparer, copied.Comparer);
+            copied.Dispose();
         }
 
         [Theory]
@@ -77,6 +82,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_Constructor_int(int count)
         {
             IDictionary<TKey, TValue> dictionary = new PooledDictionary<TKey, TValue>(count);
+            RegisterForDispose(dictionary);
             Assert.Equal(0, dictionary.Count);
         }
 
@@ -85,9 +91,10 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_Constructor_int_IEqualityComparer(int count)
         {
             IEqualityComparer<TKey> comparer = GetKeyIEqualityComparer();
-            PooledDictionary<TKey, TValue> dictionary = new PooledDictionary<TKey, TValue>(count, comparer);
+            var dictionary = new PooledDictionary<TKey, TValue>(count, comparer);
             Assert.Equal(0, dictionary.Count);
             Assert.Equal(comparer, dictionary.Comparer);
+            dictionary.Dispose();
         }
 
         #endregion
@@ -124,7 +131,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         public void Dictionary_Generic_ContainsValue_DefaultValueNotPresent(int count)
         {
             PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
-            Assert.False(dictionary.ContainsValue(default(TValue)));
+            Assert.False(dictionary.ContainsValue(default));
         }
 
         [Theory]
@@ -136,8 +143,8 @@ namespace Collections.Pooled.Tests.PooledDictionary
             TKey notPresent = CreateTKey(seed++);
             while (dictionary.ContainsKey(notPresent))
                 notPresent = CreateTKey(seed++);
-            dictionary.Add(notPresent, default(TValue));
-            Assert.True(dictionary.ContainsValue(default(TValue)));
+            dictionary.Add(notPresent, default);
+            Assert.True(dictionary.ContainsValue(default));
         }
 
         #endregion

@@ -325,7 +325,7 @@ namespace Collections.Pooled
         public void Clear()
         {
             _version++;
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 int size = _size;
@@ -754,7 +754,7 @@ namespace Collections.Pooled
 
             if (clearOutput)
             {
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
                 if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
                 {
                     output.Clear();
@@ -866,7 +866,7 @@ namespace Collections.Pooled
                 }
             }
 
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 // Clear the removed elements so that the gc can reclaim the references.
@@ -899,7 +899,7 @@ namespace Collections.Pooled
             _version++;
 
 #pragma warning disable CS8625
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 // Clear the removed element so that the gc can reclaim the reference.
@@ -935,7 +935,7 @@ namespace Collections.Pooled
 
                 _version++;
 
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
                 if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
                 {
                     // Clear the removed elements so that the gc can reclaim the references.
@@ -1087,7 +1087,7 @@ namespace Collections.Pooled
 
         private void ReturnArray()
         {
-#if NETCOREAPP2_2
+#if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 // Clear the elements so that the gc can reclaim the references.

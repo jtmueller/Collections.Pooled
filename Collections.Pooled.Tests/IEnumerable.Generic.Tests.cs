@@ -5,9 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using Xunit;
 
 namespace Collections.Pooled.Tests
@@ -324,7 +322,8 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_Generic_Enumerator_MoveNext_FromStartToFinish(int count)
         {
             int iterations = 0;
-            using (IEnumerator<T> enumerator = GenericIEnumerableFactory(count).GetEnumerator())
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
             {
                 while (enumerator.MoveNext())
                     iterations++;
@@ -341,7 +340,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void Enumerator_MoveNext_AfterDisposal(int count)
         {
-            IEnumerator<T> enumerator = GenericIEnumerableFactory(count).GetEnumerator();
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            IEnumerator<T> enumerator = enumerable.GetEnumerator();
             for (int i = 0; i < count; i++)
                 enumerator.MoveNext();
             enumerator.Dispose();
@@ -352,7 +352,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_MoveNext_AfterEndOfCollection(int count)
         {
-            using (IEnumerator<T> enumerator = GenericIEnumerableFactory(count).GetEnumerator())
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
             {
                 for (int i = 0; i < count; i++)
                     enumerator.MoveNext();
@@ -555,7 +556,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_Current_ReturnsSameValueOnRepeatedCalls(int count)
         {
-            using (IEnumerator<T> enumerator = GenericIEnumerableFactory(count).GetEnumerator())
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
             {
                 while (enumerator.MoveNext())
                 {
@@ -663,7 +665,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_Reset_BeforeIteration_Support(int count)
         {
-            using (IEnumerator<T> enumerator = GenericIEnumerableFactory(count).GetEnumerator())
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
             {
                 if (ResetImplemented)
                     enumerator.Reset();

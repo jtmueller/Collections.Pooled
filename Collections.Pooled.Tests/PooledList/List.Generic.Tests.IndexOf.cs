@@ -75,6 +75,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region IndexOf
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
 
         [Theory]
         [MemberData(nameof(IndexOfTestData))]
@@ -144,6 +145,9 @@ namespace Collections.Pooled.Tests.PooledList
             list.Dispose();
             withoutDuplicates.Dispose();
         }
+
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]

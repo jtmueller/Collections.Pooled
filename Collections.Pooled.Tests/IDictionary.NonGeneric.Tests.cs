@@ -23,32 +23,14 @@ namespace Collections.Pooled.Tests
         /// is dependent only on the seed passed as input and will return the same value on repeated
         /// calls with the same seed.
         /// </summary>
-        protected virtual object CreateTKey(int seed)
-        {
-            if (seed % 2 == 0)
-            {
-                int stringLength = seed % 10 + 5;
-                Random rand = new Random(seed);
-                byte[] bytes = new byte[stringLength];
-                rand.NextBytes(bytes);
-                return Convert.ToBase64String(bytes);
-            }
-            else
-            {
-                Random rand = new Random(seed);
-                return rand.Next();
-            }
-        }
+        protected abstract object CreateTKey(int seed);
 
         /// <summary>
         /// To be implemented in the concrete Dictionary test classes. Creates an instance of TValue that
         /// is dependent only on the seed passed as input and will return the same value on repeated
         /// calls with the same seed.
         /// </summary>
-        protected virtual object CreateTValue(int seed)
-        {
-            return CreateTKey(seed);
-        }
+        protected abstract object CreateTValue(int seed);
 
         /// <summary>
         /// Creates an instance of an IDictionary that can be used for testing.

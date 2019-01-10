@@ -21,16 +21,19 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         protected override ICollection<string> GenericICollectionFactory()
         {
-            return new PooledDictionary<string, string>().Values;
+            var dict = new PooledDictionary<string, string>();
+            RegisterForDispose(dict);
+            return dict.Values;
         }
 
         protected override ICollection<string> GenericICollectionFactory(int count)
         {
-            PooledDictionary<string, string> list = new PooledDictionary<string, string>();
+            var dict = new PooledDictionary<string, string>();
+            RegisterForDispose(dict);
             int seed = 13453;
             for (int i = 0; i < count; i++)
-                list[CreateT(seed++)] = CreateT(seed++);
-            return list.Values;
+                dict[CreateT(seed++)] = CreateT(seed++);
+            return dict.Values;
         }
 
         protected override string CreateT(int seed)
@@ -45,11 +48,11 @@ namespace Collections.Pooled.Tests.PooledDictionary
             }
         }
 
-        protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType => typeof(ArgumentOutOfRangeException);
+        protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType 
+            => typeof(ArgumentOutOfRangeException);
 
-        [Theory]
-        [MemberData(nameof(ValidCollectionSizes))]
-        public void Dictionary_Generic_ValueCollection_Constructor_NullDictionary(int count)
+        [Fact]
+        public void Dictionary_Generic_ValueCollection_Constructor_NullDictionary()
         {
             Assert.Throws<ArgumentNullException>(() => new PooledDictionary<string, string>.ValueCollection(null));
         }
@@ -58,11 +61,12 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ValueCollection_GetEnumerator(int count)
         {
-            PooledDictionary<string, string> dictionary = new PooledDictionary<string, string>();
+            var dictionary = new PooledDictionary<string, string>();
             int seed = 13453;
             while (dictionary.Count < count)
                 dictionary.Add(CreateT(seed++), CreateT(seed++));
             dictionary.Values.GetEnumerator();
+            dictionary.Dispose();
         }
     }
 
@@ -80,16 +84,19 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
         protected override ICollection NonGenericICollectionFactory()
         {
-            return new PooledDictionary<string, string>().Values;
+            var dict = new PooledDictionary<string, string>();
+            RegisterForDispose(dict);
+            return dict.Values;
         }
 
         protected override ICollection NonGenericICollectionFactory(int count)
         {
-            PooledDictionary<string, string> list = new PooledDictionary<string, string>();
+            var dict = new PooledDictionary<string, string>();
+            RegisterForDispose(dict);
             int seed = 13453;
             for (int i = 0; i < count; i++)
-                list.Add(CreateT(seed++), CreateT(seed++));
-            return list.Values;
+                dict.Add(CreateT(seed++), CreateT(seed++));
+            return dict.Values;
         }
 
         private string CreateT(int seed)
