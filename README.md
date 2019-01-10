@@ -6,7 +6,7 @@ to minimize memory allocations, improve performance, and/or allow greater intero
 with modern API's.
 
 Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as well as an 
-optimized build for .NET Core 2.2+. An extensive set of unit tests and benchmarks have
+optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ## Installation

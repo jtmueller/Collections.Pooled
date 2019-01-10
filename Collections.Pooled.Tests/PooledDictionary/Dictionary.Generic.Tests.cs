@@ -10,7 +10,7 @@ using Xunit;
 namespace Collections.Pooled.Tests.PooledDictionary
 {
     /// <summary>
-    /// Contains tests that ensure the correctness of the Dictionary class.
+    /// Contains tests that ensure the correctness of the PooledDictionary class.
     /// </summary>
     public abstract partial class Dictionary_Generic_Tests<TKey, TValue> : IDictionary_Generic_Tests<TKey, TValue>
     {

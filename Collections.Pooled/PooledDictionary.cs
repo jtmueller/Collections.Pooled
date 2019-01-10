@@ -805,7 +805,15 @@ namespace Collections.Pooled
         {
             // Value types never rehash
             Debug.Assert(!forceNewHashCodes || default(TKey) == null);
-            Debug.Assert(newSize >= Entries.Length);
+            Debug.Assert(newSize >= _size);
+
+            // Because ArrayPool might give us larger arrays than we asked for, see if we can 
+            // use the existing capacity without actually resizing.
+            if (_buckets.Length >= newSize && _entries.Length >= newSize)
+            {
+                _size = newSize;
+                return;
+            }
 
             int[] buckets = s_bucketPool.Rent(newSize);
             Array.Clear(buckets, 0, buckets.Length);
@@ -1074,7 +1082,7 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity));
-            int currentCapacity = Entries.Length;
+            int currentCapacity = _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;
             _version++;
