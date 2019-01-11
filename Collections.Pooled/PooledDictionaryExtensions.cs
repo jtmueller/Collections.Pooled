@@ -127,5 +127,32 @@ namespace Collections.Pooled
         {
             return ToPooledDictionary(source.Span, keySelector, comparer);
         }
+
+        /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
+        /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            return new PooledDictionary<TKey, TValue>(source, comparer);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
+        /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this ReadOnlySpan<(TKey, TValue)> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            return new PooledDictionary<TKey, TValue>(source, comparer);
+        }
+
+        /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
+        /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this Span<(TKey, TValue)> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            return new PooledDictionary<TKey, TValue>(source, comparer);
+        }
     }
 }

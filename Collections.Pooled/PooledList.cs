@@ -136,6 +136,7 @@ namespace Collections.Pooled
         /// Gets and sets the capacity of this list.  The capacity is the size of
         /// the internal array used to hold items.  When set, the internal 
         /// Memory of the list is reallocated to the given capacity.
+        /// Note that the return value for this property may be larger than the property was set to.
         /// </summary>
         public int Capacity
         {
