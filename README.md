@@ -53,6 +53,7 @@ There are some API changes worth noting:
   * **PooledList implements IDisposable.** Disposing the list returns the internal array to the ArrayPool.
     If you forget to dispose the list, nothing will break, but memory allocations and GC pauses will be closer to those
     of `List<T>` (you will still benefit from pooling of intermediate arrays as the PooledList is resized).
+  * A selection of `ToPooledList()` extension methods is provided.
   * Non-generic `IList` is not supported (`IList<T>` is supported).
 
 #### Performance
@@ -74,9 +75,7 @@ There are some API changes worth noting:
   * New methods include: `AddRange`, `GetOrAdd`, `AddOrUpdate`
   * Both constructors and AddRange can take a sequence of `KeyValuePair<TKey, TValue>` objects, or a sequence of 
     `ValueTuple<TKey, TValue>` objects.
-  * The built-in `Dictionary<string, TValue>` with a string key and less than 100 items uses a more-efficient unsafe string-hashing that is not
-    exposed to code outside of the core framework. As a result PooledDictionary cannot take advantage of this and you
-    may get better performance with the original dictionary in this circumstance. As always, you should measure and then decide.
   * **PooledDictionary implements IDisposable.** Disposing the dictionary returns the internal arrays to the ArrayPool.
     If you forget to dispose the dictionary, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
+  * A selection of `ToPooledDictionary()` extension methods is provided.
