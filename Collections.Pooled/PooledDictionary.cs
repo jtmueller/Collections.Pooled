@@ -88,10 +88,11 @@ namespace Collections.Pooled
                 _comparer = comparer;
             }
 
-            // Dictionary uses NonRandomizedStringEqualityComparer as default comparer for string keys as it doesnt use the 
-            // randomized string hashing which keeps the performance not affected till we hit collision threshold and then 
-            // it switches to the comparer which is using randomized string hashing.
-            // We can't do this in PooledDictionary as it requires access to unsafe internal methods on String.
+            if (typeof(TKey) == typeof(string) && _comparer == null)
+            {
+                // To start, move off default comparer for string which is randomised
+                _comparer = (IEqualityComparer<TKey>)NonRandomizedStringEqualityComparer.Default;
+            }
         }
 
         public PooledDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
@@ -182,7 +183,12 @@ namespace Collections.Pooled
         private Span<Entry> Entries => _entries.AsSpan(0, _size);
 
         public IEqualityComparer<TKey> Comparer
-            => _comparer ?? EqualityComparer<TKey>.Default;
+        {
+            get
+            {
+                return (_comparer == null || _comparer is NonRandomizedStringEqualityComparer) ? EqualityComparer<TKey>.Default : _comparer;
+            }
+        }
 
         public int Count => _count - _freeCount;
 
@@ -742,13 +748,13 @@ namespace Collections.Pooled
             _version++;
 
             // Value types never rehash
-            //if (default(TKey) == null && collisionCount > HashHelpers.HashCollisionThreshold && comparer is NonRandomizedStringEqualityComparer)
-            //{
-            //    // If we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
-            //    // i.e. EqualityComparer<string>.Default.
-            //    _comparer = null;
-            //    Resize(entries.Length, true);
-            //}
+            if (default(TKey) == null && collisionCount > HashHelpers.HashCollisionThreshold && comparer is NonRandomizedStringEqualityComparer)
+            {
+                // If we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
+                // i.e. EqualityComparer<string>.Default.
+                _comparer = null;
+                Resize(entries.Length, true);
+            }
 
             return true;
         }
