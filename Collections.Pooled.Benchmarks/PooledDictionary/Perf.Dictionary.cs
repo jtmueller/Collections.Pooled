@@ -75,98 +75,98 @@ namespace System.Collections.Tests
         //            }
         //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void GetItem(int size)
-        {
-            Dictionary<int, int> dict = CreateDictionary(size);
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void GetItem(int size)
+        //{
+        //    Dictionary<int, int> dict = CreateDictionary(size);
 
-            // Setup
-            int retrieved;
-            for (int i = 1; i <= 9; i++)
-                dict.Add(i, 0);
+        //    // Setup
+        //    int retrieved;
+        //    for (int i = 1; i <= 9; i++)
+        //        dict.Add(i, 0);
 
-            // Actual perf testing
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 10000; i++)
-                    {
-                        retrieved = dict[1]; retrieved = dict[2]; retrieved = dict[3];
-                        retrieved = dict[4]; retrieved = dict[5]; retrieved = dict[6];
-                        retrieved = dict[7]; retrieved = dict[8]; retrieved = dict[9];
-                    }
-            }
-        }
+        //    // Actual perf testing
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 10000; i++)
+        //            {
+        //                retrieved = dict[1]; retrieved = dict[2]; retrieved = dict[3];
+        //                retrieved = dict[4]; retrieved = dict[5]; retrieved = dict[6];
+        //                retrieved = dict[7]; retrieved = dict[8]; retrieved = dict[9];
+        //            }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void SetItem(int size)
-        {
-            Dictionary<int, int> dict = CreateDictionary(size);
-            // Setup
-            for (int i = 1; i <= 9; i++)
-                dict.Add(i, 0);
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void SetItem(int size)
+        //{
+        //    Dictionary<int, int> dict = CreateDictionary(size);
+        //    // Setup
+        //    for (int i = 1; i <= 9; i++)
+        //        dict.Add(i, 0);
 
-            // Actual perf testing
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 10000; i++)
-                    {
-                        dict[1] = 0; dict[2] = 0; dict[3] = 0;
-                        dict[4] = 0; dict[5] = 0; dict[6] = 0;
-                        dict[7] = 0; dict[8] = 0; dict[9] = 0;
-                    }
-            }
-        }
+        //    // Actual perf testing
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 10000; i++)
+        //            {
+        //                dict[1] = 0; dict[2] = 0; dict[3] = 0;
+        //                dict[4] = 0; dict[5] = 0; dict[6] = 0;
+        //                dict[7] = 0; dict[8] = 0; dict[9] = 0;
+        //            }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void GetKeys(int size)
-        {
-            Dictionary<int, int> dict = CreateDictionary(size);
-            IEnumerable<int> result;
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 20000; i++)
-                    {
-                        result = dict.Keys; result = dict.Keys; result = dict.Keys;
-                        result = dict.Keys; result = dict.Keys; result = dict.Keys;
-                        result = dict.Keys; result = dict.Keys; result = dict.Keys;
-                    }
-        }
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void GetKeys(int size)
+        //{
+        //    Dictionary<int, int> dict = CreateDictionary(size);
+        //    IEnumerable<int> result;
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 20000; i++)
+        //            {
+        //                result = dict.Keys; result = dict.Keys; result = dict.Keys;
+        //                result = dict.Keys; result = dict.Keys; result = dict.Keys;
+        //                result = dict.Keys; result = dict.Keys; result = dict.Keys;
+        //            }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public void TryGetValue(int size)
-        {
-            Dictionary<int, int> dict = CreateDictionary(size);
-            // Setup - utils needs a specific seed to prevent key collision with TestData
-            int retrieved;
-            Random rand = new Random(837322);
-            int key = rand.Next(0, 400000);
-            dict.Add(key, 12);
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public void TryGetValue(int size)
+        //{
+        //    Dictionary<int, int> dict = CreateDictionary(size);
+        //    // Setup - utils needs a specific seed to prevent key collision with TestData
+        //    int retrieved;
+        //    Random rand = new Random(837322);
+        //    int key = rand.Next(0, 400000);
+        //    dict.Add(key, 12);
 
-            // Actual perf testing
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int i = 0; i <= 1000; i++)
-                    {
-                        dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                        dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                        dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                        dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                    }
-        }
+        //    // Actual perf testing
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int i = 0; i <= 1000; i++)
+        //            {
+        //                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
+        //                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
+        //                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
+        //                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
+        //            }
+        //}
 
         [Benchmark]
         [InlineData(1)]
