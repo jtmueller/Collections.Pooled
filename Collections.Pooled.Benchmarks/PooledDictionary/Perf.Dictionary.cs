@@ -168,29 +168,28 @@ namespace System.Collections.Tests
         //            }
         //}
 
-        [Benchmark]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(1000)]
-        public static void Remove_ValueType(long size)
-        {
-            Dictionary<long?, long?> collection = new Dictionary<long?, long?>();
-            long?[] items;
+        //[Benchmark]
+        //[InlineData(1)]
+        //[InlineData(10)]
+        //[InlineData(1000)]
+        //public static void Remove_ValueType(long size)
+        //{
+        //    Dictionary<long?, long?> collection = new Dictionary<long?, long?>();
+        //    long?[] items;
 
-            items = new long?[size * 10];
+        //    items = new long?[size * 10];
 
-            for (long i = 0; i < size * 10; ++i)
-            {
-                items[i] = i;
-                collection.Add(items[i], items[i]);
-            }
+        //    for (long i = 0; i < size * 10; ++i)
+        //    {
+        //        items[i] = i;
+        //        collection.Add(items[i], items[i]);
+        //    }
 
-
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (long i = 1; i < size; ++i)
-                        collection.Remove(items[i]);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (long i = 1; i < size; ++i)
+        //                collection.Remove(items[i]);
+        //}
 
         [Benchmark]
         public static void Indexer_get_ValueType()
