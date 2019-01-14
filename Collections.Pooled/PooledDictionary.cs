@@ -105,12 +105,12 @@ namespace Collections.Pooled
 
             // It is likely that the passed-in dictionary is PooledDictionary<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
-            // We only do this when dictionary is Dictionary<TKey,TValue> and not a subclass, to maintain
+            // We only do this when dictionary is PooledDictionary<TKey,TValue> and not a subclass, to maintain
             // back-compat with subclasses that may have overridden the enumerator behavior.
-            if (dictionary is PooledDictionary<TKey, TValue> d)
+            if (dictionary is PooledDictionary<TKey, TValue> pooled)
             {
-                int count = d._count;
-                var entries = d.Entries;
+                int count = pooled._count;
+                var entries = pooled._entries;
                 for (int i = 0; i < count; i++)
                 {
                     if (entries[i].hashCode >= 0)
@@ -251,7 +251,7 @@ namespace Collections.Pooled
             get
             {
                 int i = FindEntry(key);
-                if (i >= 0) return Entries[i].value;
+                if (i >= 0) return _entries[i].value;
                 throw new KeyNotFoundException($"Key not found: '{key}'.");
             }
             set
@@ -464,17 +464,19 @@ namespace Collections.Pooled
                 throw new ArgumentNullException(nameof(key));
 
             int i = -1;
-            var buckets = Buckets;
-            var entries = Entries;
+            var buckets = _buckets;
+            var entries = _entries;
             int collisionCount = 0;
-            if (buckets.Length > 0)
+            int length = _size;
+            if (length > 0)
             {
                 IEqualityComparer<TKey> comparer = _comparer;
+
                 if (comparer == null)
                 {
                     int hashCode = key.GetHashCode() & 0x7FFFFFFF;
                     // Value in _buckets is 1-based
-                    i = buckets[hashCode % buckets.Length] - 1;
+                    i = buckets[hashCode % length] - 1;
                     if (default(TKey) != null)
                     {
                         // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
@@ -482,13 +484,13 @@ namespace Collections.Pooled
                         {
                             // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
                             // Test in if to drop range check for following array access
-                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
+                            if ((uint)i >= (uint)length || (entries[i].hashCode == hashCode && EqualityComparer<TKey>.Default.Equals(entries[i].key, key)))
                             {
                                 break;
                             }
 
                             i = entries[i].next;
-                            if (collisionCount >= entries.Length)
+                            if (collisionCount >= length)
                             {
                                 // The chain of entries forms a loop; which means a concurrent update has happened.
                                 // Break out of the loop and throw, rather than looping forever.
@@ -507,13 +509,13 @@ namespace Collections.Pooled
                         {
                             // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
                             // Test in if to drop range check for following array access
-                            if ((uint)i >= (uint)entries.Length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
+                            if ((uint)i >= (uint)length || (entries[i].hashCode == hashCode && defaultComparer.Equals(entries[i].key, key)))
                             {
                                 break;
                             }
 
                             i = entries[i].next;
-                            if (collisionCount >= entries.Length)
+                            if (collisionCount >= length)
                             {
                                 // The chain of entries forms a loop; which means a concurrent update has happened.
                                 // Break out of the loop and throw, rather than looping forever.
@@ -527,19 +529,19 @@ namespace Collections.Pooled
                 {
                     int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
                     // Value in _buckets is 1-based
-                    i = buckets[hashCode % buckets.Length] - 1;
+                    i = buckets[hashCode % length] - 1;
                     do
                     {
                         // Should be a while loop https://github.com/dotnet/coreclr/issues/15476
                         // Test in if to drop range check for following array access
-                        if ((uint)i >= (uint)entries.Length ||
+                        if ((uint)i >= (uint)length ||
                             (entries[i].hashCode == hashCode && comparer.Equals(entries[i].key, key)))
                         {
                             break;
                         }
 
                         i = entries[i].next;
-                        if (collisionCount >= entries.Length)
+                        if (collisionCount >= length)
                         {
                             // The chain of entries forms a loop; which means a concurrent update has happened.
                             // Break out of the loop and throw, rather than looping forever.
@@ -1002,7 +1004,7 @@ namespace Collections.Pooled
             int i = FindEntry(key);
             if (i >= 0)
             {
-                value = Entries[i].value;
+                value = _entries[i].value;
                 return true;
             }
             value = default;
@@ -1134,8 +1136,8 @@ namespace Collections.Pooled
             int oldCount = _count;
             _version++;
             Initialize(newSize);
-            var entries = Entries;
-            var buckets = Buckets;
+            var entries = _entries;
+            var buckets = _buckets;
             int count = 0;
             for (int i = 0; i < oldCount; i++)
             {
