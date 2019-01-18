@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Collections.Pooled
 {
@@ -25,7 +26,7 @@ namespace Collections.Pooled
     /// </remarks>
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class PooledList<T> : IList<T>, IReadOnlyList<T>, IDisposable
+    public class PooledList<T> : IList<T>, IReadOnlyList<T>, IList, IDisposable
     {
         // internal constant copied from Array.MaxArrayLength
         private const int MaxArrayLength = 0X7FEFFFFF;
@@ -36,6 +37,8 @@ namespace Collections.Pooled
         private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
+        [NonSerialized]
+        private object _syncRoot;
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -174,8 +177,53 @@ namespace Collections.Pooled
         /// </summary>
         public int Count => _size;
 
-        // Is this List read-only?
+        bool IList.IsFixedSize => false;
+
         bool ICollection<T>.IsReadOnly => false;
+
+        bool IList.IsReadOnly => false;
+
+        int ICollection.Count => _size;
+
+        bool ICollection.IsSynchronized => false;
+
+        // Synchronization root for this object.
+        object ICollection.SyncRoot
+        {
+            get
+            {
+                if (_syncRoot == null)
+                {
+                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                }
+                return _syncRoot;
+            }
+        }
+
+        object IList.this[int index]
+        {
+            get
+            {
+                return this[index];
+            }
+            set
+            {
+                if (value is null && default(T) != null)
+                {
+                    // can't set a null value type
+                    throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(value));
+                }
+
+                try
+                {
+                    this[index] = (T)value;
+                }
+                catch (InvalidCastException)
+                {
+                    throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(value));
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the element at the given index.
@@ -321,7 +369,9 @@ namespace Collections.Pooled
         public int BinarySearch(T item, IComparer<T> comparer)
             => BinarySearch(0, Count, item, comparer);
 
-        // Clears the contents of List.
+        /// <summary>
+        /// Clears the contents of the PooledList.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
         {
@@ -1108,6 +1158,97 @@ namespace Collections.Pooled
         {
             ReturnArray();
             _size = 0;
+        }
+
+        private static bool IsCompatibleObject(object value)
+        {
+            // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
+            // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
+            return ((value is T) || (value == null && default(T) == null));
+        }
+
+        int IList.Add(object item)
+        {
+            if (item is null && default(T) != null)
+            {
+                // can't set a null value type
+                throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(item));
+            }
+
+            try
+            {
+                Add((T)item);
+            }
+            catch (InvalidCastException)
+            {
+                throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(item));
+            }
+
+            return Count - 1;
+        }
+
+        bool IList.Contains(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                return Contains((T)item);
+            }
+            return false;
+        }
+
+        int IList.IndexOf(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                return IndexOf((T)item);
+            }
+            return -1;
+        }
+
+        void IList.Insert(int index, object item)
+        {
+            if (item is null && default(T) != null)
+            {
+                // can't set a null value type
+                throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(item));
+            }
+
+            try
+            {
+                Insert(index, (T)item);
+            }
+            catch (InvalidCastException)
+            {
+                throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(item));
+            }
+        }
+
+        void IList.Remove(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                Remove((T)item);
+            }
+        }
+
+        // Copies this List into array, which must be of a 
+        // compatible array type.  
+        void ICollection.CopyTo(Array array, int arrayIndex)
+        {
+            if ((array != null) && (array.Rank != 1))
+            {
+                throw new ArgumentException("Multi-dimensional arrays are not supported.", nameof(array));
+            }
+
+            try
+            {
+                // Array.Copy will check for NULL.
+                Array.Copy(_items, 0, array, arrayIndex, _size);
+            }
+            catch (ArrayTypeMismatchException)
+            {
+                throw new ArgumentException($"The given array was not compatible with type: '${typeof(T)}'.");
+            }
         }
 
         public struct Enumerator : IEnumerator<T>, IEnumerator

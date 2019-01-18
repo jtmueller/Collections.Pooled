@@ -54,7 +54,6 @@ There are some API changes worth noting:
     If you forget to dispose the list, nothing will break, but memory allocations and GC pauses will be closer to those
     of `List<T>` (you will still benefit from pooling of intermediate arrays as the PooledList is resized).
   * A selection of `ToPooledList()` extension methods is provided.
-  * Non-generic `IList` is not supported (`IList<T>` is supported).
 
 #### Performance
 
