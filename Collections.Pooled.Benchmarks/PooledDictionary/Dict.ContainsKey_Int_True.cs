@@ -9,22 +9,22 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 #elif NET472
     [ClrJob]
 #endif
-    public class Dict_ContainsValue_Int_True : DictContainsBase<int>
+    public class Dict_ContainsKey_Int_True : DictContainsBase<int>
     {
         [Benchmark(Baseline = true)]
-        public void DictContainsValue_Int_True()
+        public void DictContainsKey_Int_True()
         {
             bool result = false;
             for (int j = 0; j < N; j++)
-                result = dict.ContainsValue(j);
+                result = dict.ContainsKey(j);
         }
 
         [Benchmark]
-        public void PooledContainsValue_Int_True()
+        public void PooledContainsKey_Int_True()
         {
             bool result = false;
             for (int j = 0; j < N; j++)
-                result = pooled.ContainsValue(j);
+                result = pooled.ContainsKey(j);
         }
 
         protected override int GetT(int i) => i;

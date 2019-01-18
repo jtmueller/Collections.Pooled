@@ -9,26 +9,26 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 #elif NET472
     [ClrJob]
 #endif
-    public class Dict_ContainsValue_Int_False : DictContainsBase<int>
+    public class Dict_ContainsValue_String_False : DictContainsBase<string>
     {
         [Benchmark(Baseline = true)]
-        public void DictContainsValue_Int_False()
+        public void DictContainsValue_String_False()
         {
             bool result = false;
-            int missingValue = N;   //The value N is not present in the dictionary.
+            string missingValue = N.ToString();   //The value N is not present in the dictionary.
             for (int j = 0; j < N; j++)
                 result = dict.ContainsValue(missingValue);
         }
 
         [Benchmark]
-        public void PooledContainsValue_Int_False()
+        public void PooledContainsValue_String_False()
         {
             bool result = false;
-            int missingValue = N;   //The value N is not present in the dictionary.
+            string missingValue = N.ToString();   //The value N is not present in the dictionary.
             for (int j = 0; j < N; j++)
                 result = pooled.ContainsValue(missingValue);
         }
 
-        protected override int GetT(int i) => i;
+        protected override string GetT(int i) => i.ToString();
     }
 }
