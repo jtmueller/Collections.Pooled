@@ -223,75 +223,75 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void Enumeration_ValueType()
-        {
-            int size = 1024;
-            int? key;
-            int? value;
-            Dictionary<int?, int?> collection = new Dictionary<int?, int?>();
+        //[Benchmark]
+        //public static void Enumeration_ValueType()
+        //{
+        //    int size = 1024;
+        //    int? key;
+        //    int? value;
+        //    Dictionary<int?, int?> collection = new Dictionary<int?, int?>();
 
-            for (int i = 0; i < size; ++i)
-            {
-                collection.Add(i, i);
-            }
+        //    for (int i = 0; i < size; ++i)
+        //    {
+        //        collection.Add(i, i);
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    foreach (KeyValuePair<int?, int?> tempItem in collection)
-                    {
-                        key = tempItem.Key;
-                        value = tempItem.Value;
-                    }
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            foreach (KeyValuePair<int?, int?> tempItem in collection)
+        //            {
+        //                key = tempItem.Key;
+        //                value = tempItem.Value;
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public static void Dictionary_ContainsValue_Int_True(int sampleLength)
-        {
-            Dictionary<int, int> dictionary = new Dictionary<int, int>();
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public static void Dictionary_ContainsValue_Int_True(int sampleLength)
+        //{
+        //    Dictionary<int, int> dictionary = new Dictionary<int, int>();
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                dictionary.Add(i, i);
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        dictionary.Add(i, i);
+        //    }
 
-            bool result = false;
+        //    bool result = false;
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int j = 0; j < sampleLength; j++)
-                        result = dictionary.ContainsValue(j);   //Every value searched for is present in the dictionary.
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int j = 0; j < sampleLength; j++)
+        //                result = dictionary.ContainsValue(j);   //Every value searched for is present in the dictionary.
+        //}
 
-        [Benchmark]
-        [InlineData(1000)]
-        [InlineData(10000)]
-        [InlineData(100000)]
-        public static void Dictionary_ContainsValue_Int_False(int sampleLength)
-        {
-            Dictionary<int, int> dictionary = new Dictionary<int, int>();
+        //[Benchmark]
+        //[InlineData(1000)]
+        //[InlineData(10000)]
+        //[InlineData(100000)]
+        //public static void Dictionary_ContainsValue_Int_False(int sampleLength)
+        //{
+        //    Dictionary<int, int> dictionary = new Dictionary<int, int>();
 
-            for (int i = 0; i < sampleLength; i++)
-            {
-                dictionary.Add(i, i);
-            }
+        //    for (int i = 0; i < sampleLength; i++)
+        //    {
+        //        dictionary.Add(i, i);
+        //    }
 
-            bool result = false;
+        //    bool result = false;
 
-            int missingValue = sampleLength;   //The value sampleLength is not present in the dictionary.
+        //    int missingValue = sampleLength;   //The value sampleLength is not present in the dictionary.
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    for (int j = 0; j < sampleLength; j++)
-                        result = dictionary.ContainsValue(missingValue);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            for (int j = 0; j < sampleLength; j++)
+        //                result = dictionary.ContainsValue(missingValue);
+        //}
 
         [Benchmark]
         [InlineData(1000)]

@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
     public class Dict_Constructors : DictBase
     {
         [Benchmark(Baseline = true)]
-        public void Dict_ctor()
+        public void Dict_Ctor()
         {
             for (int i = 0; i <= 500; i++)
             {

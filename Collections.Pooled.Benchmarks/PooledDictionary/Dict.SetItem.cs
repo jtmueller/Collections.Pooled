@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
     public class Dict_SetItem : DictBase
     {
         [Benchmark(Baseline = true)]
-        public void DictGetItem()
+        public void DictSetItem()
         {
             for (int i = 0; i <= 10000; i++)
             {
@@ -24,7 +24,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledGetItem()
+        public void PooledSetItem()
         {
             for (int i = 0; i <= 10000; i++)
             {

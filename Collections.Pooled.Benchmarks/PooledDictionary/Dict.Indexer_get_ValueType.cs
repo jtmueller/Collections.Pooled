@@ -12,7 +12,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
     public class Dict_Indexer_get_ValueType : DictBase
     {
         [Benchmark(Baseline = true)]
-        public void DictGetItem()
+        public void DictIndexer_get_ValueType()
         {
             int? item;
             for (int i = 0; i < N; ++i)
@@ -31,7 +31,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledGetItem()
+        public void PooledIndexer_get_ValueType()
         {
             int? item;
             for (int i = 0; i < N; ++i)
