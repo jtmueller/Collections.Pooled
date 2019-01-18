@@ -191,37 +191,37 @@ namespace System.Collections.Tests
         //                collection.Remove(items[i]);
         //}
 
-        [Benchmark]
-        public static void Indexer_get_ValueType()
-        {
-            int size = 1024;
-            int? item;
-            Dictionary<int?, int?> collection = new Dictionary<int?, int?>();
-            for (int i = 0; i < size; ++i)
-            {
-                collection.Add(i, i);
-            }
+        //[Benchmark]
+        //public static void Indexer_get_ValueType()
+        //{
+        //    int size = 1024;
+        //    int? item;
+        //    Dictionary<int?, int?> collection = new Dictionary<int?, int?>();
+        //    for (int i = 0; i < size; ++i)
+        //    {
+        //        collection.Add(i, i);
+        //    }
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                using (iteration.StartMeasurement())
-                {
-                    for (int j = 0; j < size; ++j)
-                    {
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                        item = (int)collection[j];
-                    }
-                }
-            }
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int j = 0; j < size; ++j)
+        //            {
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //                item = (int)collection[j];
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         public static void Enumeration_ValueType()

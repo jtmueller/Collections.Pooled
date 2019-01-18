@@ -8,7 +8,7 @@
     <Company />
     <Description>Includes PooledList&lt;T&gt;, based on System.Collections.Generic.List&lt;T&gt; but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span&lt;T&gt;.</Description>
     <Copyright>Copyright (c) 2018 Joel Mueller, based on code from the .NET Foundation</Copyright>
-    <PackageTags>List ArrayPool Span</PackageTags>
+    <PackageTags>List ArrayPool Span Dictionary</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
