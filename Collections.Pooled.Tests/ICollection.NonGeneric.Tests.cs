@@ -204,7 +204,7 @@ namespace Collections.Pooled.Tests
             if (count > 0)
             {
                 ICollection collection = NonGenericICollectionFactory(count);
-                float[] array = new float[count * 3 / 2];
+                Guid[] array = new Guid[count * 3 / 2];
 
                 Assert.Throws(ICollection_NonGeneric_CopyTo_ArrayOfIncorrectValueType_ThrowType, () => collection.CopyTo(array, 0));
             }
@@ -226,6 +226,9 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void ICollection_NonGeneric_CopyTo_ArrayOfEnumType(int count)
         {
+            if (!NullAllowed)
+                return;
+
             Array enumArr = Enum.GetValues(typeof(EnumerableType));
             if (count > 0 && count < enumArr.Length)
             {
