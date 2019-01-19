@@ -4,11 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Tests;
 using System.Linq;
 using Xunit;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     /// <summary>
     /// Contains tests that ensure the correctness of the List class.
@@ -39,7 +38,9 @@ namespace Collections.Pooled.Tests
         protected virtual PooledList<T> GenericListFactory(int count)
         {
             IEnumerable<T> toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
-            return new PooledList<T>(toCreateFrom);
+            var list = new PooledList<T>(toCreateFrom);
+            RegisterForDispose(list);
+            return list;
         }
 
         protected virtual T[] GenericArrayFactory(int count)

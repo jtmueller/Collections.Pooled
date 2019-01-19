@@ -4,11 +4,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Tests;
 using System.Linq;
 using Xunit;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     /// <summary>
     /// Contains tests that ensure the correctness of the List class.
@@ -76,6 +75,7 @@ namespace Collections.Pooled.Tests
         #endregion
 
         #region IndexOf
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
 
         [Theory]
         [MemberData(nameof(IndexOfTestData))]
@@ -145,6 +145,9 @@ namespace Collections.Pooled.Tests
             list.Dispose();
             withoutDuplicates.Dispose();
         }
+
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
+
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]

@@ -1,6 +1,6 @@
 ``` ini
 
-BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.195 (1809/October2018Update/Redstone5)
+BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.288 (1809/October2018Update/Redstone5)
 Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical cores
   [Host] : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3260.0
   Clr    : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3260.0
@@ -8,25 +8,25 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                     Method |      N |         Mean |        Error |     StdDev | Ratio | RatioSD |
-|--------------------------- |------- |-------------:|-------------:|-----------:|------:|--------:|
-|          **ListEnumerate_Int** |   **1000** |   **1,928.3 ns** |     **9.353 ns** |   **8.748 ns** |  **1.00** |    **0.00** |
-|        PooledEnumerate_Int |   1000 |   2,353.8 ns |     9.764 ns |   9.133 ns |  1.22 |    0.01 |
-|    PooledEnumerateSpan_Int |   1000 |     880.2 ns |     1.709 ns |   1.515 ns |  0.46 |    0.00 |
-|       ListEnumerate_String |   1000 |   3,811.0 ns |     9.179 ns |   8.137 ns |  1.98 |    0.01 |
-|     PooledEnumerate_String |   1000 |   4,107.5 ns |    15.920 ns |  14.891 ns |  2.13 |    0.01 |
-| PooledEnumerateSpan_String |   1000 |     908.1 ns |     2.294 ns |   2.145 ns |  0.47 |    0.00 |
-|                            |        |              |              |            |       |         |
-|          **ListEnumerate_Int** |  **10000** |  **19,238.8 ns** |   **160.678 ns** | **142.437 ns** |  **1.00** |    **0.00** |
-|        PooledEnumerate_Int |  10000 |  23,283.4 ns |    35.441 ns |  29.594 ns |  1.21 |    0.01 |
-|    PooledEnumerateSpan_Int |  10000 |   8,763.8 ns |    33.396 ns |  31.238 ns |  0.46 |    0.00 |
-|       ListEnumerate_String |  10000 |  37,873.6 ns |    97.941 ns |  91.614 ns |  1.97 |    0.02 |
-|     PooledEnumerate_String |  10000 |  40,784.7 ns |   101.836 ns |  95.258 ns |  2.12 |    0.01 |
-| PooledEnumerateSpan_String |  10000 |   8,831.2 ns |    47.198 ns |  44.149 ns |  0.46 |    0.00 |
-|                            |        |              |              |            |       |         |
-|          **ListEnumerate_Int** | **100000** | **191,324.8 ns** |   **290.984 ns** | **272.186 ns** |  **1.00** |    **0.00** |
-|        PooledEnumerate_Int | 100000 | 232,769.7 ns |   404.098 ns | 377.993 ns |  1.22 |    0.00 |
-|    PooledEnumerateSpan_Int | 100000 |  87,420.1 ns |   162.405 ns | 143.968 ns |  0.46 |    0.00 |
-|       ListEnumerate_String | 100000 | 379,068.7 ns | 1,020.996 ns | 955.040 ns |  1.98 |    0.00 |
-|     PooledEnumerate_String | 100000 | 407,117.4 ns |   818.344 ns | 765.480 ns |  2.13 |    0.01 |
-| PooledEnumerateSpan_String | 100000 |  87,498.6 ns |   198.179 ns | 185.377 ns |  0.46 |    0.00 |
+|                     Method |      N |         Mean |       Error |      StdDev | Ratio | RatioSD |
+|--------------------------- |------- |-------------:|------------:|------------:|------:|--------:|
+|          **ListEnumerate_Int** |   **1000** |   **2,155.4 ns** |    **42.77 ns** |    **73.77 ns** |  **1.00** |    **0.00** |
+|        PooledEnumerate_Int |   1000 |   2,624.1 ns |    49.50 ns |    50.83 ns |  1.23 |    0.05 |
+|    PooledEnumerateSpan_Int |   1000 |     966.9 ns |    15.03 ns |    14.06 ns |  0.45 |    0.01 |
+|       ListEnumerate_String |   1000 |   3,912.8 ns |    28.70 ns |    25.45 ns |  1.85 |    0.06 |
+|     PooledEnumerate_String |   1000 |   4,042.5 ns |    52.37 ns |    46.42 ns |  1.91 |    0.06 |
+| PooledEnumerateSpan_String |   1000 |     989.8 ns |    19.20 ns |    24.29 ns |  0.46 |    0.02 |
+|                            |        |              |             |             |       |         |
+|          **ListEnumerate_Int** |  **10000** |  **21,806.9 ns** |   **158.07 ns** |   **140.12 ns** |  **1.00** |    **0.00** |
+|        PooledEnumerate_Int |  10000 |  25,396.1 ns |   496.08 ns |   530.80 ns |  1.16 |    0.02 |
+|    PooledEnumerateSpan_Int |  10000 |   9,652.8 ns |    66.47 ns |    62.17 ns |  0.44 |    0.00 |
+|       ListEnumerate_String |  10000 |  38,496.5 ns |   504.21 ns |   421.04 ns |  1.76 |    0.02 |
+|     PooledEnumerate_String |  10000 |  41,670.0 ns |   610.53 ns |   571.09 ns |  1.91 |    0.02 |
+| PooledEnumerateSpan_String |  10000 |   9,664.4 ns |   190.41 ns |   195.53 ns |  0.44 |    0.01 |
+|                            |        |              |             |             |       |         |
+|          **ListEnumerate_Int** | **100000** | **201,818.5 ns** | **1,337.37 ns** | **1,250.98 ns** |  **1.00** |    **0.00** |
+|        PooledEnumerate_Int | 100000 | 256,495.4 ns | 1,263.30 ns | 1,181.69 ns |  1.27 |    0.01 |
+|    PooledEnumerateSpan_Int | 100000 |  90,667.4 ns | 1,716.74 ns | 1,908.15 ns |  0.45 |    0.01 |
+|       ListEnumerate_String | 100000 | 385,920.0 ns | 2,075.22 ns | 1,941.16 ns |  1.91 |    0.01 |
+|     PooledEnumerate_String | 100000 | 393,038.1 ns | 3,470.82 ns | 3,076.79 ns |  1.95 |    0.02 |
+| PooledEnumerateSpan_String | 100000 |  96,503.2 ns |   379.06 ns |   316.53 ns |  0.48 |    0.00 |

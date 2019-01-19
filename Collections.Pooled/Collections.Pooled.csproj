@@ -1,23 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.2</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <LangVersion>7.3</LangVersion>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList&lt;T&gt;, based on System.Collections.Generic.List&lt;T&gt; but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span&lt;T&gt;.</Description>
+    <Description>Includes PooledList and PooledDictionary, based on List and Dictionary, respectively, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018 Joel Mueller, based on code from the .NET Foundation</Copyright>
-    <PackageTags>List ArrayPool Span</PackageTags>
+    <PackageTags>List ArrayPool Span Dictionary</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
-    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
+    <FileVersion>1.0.2.0</FileVersion>
+    <Version>1.0.2</Version>
+    <PackageReleaseNotes>Added PooledDictionary class, lowering optimized .NET Core support to version 2.1 or above, non-generic IList support for PooledList.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Collections.Pooled.xml</DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DocumentationFile></DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>

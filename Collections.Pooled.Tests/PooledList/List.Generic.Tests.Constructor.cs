@@ -4,10 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Tests;
 using Xunit;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     /// <summary>
     /// Contains tests that ensure the correctness of the List class.
@@ -49,6 +48,7 @@ namespace Collections.Pooled.Tests
 
         [Theory]
         [MemberData(nameof(EnumerableTestData))]
+#pragma warning disable xUnit1026 // Theory methods should use all of their parameters
         public void Constructor_IEnumerable(EnumerableType enumerableType, int listLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
             IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
@@ -64,6 +64,7 @@ namespace Collections.Pooled.Tests
             list.Dispose();
             expected.Dispose();
         }
+#pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         [Fact]
         public void Constructo_NullIEnumerable_ThrowsArgumentNullException()

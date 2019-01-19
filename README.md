@@ -6,7 +6,7 @@ to minimize memory allocations, improve performance, and/or allow greater intero
 with modern API's.
 
 Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as well as an 
-optimized build for .NET Core 2.2+. An extensive set of unit tests and benchmarks have
+optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ## Installation
@@ -51,14 +51,26 @@ There are some API changes worth noting:
     checks apply here as well.
   * Delegate types such as `Predicate<T>` and `Converter<T1, T2>` have been replaced with standard `Func<>` equivalents.
   * **PooledList implements IDisposable.** Disposing the list returns the internal array to the ArrayPool.
-    If you forget to dispose the list, nothing will break, but memory allocations will go up, and so will GC pauses.
-  * Non-generic `IList` is not supported (`IList<T>` is supported).
+    If you forget to dispose the list, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `List<T>` (you will still benefit from pooling of intermediate arrays as the PooledList is resized).
+  * A selection of `ToPooledList()` extension methods is provided.
 
 #### Performance
 
 Please review the benchmark links above for complete details. Performance and memory allocations
 both range from "on par with `List<T>`" to "far better than `List<T>`" depending on the operation.
 
-For example, [AddRange is a particular strength for PooledList](https://github.com/jtmueller/Collections.Pooled/blob/master/docs/benchmarks/netcoreapp2.2/List_AddRange_Int_CapacityIncrease-report-github.md). 
-In the extreme case of using AddRange to add a million integers 5000 times, `List<T>` 
-allocates 19.5 GB while `PooledList<T>` allocates 156 KB and gets it done in 13% of the time.
+### `PooledDictionary<TKey, TValue>`
+
+`PooledDictionary<TKey, TValue>` is based on the corefx source code for `System.Collections.Generic.Dictionary<TKey, TValue>`,
+modified to use ArrayPool for internal storage allocation, and to support `Span<T>`.
+
+There are some API changes worth noting:
+
+  * New methods include: `AddRange`, `GetOrAdd`, `AddOrUpdate`
+  * Both constructors and AddRange can take a sequence of `KeyValuePair<TKey, TValue>` objects, or a sequence of 
+    `ValueTuple<TKey, TValue>` objects.
+  * **PooledDictionary implements IDisposable.** Disposing the dictionary returns the internal arrays to the ArrayPool.
+    If you forget to dispose the dictionary, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
+  * A selection of `ToPooledDictionary()` extension methods is provided.

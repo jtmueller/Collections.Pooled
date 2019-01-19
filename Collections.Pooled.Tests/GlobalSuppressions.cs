@@ -12,3 +12,4 @@
     "xUnit2013:Do not use equality check to check for collection size.", 
     Justification = "While testing collections, we want to exercise the collection's own Count property.")]
 
+

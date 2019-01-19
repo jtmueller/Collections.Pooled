@@ -1,39 +1,39 @@
 ``` ini
 
-BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.195 (1809/October2018Update/Redstone5)
+BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.288 (1809/October2018Update/Redstone5)
 Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical cores
 .NET Core SDK=3.0.100-preview-009812
-  [Host] : .NET Core 2.2.0 (CoreCLR 4.6.27110.04, CoreFX 4.6.27110.04), 64bit RyuJIT
-  Core   : .NET Core 2.2.0 (CoreCLR 4.6.27110.04, CoreFX 4.6.27110.04), 64bit RyuJIT
+  [Host] : .NET Core 2.2.1 (CoreCLR 4.6.27207.03, CoreFX 4.6.27207.03), 64bit RyuJIT
+  Core   : .NET Core 2.2.1 (CoreCLR 4.6.27207.03, CoreFX 4.6.27207.03), 64bit RyuJIT
 
 Job=Core  Runtime=Core  
 
 ```
-|                              Method |      N |         Mean |         Error |         StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|------------------------------------ |------- |-------------:|--------------:|---------------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|            **ListArrayConstructor_Int** |   **1000** |     **259.8 us** |     **1.1058 us** |      **0.9803 us** |  **1.00** |    **0.00** |   **1290.0391** |           **-** |           **-** |          **3968.75 KB** |
-|          PooledArrayConstructor_Int |   1000 |     128.7 us |     1.8644 us |      1.7439 us |  0.50 |    0.01 |     10.0098 |           - |           - |            31.25 KB |
-|         ListArrayConstructor_String |   1000 |     634.2 us |     3.2439 us |      2.8756 us |  2.44 |    0.01 |   2556.6406 |           - |           - |             7875 KB |
-|       PooledArrayConstructor_String |   1000 |     585.9 us |     1.5798 us |      1.4777 us |  2.26 |    0.01 |      9.7656 |           - |           - |            31.25 KB |
-|      ListICollectionConstructor_Int |   1000 |     259.8 us |     1.6810 us |      1.4037 us |  1.00 |    0.01 |   1290.0391 |           - |           - |          3968.75 KB |
-|    PooledICollectionConstructor_Int |   1000 |     136.4 us |     0.2687 us |      0.2382 us |  0.53 |    0.00 |     10.0098 |           - |           - |            31.25 KB |
-|   ListICollectionConstructor_String |   1000 |     618.8 us |     2.7638 us |      2.5853 us |  2.38 |    0.01 |   2556.6406 |           - |           - |             7875 KB |
-| PooledICollectionConstructor_String |   1000 |     578.2 us |     1.4391 us |      1.3461 us |  2.23 |    0.01 |      9.7656 |           - |           - |            31.25 KB |
-|                                     |        |              |               |                |       |         |             |             |             |                     |
-|            **ListArrayConstructor_Int** |  **10000** |   **2,585.6 us** |    **12.3521 us** |     **11.5541 us** |  **1.00** |    **0.00** |  **12656.2500** |           **-** |           **-** |            **39125 KB** |
-|          PooledArrayConstructor_Int |  10000 |   1,270.3 us |     1.9302 us |      1.7111 us |  0.49 |    0.00 |      9.7656 |           - |           - |            31.25 KB |
-|         ListArrayConstructor_String |  10000 |   6,293.6 us |    24.6263 us |     21.8305 us |  2.43 |    0.02 |  24992.1875 |           - |           - |          78187.5 KB |
-|       PooledArrayConstructor_String |  10000 |   8,043.0 us |    41.2115 us |     34.4135 us |  3.11 |    0.02 |           - |           - |           - |            31.25 KB |
-|      ListICollectionConstructor_Int |  10000 |   2,615.8 us |    15.0580 us |     13.3485 us |  1.01 |    0.01 |  12656.2500 |           - |           - |            39125 KB |
-|    PooledICollectionConstructor_Int |  10000 |   1,279.9 us |     2.6783 us |      2.3743 us |  0.49 |    0.00 |      9.7656 |           - |           - |            31.25 KB |
-|   ListICollectionConstructor_String |  10000 |   6,088.4 us |    37.7994 us |     29.5113 us |  2.35 |    0.02 |  24992.1875 |           - |           - |          78187.5 KB |
-| PooledICollectionConstructor_String |  10000 |   8,137.7 us |    30.6247 us |     27.1480 us |  3.15 |    0.02 |           - |           - |           - |            31.25 KB |
-|                                     |        |              |               |                |       |         |             |             |             |                     |
-|            **ListArrayConstructor_Int** | **100000** | **154,472.3 us** | **2,961.8363 us** |  **3,410.8551 us** |  **1.00** |    **0.00** |  **36750.0000** |  **36750.0000** |  **36750.0000** |        **390945.86 KB** |
-|          PooledArrayConstructor_Int | 100000 |  13,633.9 us |    89.7351 us |     83.9382 us |  0.09 |    0.00 |           - |           - |           - |            31.25 KB |
-|         ListArrayConstructor_String | 100000 | 379,995.2 us | 7,486.0077 us | 16,588.4759 us |  2.45 |    0.11 |  16000.0000 |  16000.0000 |  16000.0000 |        781399.72 KB |
-|       PooledArrayConstructor_String | 100000 |  81,876.8 us |   303.2479 us |    283.6583 us |  0.53 |    0.01 |           - |           - |           - |            31.25 KB |
-|      ListICollectionConstructor_Int | 100000 | 154,249.9 us | 3,556.8443 us |  3,327.0744 us |  1.00 |    0.03 |  33500.0000 |  33500.0000 |  33500.0000 |        390928.12 KB |
-|    PooledICollectionConstructor_Int | 100000 |  13,625.8 us |    65.5412 us |     61.3073 us |  0.09 |    0.00 |           - |           - |           - |            31.25 KB |
-|   ListICollectionConstructor_String | 100000 | 378,389.4 us | 7,533.7420 us | 17,757.9163 us |  2.43 |    0.16 |  10000.0000 |  10000.0000 |  10000.0000 |        781366.45 KB |
-| PooledICollectionConstructor_String | 100000 |  81,823.8 us |   203.4052 us |    180.3134 us |  0.53 |    0.01 |           - |           - |           - |            31.25 KB |
+|                              Method |      N |         Mean |        Error |        StdDev |       Median | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|------------------------------------ |------- |-------------:|-------------:|--------------:|-------------:|------:|--------:|------------:|------------:|------------:|--------------------:|
+|            **ListArrayConstructor_Int** |   **1000** |     **283.2 us** |     **1.670 us** |      **1.481 us** |     **283.3 us** |  **1.00** |    **0.00** |   **1290.0391** |           **-** |           **-** |          **3968.75 KB** |
+|          PooledArrayConstructor_Int |   1000 |     134.8 us |     2.582 us |      2.870 us |     135.7 us |  0.48 |    0.01 |     12.6953 |           - |           - |            39.06 KB |
+|         ListArrayConstructor_String |   1000 |     633.5 us |     3.588 us |      3.180 us |     632.9 us |  2.24 |    0.01 |   2556.6406 |           - |           - |             7875 KB |
+|       PooledArrayConstructor_String |   1000 |     652.8 us |     8.252 us |      7.719 us |     653.9 us |  2.30 |    0.03 |     12.6953 |           - |           - |            39.06 KB |
+|      ListICollectionConstructor_Int |   1000 |     271.1 us |     1.720 us |      1.436 us |     270.9 us |  0.96 |    0.01 |   1290.0391 |           - |           - |          3968.75 KB |
+|    PooledICollectionConstructor_Int |   1000 |     129.3 us |     2.527 us |      3.624 us |     130.7 us |  0.45 |    0.01 |     12.6953 |           - |           - |            39.06 KB |
+|   ListICollectionConstructor_String |   1000 |     681.3 us |     1.869 us |      1.657 us |     681.6 us |  2.41 |    0.01 |   2556.6406 |           - |           - |             7875 KB |
+| PooledICollectionConstructor_String |   1000 |     585.2 us |     2.179 us |      1.932 us |     584.4 us |  2.07 |    0.01 |     12.6953 |           - |           - |            39.06 KB |
+|                                     |        |              |              |               |              |       |         |             |             |             |                     |
+|            **ListArrayConstructor_Int** |  **10000** |   **2,694.6 us** |    **15.140 us** |     **13.421 us** |   **2,692.3 us** |  **1.00** |    **0.00** |  **12656.2500** |           **-** |           **-** |            **39125 KB** |
+|          PooledArrayConstructor_Int |  10000 |   1,078.7 us |    21.380 us |     27.800 us |   1,094.0 us |  0.40 |    0.01 |     11.7188 |           - |           - |            39.06 KB |
+|         ListArrayConstructor_String |  10000 |   6,358.6 us |    34.606 us |     28.897 us |   6,355.9 us |  2.36 |    0.02 |  24992.1875 |           - |           - |          78187.5 KB |
+|       PooledArrayConstructor_String |  10000 |   8,919.9 us |    38.036 us |     33.718 us |   8,910.0 us |  3.31 |    0.02 |           - |           - |           - |            39.06 KB |
+|      ListICollectionConstructor_Int |  10000 |   2,700.7 us |    47.942 us |     37.430 us |   2,699.2 us |  1.00 |    0.01 |  12656.2500 |           - |           - |            39125 KB |
+|    PooledICollectionConstructor_Int |  10000 |   1,071.6 us |    21.253 us |     33.089 us |   1,074.2 us |  0.40 |    0.01 |     11.7188 |           - |           - |            39.06 KB |
+|   ListICollectionConstructor_String |  10000 |   6,276.9 us |   115.003 us |    112.949 us |   6,297.8 us |  2.33 |    0.04 |  24992.1875 |           - |           - |          78187.5 KB |
+| PooledICollectionConstructor_String |  10000 |   8,670.1 us |   169.969 us |    288.621 us |   8,804.9 us |  3.22 |    0.11 |           - |           - |           - |            39.06 KB |
+|                                     |        |              |              |               |              |       |         |             |             |             |                     |
+|            **ListArrayConstructor_Int** | **100000** | **167,005.1 us** | **3,864.058 us** |  **3,425.386 us** | **166,383.7 us** |  **1.00** |    **0.00** |  **34000.0000** |  **34000.0000** |  **34000.0000** |        **390916.83 KB** |
+|          PooledArrayConstructor_Int | 100000 |  14,571.4 us |    13.368 us |     11.163 us |  14,570.8 us |  0.09 |    0.00 |           - |           - |           - |            39.06 KB |
+|         ListArrayConstructor_String | 100000 | 392,432.3 us | 7,805.978 us | 15,768.461 us | 393,311.7 us |  2.35 |    0.10 |  17000.0000 |  17000.0000 |  17000.0000 |        781399.17 KB |
+|       PooledArrayConstructor_String | 100000 |  89,273.5 us |   600.535 us |    468.858 us |  89,072.5 us |  0.54 |    0.01 |           - |           - |           - |            39.06 KB |
+|      ListICollectionConstructor_Int | 100000 | 158,683.1 us | 3,055.453 us |  3,864.169 us | 159,065.0 us |  0.96 |    0.03 |  34000.0000 |  34000.0000 |  34000.0000 |        390916.23 KB |
+|    PooledICollectionConstructor_Int | 100000 |  14,502.7 us |   264.447 us |    206.463 us |  14,567.6 us |  0.09 |    0.00 |           - |           - |           - |            39.06 KB |
+|   ListICollectionConstructor_String | 100000 | 389,796.9 us | 7,780.949 us | 19,377.264 us | 394,257.6 us |  2.34 |    0.11 |  16000.0000 |  16000.0000 |  16000.0000 |        781398.98 KB |
+| PooledICollectionConstructor_String | 100000 |  89,082.1 us |   318.387 us |    297.819 us |  88,964.5 us |  0.53 |    0.01 |           - |           - |           - |            39.06 KB |

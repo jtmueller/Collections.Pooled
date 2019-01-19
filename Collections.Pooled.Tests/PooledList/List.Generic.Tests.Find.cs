@@ -3,11 +3,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Tests;
 using System.Linq;
 using Xunit;
 
-namespace Collections.Pooled.Tests
+namespace Collections.Pooled.Tests.PooledList
 {
     /// <summary>
     /// Contains tests that ensure the correctness of the List class.
