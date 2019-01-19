@@ -60,10 +60,6 @@ There are some API changes worth noting:
 Please review the benchmark links above for complete details. Performance and memory allocations
 both range from "on par with `List<T>`" to "far better than `List<T>`" depending on the operation.
 
-For example, [AddRange is a particular strength for PooledList](https://github.com/jtmueller/Collections.Pooled/blob/master/docs/benchmarks/netcoreapp2.2/List_AddRange_Int_CapacityIncrease-report-github.md). 
-In the extreme case of using AddRange to add a million integers 5000 times, `List<T>` 
-allocates 19.5 GB while `PooledList<T>` allocates 156 KB and gets it done in 13% of the time.
-
 ### `PooledDictionary<TKey, TValue>`
 
 `PooledDictionary<TKey, TValue>` is based on the corefx source code for `System.Collections.Generic.Dictionary<TKey, TValue>`,
