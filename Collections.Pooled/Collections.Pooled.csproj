@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList&lt;T&gt;, based on System.Collections.Generic.List&lt;T&gt; but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span&lt;T&gt;.</Description>
+    <Description>Includes PooledList and PooledDictionary, based on List and Dictionary, respectively, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018 Joel Mueller, based on code from the .NET Foundation</Copyright>
     <PackageTags>List ArrayPool Span Dictionary</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
@@ -16,7 +16,7 @@
     <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <FileVersion>1.0.2.0</FileVersion>
     <Version>1.0.2</Version>
-    <PackageReleaseNotes>Added PooledDictionary class, lowering optimized .NET Core support to version 2.1 or above.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added PooledDictionary class, lowering optimized .NET Core support to version 2.1 or above, non-generic IList support for PooledList.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

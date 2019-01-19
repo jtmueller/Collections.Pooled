@@ -50,6 +50,26 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
+        public void PooledIndexer_Span_Int()
+        {
+            int item;
+            var span = pooledInt.Span;
+            for (int j = 0; j < N; ++j)
+            {
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+            }
+        }
+
+        [Benchmark]
         public void ListIndexer_String()
         {
             string item;
@@ -87,6 +107,26 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
+        [Benchmark]
+        public void PooledIndexer_Span_String()
+        {
+            string item;
+            var span = pooledString.Span;
+            for (int j = 0; j < N; ++j)
+            {
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+                item = span[j];
+            }
+        }
+
         private List<int> listInt;
         private List<string> listString;
         private PooledList<int> pooledInt;
@@ -100,7 +140,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
             listInt = CreateList(N);
             listString = listInt.ConvertAll(i => i.ToString());
             pooledInt = new PooledList<int>(listInt);
-            pooledString = pooledInt.ConvertAll(i => i.ToString());
+            pooledString = new PooledList<string>(listString);
         }
 
         [GlobalCleanup]
