@@ -122,9 +122,7 @@ namespace Collections.Pooled
                     using (var en = collection.GetEnumerator())
                     {
                         while (en.MoveNext())
-                        {
                             Add(en.Current);
-                        }
                     }
                     break;
             }
@@ -1138,6 +1136,9 @@ namespace Collections.Pooled
 
         private void ReturnArray()
         {
+            if (_items.Length == 0)
+                return;
+
 #if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
