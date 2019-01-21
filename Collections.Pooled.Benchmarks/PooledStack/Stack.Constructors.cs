@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
-namespace Collections.Pooled.Benchmarks.PooledList
+namespace Collections.Pooled.Benchmarks.PooledStack
 {
 #if NETCOREAPP2_2
     [CoreJob]
@@ -10,85 +10,85 @@ namespace Collections.Pooled.Benchmarks.PooledList
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class List_Constructors : ListBase
+    public class Stack_Constructors : StackBase
     {
         [Benchmark(Baseline = true)]
-        public void ListArrayConstructor_Int()
+        public void StackArrayConstructor_Int()
         {
-            List<int> list;
+            Stack<int> stack;
             for (int i = 0; i < 1000; i++)
-                list = new List<int>(intArray);
+                stack = new Stack<int>(intArray);
         }
 
         [Benchmark]
         public void PooledArrayConstructor_Int()
         {
-            PooledList<int> list;
+            PooledStack<int> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new PooledList<int>(intArray);
-                list.Dispose();
+                stack = new PooledStack<int>(intArray);
+                stack.Dispose();
             }
         }
 
         [Benchmark]
-        public void ListArrayConstructor_String()
+        public void StackArrayConstructor_String()
         {
-            List<string> list;
+            Stack<string> stack;
             for (int i = 0; i < 1000; i++)
-                list = new List<string>(stringArray);
+                stack = new Stack<string>(stringArray);
         }
 
         [Benchmark]
         public void PooledArrayConstructor_String()
         {
-            PooledList<string> list;
+            PooledStack<string> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new PooledList<string>(stringArray);
-                list.Dispose();
+                stack = new PooledStack<string>(stringArray);
+                stack.Dispose();
             }
         }
 
         [Benchmark]
-        public void ListICollectionConstructor_Int()
+        public void StackICollectionConstructor_Int()
         {
-            List<int> list;
+            Stack<int> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new List<int>(intList);
+                stack = new Stack<int>(intList);
             }
         }
 
         [Benchmark]
         public void PooledICollectionConstructor_Int()
         {
-            PooledList<int> list;
+            PooledStack<int> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new PooledList<int>(intList);
-                list.Dispose();
+                stack = new PooledStack<int>(intList);
+                stack.Dispose();
             }
         }
 
         [Benchmark]
-        public void ListICollectionConstructor_String()
+        public void StackICollectionConstructor_String()
         {
-            List<string> list;
+            Stack<string> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new List<string>(stringList);
+                stack = new Stack<string>(stringList);
             }
         }
 
         [Benchmark]
         public void PooledICollectionConstructor_String()
         {
-            PooledList<string> list;
+            PooledStack<string> stack;
             for (int i = 0; i < 1000; i++)
             {
-                list = new PooledList<string>(stringList);
-                list.Dispose();
+                stack = new PooledStack<string>(stringList);
+                stack.Dispose();
             }
         }
 

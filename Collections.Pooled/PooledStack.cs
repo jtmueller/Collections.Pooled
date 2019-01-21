@@ -137,8 +137,6 @@ namespace Collections.Pooled
         /// </summary>
         public bool Contains(T item)
         {
-            
-
             // PERF: Internally Array.LastIndexOf calls
             // EqualityComparer<T>.Default.LastIndexOf, which
             // is specialized for different types. This
