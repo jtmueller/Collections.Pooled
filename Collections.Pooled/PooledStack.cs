@@ -244,8 +244,7 @@ namespace Collections.Pooled
                 if (newArray.Length < _array.Length)
                 {
                     Array.Copy(_array, newArray, _size);
-                    ReturnArray();
-                    _array = newArray;
+                    ReturnArray(replaceWith: newArray);
                     _version++;
                 }
                 else
@@ -372,8 +371,7 @@ namespace Collections.Pooled
         {
             var newArray = s_pool.Rent((_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
             Array.Copy(_array, newArray, _size);
-            ReturnArray();
-            _array = newArray;
+            ReturnArray(replaceWith: newArray);
             _array[_size] = item;
             _version++;
             _size++;
@@ -403,7 +401,7 @@ namespace Collections.Pooled
             throw new InvalidOperationException("Stack was empty.");
         }
 
-        private void ReturnArray()
+        private void ReturnArray(T[] replaceWith = null)
         {
             if (_array?.Length > 0)
             {
@@ -413,12 +411,18 @@ namespace Collections.Pooled
                 s_pool.Return(_array, true);
 #endif
             }
+
+            if (!(replaceWith is null))
+            {
+                _array = replaceWith;
+            }
         }
 
         public void Dispose()
         {
-            ReturnArray();
-            _array = Array.Empty<T>();
+            ReturnArray(replaceWith: Array.Empty<T>());
+            _size = 0;
+            _version++;
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
