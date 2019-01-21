@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList, PooledDictionary, and PooledStack based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
+    <Description>Includes PooledList, PooledDictionary, and PooledStack: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018, 2019 Joel Mueller, based on code from the .NET Foundation</Copyright>
     <PackageTags>List ArrayPool Span Dictionary</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
