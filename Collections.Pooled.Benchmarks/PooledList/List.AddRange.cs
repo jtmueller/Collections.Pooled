@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
     public class List_AddRange : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListAddRange()
+        public void ListAddRangeICollection()
         {
             for (int i = 0; i < 5000; i++)
             {
@@ -23,7 +23,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRange()
+        public void PooledAddRangeICollection()
         {
             for (int i = 0; i < 5000; i++)
             {
@@ -33,21 +33,42 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
-        private PooledList<int> list;
+        [Benchmark]
+        public void ListAddRangeIEnumerable()
+        {
+            for (int i = 0; i < 5000; i++)
+            {
+                var emptyList = new List<int>();
+                emptyList.AddRange(IntEnumerable());
+            }
+        }
 
-        [Params(1_000, 10_000, 100_000, 1_000_000)]
+        [Benchmark]
+        public void PooledAddRangeIEnumerable()
+        {
+            for (int i = 0; i < 5000; i++)
+            {
+                var emptyList = new PooledList<int>();
+                emptyList.AddRange(IntEnumerable());
+                emptyList.Dispose();
+            }
+        }
+
+        private IEnumerable<int> IntEnumerable()
+        {
+            for (int i=0; i < N; i++)
+                yield return list[i];
+        }
+
+        private List<int> list;
+
+        [Params(1_000, 10_000, 100_000)]
         public int N;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
-            list = CreatePooled(N);
-        }
-
-        [GlobalCleanup]
-        public void GlobalCleanup()
-        {
-            list?.Dispose();
+            list = CreateList(N);
         }
     }
 }

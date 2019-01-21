@@ -12,88 +12,111 @@ namespace Collections.Pooled.Benchmarks.PooledList
     [MemoryDiagnoser]
     public class List_Constructors : ListBase
     {
-        [Benchmark(Baseline = true)]
-        public void ListArrayConstructor_Int()
+        [Benchmark(Baseline=true)]
+        public void ListICollectionConstructor()
         {
-            List<int> list;
-            for (int i = 0; i < 1000; i++)
-                list = new List<int>(intArray);
-        }
-
-        [Benchmark]
-        public void PooledArrayConstructor_Int()
-        {
-            PooledList<int> list;
-            for (int i = 0; i < 1000; i++)
+            if (Type == ListType.Int)
             {
-                list = new PooledList<int>(intArray);
-                list.Dispose();
+                List<int> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new List<int>(intList);
+                }
+            }
+            else
+            {
+                List<string> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new List<string>(stringList);
+                }
             }
         }
 
         [Benchmark]
-        public void ListArrayConstructor_String()
+        public void PooledICollectionConstructor()
         {
-            List<string> list;
-            for (int i = 0; i < 1000; i++)
-                list = new List<string>(stringArray);
-        }
-
-        [Benchmark]
-        public void PooledArrayConstructor_String()
-        {
-            PooledList<string> list;
-            for (int i = 0; i < 1000; i++)
+            if (Type == ListType.Int)
             {
-                list = new PooledList<string>(stringArray);
-                list.Dispose();
+                PooledList<int> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new PooledList<int>(intList);
+                    list.Dispose();
+                }
+            }
+            else
+            {
+                PooledList<string> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new PooledList<string>(stringList);
+                    list.Dispose();
+                }
             }
         }
 
         [Benchmark]
-        public void ListICollectionConstructor_Int()
+        public void ListIEnumerableConstructor()
         {
-            List<int> list;
-            for (int i = 0; i < 1000; i++)
+            if (Type == ListType.Int)
             {
-                list = new List<int>(intList);
+                List<int> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new List<int>(IntEnumerable());
+                }
+            }
+            else
+            {
+                List<string> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new List<string>(StringEnumerable());
+                }
             }
         }
 
         [Benchmark]
-        public void PooledICollectionConstructor_Int()
+        public void PooledIEnumerableConstructor()
         {
-            PooledList<int> list;
-            for (int i = 0; i < 1000; i++)
+            if (Type == ListType.Int)
             {
-                list = new PooledList<int>(intList);
-                list.Dispose();
+                PooledList<int> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new PooledList<int>(IntEnumerable());
+                    list.Dispose();
+                }
+            }
+            else
+            {
+                PooledList<string> list;
+                for (int i = 0; i < 1000; i++)
+                {
+                    list = new PooledList<string>(StringEnumerable());
+                    list.Dispose();
+                }
             }
         }
 
-        [Benchmark]
-        public void ListICollectionConstructor_String()
+        private IEnumerable<int> IntEnumerable()
         {
-            List<string> list;
-            for (int i = 0; i < 1000; i++)
-            {
-                list = new List<string>(stringList);
-            }
+            for (int i = 0; i < N; i++)
+                yield return intArray[i];
         }
 
-        [Benchmark]
-        public void PooledICollectionConstructor_String()
+        private IEnumerable<string> StringEnumerable()
         {
-            PooledList<string> list;
-            for (int i = 0; i < 1000; i++)
-            {
-                list = new PooledList<string>(stringList);
-                list.Dispose();
-            }
+            for (int i = 0; i < N; i++)
+                yield return stringArray[i];
         }
 
         [Params(1_000, 10_000, 100_000)]
         public int N;
+
+        [Params(ListType.Int, ListType.String)]
+        public ListType Type;
 
         private int[] intArray;
         private string[] stringArray;
@@ -118,6 +141,11 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
             intList = new List<int>(intArray);
             stringList = new List<string>(stringArray);
+        }
+
+        public enum ListType
+        {
+            Int, String
         }
     }
 }
