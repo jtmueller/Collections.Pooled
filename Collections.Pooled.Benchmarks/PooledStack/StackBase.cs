@@ -36,5 +36,10 @@ namespace Collections.Pooled.Benchmarks.PooledStack
             }
             return output;
         }
+
+        public enum StackType
+        {
+            Int, String
+        }
     }
 }

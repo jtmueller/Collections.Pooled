@@ -235,6 +235,13 @@ namespace Collections.Pooled
 
         public void TrimExcess()
         {
+            if (_size == 0)
+            {
+                ReturnArray(replaceWith: Array.Empty<T>());
+                _version++;
+                return;
+            }
+
             int threshold = (int)(_array.Length * 0.7);
             if (_size < threshold)
             {

@@ -76,10 +76,5 @@ namespace Collections.Pooled.Benchmarks.PooledStack
                 stringArray[i] = intArray[i].ToString();
             }
         }
-
-        public enum StackType
-        {
-            Int, String
-        }
     }
 }
