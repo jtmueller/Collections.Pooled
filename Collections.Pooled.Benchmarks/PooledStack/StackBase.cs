@@ -11,7 +11,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         protected static Stack<int> CreateStack(int size)
         {
             var rand = new Random(RAND_SEED);
-            var stack = new Stack<int>();
+            var stack = new Stack<int>(size);
             for (int i = 0; i < size; i++)
                 stack.Push(rand.Next());
             return stack;
@@ -20,10 +20,21 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         protected static PooledStack<int> CreatePooled(int size)
         {
             var rand = new Random(RAND_SEED);
-            var stack = new PooledStack<int>();
+            var stack = new PooledStack<int>(size);
             for (int i = 0; i < size; i++)
                 stack.Push(rand.Next());
             return stack;
+        }
+
+        protected static int[] CreateArray(int size)
+        {
+            var rand = new Random(RAND_SEED);
+            int[] output = new int[size];
+            for (int i = 0; i < size; i++)
+            {
+                output[i] = rand.Next();
+            }
+            return output;
         }
     }
 }

@@ -126,12 +126,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         [GlobalSetup]
         public void GlobalSetup()
         {
-            intArray = new int[N];
-            var rand = new Random(RAND_SEED);
-            for (int i = 0; i < N; i++)
-            {
-                intArray[i] = rand.Next();
-            }
+            intArray = CreateArray(N);
 
             stringArray = new string[N];
             for (int i = 0; i < N; i++)
