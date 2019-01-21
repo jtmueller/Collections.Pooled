@@ -53,7 +53,7 @@ There are some API changes worth noting:
   * **PooledList implements IDisposable.** Disposing the list returns the internal array to the ArrayPool.
     If you forget to dispose the list, nothing will break, but memory allocations and GC pauses will be closer to those
     of `List<T>` (you will still benefit from pooling of intermediate arrays as the PooledList is resized).
-  * A selection of `ToPooledList()` extension methods is provided.
+  * A selection of `ToPooledList()` extension methods are provided.
 
 #### Performance
 
@@ -70,7 +70,21 @@ There are some API changes worth noting:
   * New methods include: `AddRange`, `GetOrAdd`, `AddOrUpdate`
   * Both constructors and AddRange can take a sequence of `KeyValuePair<TKey, TValue>` objects, or a sequence of 
     `ValueTuple<TKey, TValue>` objects.
+  * Significantly reduced memory allocations when adding many items.
   * **PooledDictionary implements IDisposable.** Disposing the dictionary returns the internal arrays to the ArrayPool.
     If you forget to dispose the dictionary, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
-  * A selection of `ToPooledDictionary()` extension methods is provided.
+  * A selection of `ToPooledDictionary()` extension methods are provided.
+
+### `PooledStack<T>`
+
+`PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
+modified to use ArrayPool for internal storage allocation.
+
+  * Other than the ability to pass Spans into the constructor, there are no API changes
+    compared to the original Stack.
+  * Significantly reduced memory allocations when pushing many items.
+  * **PooledStack implements IDisposable.** Disposing the stack returns the internal arrays to the ArrayPool.
+    If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
+  * A selection of `ToPooledStack()` extension methods are provided.
