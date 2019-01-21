@@ -2,28 +2,28 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Collections.Pooled.Benchmarks.PooledList
+namespace Collections.Pooled.Benchmarks.PooledStack
 {
-    public abstract class ListBase
+    public abstract class StackBase
     {
         protected const int RAND_SEED = 24565653;
 
-        protected static List<int> CreateList(int size)
+        protected static Stack<int> CreateStack(int size)
         {
             var rand = new Random(RAND_SEED);
-            var list = new List<int>(size);
+            var stack = new Stack<int>(size);
             for (int i = 0; i < size; i++)
-                list.Add(rand.Next());
-            return list;
+                stack.Push(rand.Next());
+            return stack;
         }
 
-        protected static PooledList<int> CreatePooled(int size)
+        protected static PooledStack<int> CreatePooled(int size)
         {
             var rand = new Random(RAND_SEED);
-            var list = new PooledList<int>(size);
+            var stack = new PooledStack<int>(size);
             for (int i = 0; i < size; i++)
-                list.Add(rand.Next());
-            return list;
+                stack.Push(rand.Next());
+            return stack;
         }
 
         protected static int[] CreateArray(int size)
@@ -35,6 +35,11 @@ namespace Collections.Pooled.Benchmarks.PooledList
                 output[i] = rand.Next();
             }
             return output;
+        }
+
+        public enum StackType
+        {
+            Int, String
         }
     }
 }

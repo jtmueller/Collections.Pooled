@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
-namespace Collections.Pooled.Benchmarks.PooledList
+namespace Collections.Pooled.Benchmarks.PooledStack
 {
 #if NETCOREAPP2_2
     [CoreJob]
@@ -10,25 +10,25 @@ namespace Collections.Pooled.Benchmarks.PooledList
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class List_Constructors : ListBase
+    public class Stack_Constructors : StackBase
     {
         [Benchmark(Baseline=true)]
-        public void ListICollectionConstructor()
+        public void StackICollectionConstructor()
         {
-            if (Type == ListType.Int)
+            if (Type == StackType.Int)
             {
-                List<int> list;
+                Stack<int> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<int>(intList);
+                    stack = new Stack<int>(intList);
                 }
             }
             else
             {
-                List<string> list;
+                Stack<string> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<string>(stringList);
+                    stack = new Stack<string>(stringList);
                 }
             }
         }
@@ -36,43 +36,43 @@ namespace Collections.Pooled.Benchmarks.PooledList
         [Benchmark]
         public void PooledICollectionConstructor()
         {
-            if (Type == ListType.Int)
+            if (Type == StackType.Int)
             {
-                PooledList<int> list;
+                PooledStack<int> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new PooledList<int>(intList);
-                    list.Dispose();
+                    stack = new PooledStack<int>(intList);
+                    stack.Dispose();
                 }
             }
             else
             {
-                PooledList<string> list;
+                PooledStack<string> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new PooledList<string>(stringList);
-                    list.Dispose();
+                    stack = new PooledStack<string>(stringList);
+                    stack.Dispose();
                 }
             }
         }
 
         [Benchmark]
-        public void ListIEnumerableConstructor()
+        public void StackIEnumerableConstructor()
         {
-            if (Type == ListType.Int)
+            if (Type == StackType.Int)
             {
-                List<int> list;
+                Stack<int> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<int>(IntEnumerable());
+                    stack = new Stack<int>(IntEnumerable());
                 }
             }
             else
             {
-                List<string> list;
+                Stack<string> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<string>(StringEnumerable());
+                    stack = new Stack<string>(StringEnumerable());
                 }
             }
         }
@@ -80,29 +80,29 @@ namespace Collections.Pooled.Benchmarks.PooledList
         [Benchmark]
         public void PooledIEnumerableConstructor()
         {
-            if (Type == ListType.Int)
+            if (Type == StackType.Int)
             {
-                PooledList<int> list;
+                PooledStack<int> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new PooledList<int>(IntEnumerable());
-                    list.Dispose();
+                    stack = new PooledStack<int>(IntEnumerable());
+                    stack.Dispose();
                 }
             }
             else
             {
-                PooledList<string> list;
+                PooledStack<string> stack;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new PooledList<string>(StringEnumerable());
-                    list.Dispose();
+                    stack = new PooledStack<string>(StringEnumerable());
+                    stack.Dispose();
                 }
             }
         }
 
         private IEnumerable<int> IntEnumerable()
         {
-            for (int i = 0; i < N; i++)
+            for (int i=0; i < N; i++)
                 yield return intArray[i];
         }
 
@@ -115,8 +115,8 @@ namespace Collections.Pooled.Benchmarks.PooledList
         [Params(1_000, 10_000, 100_000)]
         public int N;
 
-        [Params(ListType.Int, ListType.String)]
-        public ListType Type;
+        [Params(StackType.Int, StackType.String)]
+        public StackType Type;
 
         private int[] intArray;
         private string[] stringArray;
@@ -138,7 +138,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
             stringList = new List<string>(stringArray);
         }
 
-        public enum ListType
+        public enum StackType
         {
             Int, String
         }

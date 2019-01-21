@@ -6,17 +6,17 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList and PooledDictionary, based on List and Dictionary, respectively, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
-    <Copyright>Copyright (c) 2018 Joel Mueller, based on code from the .NET Foundation</Copyright>
+    <Description>Includes PooledList, PooledDictionary, and PooledStack: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
+    <Copyright>Copyright (c) 2018, 2019 Joel Mueller, based on code from the .NET Foundation</Copyright>
     <PackageTags>List ArrayPool Span Dictionary</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <AssemblyVersion>1.0.2.0</AssemblyVersion>
-    <FileVersion>1.0.2.0</FileVersion>
-    <Version>1.0.2</Version>
-    <PackageReleaseNotes>Added PooledDictionary class, lowering optimized .NET Core support to version 2.1 or above, non-generic IList support for PooledList.</PackageReleaseNotes>
+    <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
+    <Version>1.0.3</Version>
+    <PackageReleaseNotes>Adding PooledStack class.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Buffers" Version="4.5.0" Condition="$(TargetFramework) == 'netstandard2.0'" />
-    <PackageReference Include="System.Memory" Version="4.5.1" Condition="$(TargetFramework) == 'netstandard2.0'" />
+    <PackageReference Include="System.Memory" Version="4.5.2" Condition="$(TargetFramework) == 'netstandard2.0'" />
   </ItemGroup>
 
 </Project>
