@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Collections.Pooled
 {
@@ -34,6 +35,7 @@ namespace Collections.Pooled
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
         private int _size; // Number of items in the stack. Do not rename (binary serialization)
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
+        private object _syncRoot;
 
         private const int DefaultCapacity = 4;
 
@@ -49,7 +51,7 @@ namespace Collections.Pooled
         public PooledStack(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity), capacity, SR.ArgumentOutOfRange_NeedNonNegNum);
+                throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Capacity must not be a negative number.");
             _array = s_pool.Rent(capacity);
         }
 
@@ -101,9 +103,21 @@ namespace Collections.Pooled
 
         bool ICollection.IsSynchronized => false;
 
-        object ICollection.SyncRoot => this;
+        object ICollection.SyncRoot
+        {
+            get
+            {
+                if (_syncRoot == null)
+                {
+                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                }
+                return _syncRoot;
+            }
+        }
 
-        // Removes all Objects from the Stack.
+        /// <summary>
+        /// Removes all Objects from the Stack.
+        /// </summary>
         public void Clear()
         {
 #if NETCOREAPP2_1 
@@ -118,9 +132,12 @@ namespace Collections.Pooled
             _version++;
         }
 
+        /// <summary>
+        /// Compares items using the default equality comparer
+        /// </summary>
         public bool Contains(T item)
         {
-            // Compare items using the default equality comparer
+            
 
             // PERF: Internally Array.LastIndexOf calls
             // EqualityComparer<T>.Default.LastIndexOf, which
@@ -143,18 +160,18 @@ namespace Collections.Pooled
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, SR.ArgumentOutOfRange_Index);
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "Index was out of bounds.");
             }
 
             if (array.Length - arrayIndex < _size)
             {
-                throw new ArgumentException(SR.Argument_InvalidOffLen);
+                throw new ArgumentException("Destination array does not have enough space after the start index.");
             }
 
             Debug.Assert(array != _array);
             int srcIndex = 0;
             int dstIndex = arrayIndex + _size;
-            while(srcIndex < _size)
+            while (srcIndex < _size)
             {
                 array[--dstIndex] = _array[srcIndex++];
             }
@@ -169,22 +186,22 @@ namespace Collections.Pooled
 
             if (array.Rank != 1)
             {
-                throw new ArgumentException(SR.Arg_RankMultiDimNotSupported, nameof(array));
+                throw new ArgumentException("Multi-dimensional destination arrays are not supported.", nameof(array));
             }
 
             if (array.GetLowerBound(0) != 0)
             {
-                throw new ArgumentException(SR.Arg_NonZeroLowerBound, nameof(array));
+                throw new ArgumentException("Destination arrays with a non-zero lower bound are not supported.", nameof(array));
             }
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, SR.ArgumentOutOfRange_Index);
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "Index was out of range.");
             }
 
             if (array.Length - arrayIndex < _size)
             {
-                throw new ArgumentException(SR.Argument_InvalidOffLen);
+                throw new ArgumentException("Destination array does not have enough space after the start index.");
             }
 
             try
@@ -194,11 +211,14 @@ namespace Collections.Pooled
             }
             catch (ArrayTypeMismatchException)
             {
-                throw new ArgumentException(SR.Argument_InvalidArrayType, nameof(array));
+                throw new ArgumentException("Invalid array type.", nameof(array));
             }
         }
 
-        // Returns an IEnumerator for this Stack.
+        /// <summary>
+        /// Returns an IEnumerator for this PooledStack.
+        /// </summary>
+        /// <returns></returns>
         public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
@@ -224,19 +244,16 @@ namespace Collections.Pooled
                 if (newArray.Length < _array.Length)
                 {
                     Array.Copy(_array, newArray, _size);
-#if NETCOREAPP2_1
-                    s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                    s_pool.Return(_array, true);
-#endif
+                    ReturnArray();
                     _array = newArray;
                     _version++;
                 }
                 else
                 {
-                    // the array from the pool wasn't any smaller than the one we already had,
-                    // so return it and do nothing - if we create an array not from the pool, we'll
-                    // get an exception when returning it.
+                    // The array from the pool wasn't any smaller than the one we already had,
+                    // (we can only control minimum size) so return it and do nothing.
+                    // If we create an exact-sized array not from the pool, we'll
+                    // get an exception when returning it to the pool.
                     s_pool.Return(newArray);
                 }
             }
@@ -255,7 +272,7 @@ namespace Collections.Pooled
             {
                 ThrowForEmptyStack();
             }
-            
+
             return array[size];
         }
 
@@ -281,7 +298,7 @@ namespace Collections.Pooled
         {
             int size = _size - 1;
             T[] array = _array;
-            
+
             // if (_size == 0) is equivalent to if (size == -1), and this case
             // is covered with (uint)size, thus allowing bounds check elimination 
             // https://github.com/dotnet/coreclr/pull/9773
@@ -289,7 +306,7 @@ namespace Collections.Pooled
             {
                 ThrowForEmptyStack();
             }
-            
+
             _version++;
             _size = size;
             T item = array[size];
@@ -348,25 +365,23 @@ namespace Collections.Pooled
                 PushWithResize(item);
             }
         }
-        
+
         // Non-inline from Stack.Push to improve its code quality as uncommon path
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void PushWithResize(T item)
         {
             var newArray = s_pool.Rent((_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
             Array.Copy(_array, newArray, _size);
-#if NETCOREAPP2_1
-            s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-            s_pool.Return(_array, true);
-#endif
+            ReturnArray();
             _array = newArray;
             _array[_size] = item;
             _version++;
             _size++;
         }
 
-        // Copies the Stack to an array, in the same order Pop would return the items.
+        /// <summary>
+        /// Copies the Stack to an array, in the same order Pop would return the items.
+        /// </summary>
         public T[] ToArray()
         {
             if (_size == 0)
@@ -385,16 +400,25 @@ namespace Collections.Pooled
         private void ThrowForEmptyStack()
         {
             Debug.Assert(_size == 0);
-            throw new InvalidOperationException(SR.InvalidOperation_EmptyStack);
+            throw new InvalidOperationException("Stack was empty.");
+        }
+
+        private void ReturnArray()
+        {
+            if (_array?.Length > 0)
+            {
+#if NETCOREAPP2_1
+                s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+                s_pool.Return(_array, true);
+#endif
+            }
         }
 
         public void Dispose()
         {
-            if (_array?.Length > 0)
-            {
-                s_pool.Return(_array);
-                _array = Array.Empty<T>();
-            }
+            ReturnArray();
+            _array = Array.Empty<T>();
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
@@ -421,7 +445,7 @@ namespace Collections.Pooled
             public bool MoveNext()
             {
                 bool retval;
-                if (_version != _stack._version) throw new InvalidOperationException(SR.InvalidOperation_EnumFailedVersion);
+                if (_version != _stack._version) throw new InvalidOperationException("Collection was modified during enumeration.");
                 if (_index == -2)
                 {  // First call to enumerator.
                     _index = _stack._size - 1;
@@ -452,13 +476,13 @@ namespace Collections.Pooled
                     return _currentElement;
                 }
             }
-            
+
             private void ThrowEnumerationNotStartedOrEnded()
             {
                 Debug.Assert(_index == -1 || _index == -2);
-                throw new InvalidOperationException(_index == -2 ? SR.InvalidOperation_EnumNotStarted : SR.InvalidOperation_EnumEnded);
+                throw new InvalidOperationException(_index == -2 ? "Enumeration was not started." : "Enumeration has ended.");
             }
-            
+
             object IEnumerator.Current
             {
                 get { return Current; }
@@ -466,7 +490,7 @@ namespace Collections.Pooled
 
             void IEnumerator.Reset()
             {
-                if (_version != _stack._version) throw new InvalidOperationException(SR.InvalidOperation_EnumFailedVersion);
+                if (_version != _stack._version) throw new InvalidOperationException("Collection was modified during enumeration.");
                 _index = -2;
                 _currentElement = default;
             }
