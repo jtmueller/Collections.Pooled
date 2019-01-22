@@ -864,9 +864,8 @@ namespace Collections.Pooled
                 }
             }
 
-            s_bucketPool.Return(_buckets);
+            ReturnArrays();
             _buckets = buckets;
-            s_entryPool.Return(_entries);
             _entries = entries;
             _size = newSize;
         }
@@ -1165,9 +1164,14 @@ namespace Collections.Pooled
                 }
             }
             _count = count;
+            _size = newSize;
             _freeCount = 0;
             s_bucketPool.Return(oldBuckets);
-            s_entryPool.Return(oldEntries);
+#if NETCOREAPP2_1
+            s_entryPool.Return(entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
+#else
+            s_entryPool.Return(entries, clearArray: true);
+#endif
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1232,6 +1236,26 @@ namespace Collections.Pooled
             }
         }
 
+        private void ReturnArrays()
+        {
+            if (_entries?.Length > 0)
+            {
+#if NETCOREAPP2_1
+                s_entryPool.Return(_entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
+#else
+                s_entryPool.Return(_entries, clearArray: true);
+#endif
+            }
+
+            if (_buckets?.Length > 0)
+            {
+                s_bucketPool.Return(_buckets);
+            }
+
+            _entries = null;
+            _buckets = null;
+        }
+
         private static bool IsCompatibleKey(object key)
         {
             if (key == null)
@@ -1288,18 +1312,11 @@ namespace Collections.Pooled
 
         public void Dispose()
         {
-            if (_buckets != null)
-            {
-                s_bucketPool.Return(_buckets);
-                _buckets = null;
-            }
-            if (_entries != null)
-            {
-                s_entryPool.Return(_entries);
-                _entries = null;
-            }
+            ReturnArrays();
             _count = 0;
             _size = 0;
+            _freeList = -1;
+            _freeCount = 0;
         }
 
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
