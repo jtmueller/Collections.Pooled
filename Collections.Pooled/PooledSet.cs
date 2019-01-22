@@ -53,7 +53,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design")]
     [Serializable]
-    public class PooledSet<T> : ICollection<T>, ISet<T>, IReadOnlyCollection<T>, ISerializable, IDeserializationCallback
+    public class PooledSet<T> : ICollection<T>, ISet<T>, IReadOnlyCollection<T>, ISerializable, IDeserializationCallback, IDisposable
     {
         // store lower 31 bits of hash code
         private const int Lower31BitMask = 0x7FFFFFFF;
@@ -111,6 +111,7 @@ namespace Collections.Pooled
             _count = 0;
             _freeList = -1;
             _version = 0;
+            _size = 0;
         }
 
         public PooledSet(int capacity)
@@ -150,7 +151,7 @@ namespace Collections.Pooled
 
                 UnionWith(collection);
 
-                if (_count > 0 && _slots.Length / _count > ShrinkThreshold)
+                if (_count > 0 && _size / _count > ShrinkThreshold)
                 {
                     TrimExcess();
                 }
@@ -179,13 +180,15 @@ namespace Collections.Pooled
                 return;
             }
 
-            int capacity = source._buckets.Length;
+            int capacity = _size = source._size;
             int threshold = HashHelpers.ExpandPrime(count + 1);
 
             if (threshold >= capacity)
             {
-                _buckets = (int[])source._buckets.Clone();
-                _slots = (Slot[])source._slots.Clone();
+                _buckets = s_bucketPool.Rent(capacity);
+                Array.Clear(_buckets, 0, _buckets.Length);
+                Array.Copy(source._buckets, _buckets, capacity);
+                _slots = s_slotPool.Rent(capacity);
 
                 _lastIndex = source._lastIndex;
                 _freeList = source._freeList;
@@ -275,14 +278,14 @@ namespace Collections.Pooled
                 int hashCode = InternalGetHashCode(item);
                 Slot[] slots = _slots;
                 // see note at "HashSet" level describing why "- 1" appears in for loop
-                for (int i = _buckets[hashCode % _buckets.Length] - 1; i >= 0; i = slots[i].next)
+                for (int i = _buckets[hashCode % _size] - 1; i >= 0; i = slots[i].next)
                 {
                     if (slots[i].hashCode == hashCode && _comparer.Equals(slots[i].value, item))
                     {
                         return true;
                     }
 
-                    if (collisionCount >= slots.Length)
+                    if (collisionCount >= _size)
                     {
                         // The chain of entries forms a loop, which means a concurrent update has happened.
                         throw new InvalidOperationException("Concurrent operations not supported.");
@@ -312,7 +315,7 @@ namespace Collections.Pooled
             if (_buckets != null)
             {
                 int hashCode = InternalGetHashCode(item);
-                int bucket = hashCode % _buckets.Length;
+                int bucket = hashCode % _size;
                 int last = -1;
                 int collisionCount = 0;
                 Slot[] slots = _slots;
@@ -355,7 +358,7 @@ namespace Collections.Pooled
                         return true;
                     }
 
-                    if (collisionCount >= slots.Length)
+                    if (collisionCount >= _size)
                     {
                         // The chain of entries forms a loop, which means a concurrent update has happened.
                         throw new InvalidOperationException("Concurrent operations not supported.");
@@ -409,7 +412,7 @@ namespace Collections.Pooled
 
             info.AddValue(VersionName, _version); // need to serialize version to avoid problems with serializing while enumerating
             info.AddValue(ComparerName, _comparer, typeof(IEqualityComparer<T>));
-            info.AddValue(CapacityName, _buckets == null ? 0 : _buckets.Length);
+            info.AddValue(CapacityName, _buckets == null ? 0 : _size);
 
             if (_buckets != null)
             {
@@ -433,14 +436,14 @@ namespace Collections.Pooled
                 return;
             }
 
-            int capacity = _siInfo.GetInt32(CapacityName);
+            int capacity = _size = _siInfo.GetInt32(CapacityName);
             _comparer = (IEqualityComparer<T>)_siInfo.GetValue(ComparerName, typeof(IEqualityComparer<T>));
             _freeList = -1;
 
             if (capacity != 0)
             {
-                _buckets = new int[capacity];
-                _slots = new Slot[capacity];
+                _buckets = s_bucketPool.Rent(capacity);
+                _slots = s_slotPool.Rent(capacity);
 
                 T[] array = (T[])_siInfo.GetValue(ElementsName, typeof(T[]));
 
@@ -469,7 +472,7 @@ namespace Collections.Pooled
         #region HashSet methods
 
         /// <summary>
-        /// Add item to this HashSet. Returns bool indicating whether item was added (won't be 
+        /// Add item to this PooledSet. Returns bool indicating whether item was added (won't be 
         /// added if already present)
         /// </summary>
         /// <param name="item"></param>
@@ -577,6 +580,12 @@ namespace Collections.Pooled
                     IntersectWithHashSetWithSameEC(otherAsSet);
                     return;
                 }
+
+                if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+                {
+                    IntersectWithHashSetWithSameEC(otherAsHs);
+                    return;
+                }
             }
 
             IntersectWithEnumerable(other);
@@ -647,6 +656,10 @@ namespace Collections.Pooled
             {
                 SymmetricExceptWithUniqueHashSet(otherAsSet);
             }
+            else if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+            {
+                SymmetricExceptWithUniqueHashSet(otherAsHs);
+            }
             else
             {
                 SymmetricExceptWithEnumerable(other);
@@ -700,11 +713,22 @@ namespace Collections.Pooled
                 // each element in this is contained in other.
                 return IsSubsetOfHashSetWithSameEC(otherAsSet);
             }
-            else
+
+            if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
             {
-                ElementCount result = CheckUniqueAndUnfoundElements(other, false);
-                return (result.uniqueCount == _count && result.unfoundCount >= 0);
+                // if this has more elements then it can't be a subset
+                if (_count > otherAsHs.Count)
+                {
+                    return false;
+                }
+
+                // already checked that we're using same equality comparer. simply check that 
+                // each element in this is contained in other.
+                return IsSubsetOfHashSetWithSameEC(otherAsHs);
             }
+
+            ElementCount result = CheckUniqueAndUnfoundElements(other, false);
+            return (result.uniqueCount == _count && result.unfoundCount >= 0);
         }
 
         /// <summary>
@@ -759,6 +783,18 @@ namespace Collections.Pooled
                     // check suffices for proper subset.
                     return IsSubsetOfHashSetWithSameEC(otherAsSet);
                 }
+                if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+                {
+                    // if this has more elements then it can't be a subset
+                    if (_count > otherAsHs.Count)
+                    {
+                        return false;
+                    }
+
+                    // already checked that we're using same equality comparer. simply check that 
+                    // each element in this is contained in other.
+                    return IsSubsetOfHashSetWithSameEC(otherAsHs);
+                }
             }
 
             ElementCount result = CheckUniqueAndUnfoundElements(other, false);
@@ -804,6 +840,14 @@ namespace Collections.Pooled
                 if (other is PooledSet<T> otherAsSet && AreEqualityComparersEqual(this, otherAsSet))
                 {
                     if (otherAsSet.Count > _count)
+                    {
+                        return false;
+                    }
+                }
+                
+                if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+                {
+                    if (otherAsHs.Count > _count)
                     {
                         return false;
                     }
@@ -869,6 +913,16 @@ namespace Collections.Pooled
                     }
                     // now perform element check
                     return ContainsAllElements(otherAsSet);
+                }
+
+                if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+                {
+                    if (otherAsHs.Count >= _count)
+                    {
+                        return false;
+                    }
+                    // now perform element check
+                    return ContainsAllElements(otherAsHs);
                 }
             }
             // couldn't fall out in the above cases; do it the long way
@@ -942,6 +996,19 @@ namespace Collections.Pooled
                 // one is a superset of the other then they must be equal
                 return ContainsAllElements(otherAsSet);
             }
+            if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
+            {
+                // attempt to return early: since both contain unique elements, if they have 
+                // different counts, then they can't be equal
+                if (_count != otherAsHs.Count)
+                {
+                    return false;
+                }
+
+                // already confirmed that the sets have the same number of distinct elements, so if
+                // one is a superset of the other then they must be equal
+                return ContainsAllElements(otherAsHs);
+            }
             else
             {
                 if (other is ICollection<T> otherAsCollection)
@@ -1002,7 +1069,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="match"></param>
         /// <returns></returns>
-        public int RemoveWhere(Predicate<T> match)
+        public int RemoveWhere(Func<T, bool> match)
         {
             if (match == null)
             {
@@ -1042,7 +1109,7 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
                 throw new ArgumentOutOfRangeException(nameof(capacity));
-            int currentCapacity = _slots == null ? 0 : _slots.Length;
+            int currentCapacity = _slots == null ? 0 : _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;
             if (_buckets == null)
@@ -1071,8 +1138,7 @@ namespace Collections.Pooled
             if (_count == 0)
             {
                 // if count is zero, clear references
-                _buckets = null;
-                _slots = null;
+                ReturnArrays();
                 _version++;
             }
             else
@@ -1082,8 +1148,19 @@ namespace Collections.Pooled
                 // similar to IncreaseCapacity but moves down elements in case add/remove/etc
                 // caused fragmentation
                 int newSize = HashHelpers.GetPrime(_count);
-                Slot[] newSlots = new Slot[newSize];
-                int[] newBuckets = new int[newSize];
+                Slot[] newSlots = s_slotPool.Rent(newSize);
+                int[] newBuckets = s_bucketPool.Rent(newSize);
+
+                if (newSlots.Length >= _slots.Length || newBuckets.Length >= _buckets.Length)
+                {
+                    // ArrayPool treats "newSize" as a minimum - if it gives us arrays that are as-big or bigger
+                    // that what we already have, we're not really trimming any excess and may as well quit.
+                    // We can't manually create exact-sized arrays unless we track that we did and avoid returning
+                    // them to the ArrayPool, as that would throw an exception.
+                    s_slotPool.Return(newSlots);
+                    s_bucketPool.Return(newBuckets);
+                    return;
+                }
 
                 // move down slots and rehash at the same time. newIndex keeps track of current 
                 // position in newSlots array
@@ -1103,12 +1180,15 @@ namespace Collections.Pooled
                     }
                 }
 
-                Debug.Assert(newSlots.Length <= _slots.Length, "capacity increased after TrimExcess");
+                Debug.Assert(newSize <= _size, "capacity increased after TrimExcess");
 
                 _lastIndex = newIndex;
+                ReturnArrays();
                 _slots = newSlots;
                 _buckets = newBuckets;
+                _size = newSize;
                 _freeList = -1;
+                _version++;
             }
         }
 
@@ -1172,6 +1252,14 @@ namespace Collections.Pooled
             Debug.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
             Debug.Assert(_buckets != null, "SetCapacity called on a set with no elements");
 
+            // Because ArrayPool might have given us larger arrays than we asked for, see if we can 
+            // use the existing capacity without actually resizing.
+            if (_buckets.Length >= newSize && _slots.Length >= newSize)
+            {
+                _size = newSize;
+                return;
+            }
+
             Slot[] newSlots = s_slotPool.Rent(newSize);
             if (_slots != null)
             {
@@ -1197,9 +1285,9 @@ namespace Collections.Pooled
             if (_slots?.Length > 0)
             {
 #if NETCOREAPP2_1
-                s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                s_slotPool.Return(_slots, true);
+                s_slotPool.Return(_slots, clearArray: true);
 #endif
             }
 
@@ -1207,6 +1295,9 @@ namespace Collections.Pooled
             {
                 s_bucketPool.Return(_buckets);
             }
+
+            _slots = null;
+            _buckets = null;
         }
 
         /// <summary>
@@ -1223,7 +1314,7 @@ namespace Collections.Pooled
             }
 
             int hashCode = InternalGetHashCode(value);
-            int bucket = hashCode % _buckets.Length;
+            int bucket = hashCode % _size;
             int collisionCount = 0;
             Slot[] slots = _slots;
             for (int i = _buckets[bucket] - 1; i >= 0; i = slots[i].next)
@@ -1233,7 +1324,7 @@ namespace Collections.Pooled
                     return false;
                 }
 
-                if (collisionCount >= slots.Length)
+                if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
                     throw new InvalidOperationException("Concurrent operations not supported.");
@@ -1249,12 +1340,12 @@ namespace Collections.Pooled
             }
             else
             {
-                if (_lastIndex == slots.Length)
+                if (_lastIndex == _size)
                 {
                     IncreaseCapacity();
                     // this will change during resize
                     slots = _slots;
-                    bucket = hashCode % _buckets.Length;
+                    bucket = hashCode % _size;
                 }
                 index = _lastIndex;
                 _lastIndex++;
@@ -1273,7 +1364,7 @@ namespace Collections.Pooled
         // when constructing from another HashSet.
         private void AddValue(int index, int hashCode, T value)
         {
-            int bucket = hashCode % _buckets.Length;
+            int bucket = hashCode % _size;
 
 #if DEBUG
             Debug.Assert(InternalGetHashCode(value) == hashCode);
@@ -1335,11 +1426,56 @@ namespace Collections.Pooled
         }
 
         /// <summary>
+        /// Implementation Notes:
+        /// If other is a hashset and is using same equality comparer, then checking subset is 
+        /// faster. Simply check that each element in this is in other.
+        /// 
+        /// Note: if other doesn't use same equality comparer, then Contains check is invalid,
+        /// which is why callers must take are of this.
+        /// 
+        /// If callers are concerned about whether this is a proper subset, they take care of that.
+        ///
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        private bool IsSubsetOfHashSetWithSameEC(HashSet<T> other)
+        {
+            foreach (T item in this)
+            {
+                if (!other.Contains(item))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// If other is a hashset that uses same equality comparer, intersect is much faster 
         /// because we can use other's Contains
         /// </summary>
         /// <param name="other"></param>
         private void IntersectWithHashSetWithSameEC(PooledSet<T> other)
+        {
+            for (int i = 0; i < _lastIndex; i++)
+            {
+                if (_slots[i].hashCode >= 0)
+                {
+                    T item = _slots[i].value;
+                    if (!other.Contains(item))
+                    {
+                        Remove(item);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// If other is a hashset that uses same equality comparer, intersect is much faster 
+        /// because we can use other's Contains
+        /// </summary>
+        /// <param name="other"></param>
+        private void IntersectWithHashSetWithSameEC(HashSet<T> other)
         {
             for (int i = 0; i < _lastIndex; i++)
             {
@@ -1416,14 +1552,14 @@ namespace Collections.Pooled
             int collisionCount = 0;
             int hashCode = InternalGetHashCode(item);
             Slot[] slots = _slots;
-            for (int i = _buckets[hashCode % _buckets.Length] - 1; i >= 0; i = slots[i].next)
+            for (int i = _buckets[hashCode % _size] - 1; i >= 0; i = slots[i].next)
             {
                 if ((slots[i].hashCode) == hashCode && _comparer.Equals(slots[i].value, item))
                 {
                     return i;
                 }
 
-                if (collisionCount >= slots.Length)
+                if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
                     throw new InvalidOperationException("Concurrent operations not supported.");
@@ -1443,6 +1579,25 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="other"></param>
         private void SymmetricExceptWithUniqueHashSet(PooledSet<T> other)
+        {
+            foreach (T item in other)
+            {
+                if (!Remove(item))
+                {
+                    AddIfNotPresent(item);
+                }
+            }
+        }
+
+        /// <summary>
+        /// if other is a set, we can assume it doesn't have duplicate elements, so use this
+        /// technique: if can't remove, then it wasn't present in this set, so add.
+        /// 
+        /// As with other methods, callers take care of ensuring that other is a hashset using the
+        /// same equality comparer.
+        /// </summary>
+        /// <param name="other"></param>
+        private void SymmetricExceptWithUniqueHashSet(HashSet<T> other)
         {
             foreach (T item in other)
             {
@@ -1544,7 +1699,7 @@ namespace Collections.Pooled
             Debug.Assert(_buckets != null, "_buckets is null, callers should have checked");
 
             int hashCode = InternalGetHashCode(value);
-            int bucket = hashCode % _buckets.Length;
+            int bucket = hashCode % _size;
             int collisionCount = 0;
             Slot[] slots = _slots;
             for (int i = _buckets[bucket] - 1; i >= 0; i = slots[i].next)
@@ -1555,7 +1710,7 @@ namespace Collections.Pooled
                     return false; //already present
                 }
 
-                if (collisionCount >= slots.Length)
+                if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
                     throw new InvalidOperationException("Concurrent operations not supported.");
@@ -1570,12 +1725,12 @@ namespace Collections.Pooled
             }
             else
             {
-                if (_lastIndex == slots.Length)
+                if (_lastIndex == _size)
                 {
                     IncreaseCapacity();
                     // this will change during resize
                     slots = _slots;
-                    bucket = hashCode % _buckets.Length;
+                    bucket = hashCode % _size;
                 }
                 index = _lastIndex;
                 _lastIndex++;
@@ -1759,6 +1914,18 @@ namespace Collections.Pooled
         }
 
         /// <summary>
+        /// Checks if equality comparers are equal. This is used for algorithms that can
+        /// speed up if it knows the other item has unique elements. I.e. if they're using 
+        /// different equality comparers, then uniqueness assumption between sets break.
+        /// </summary>
+        /// <param name="set1"></param>
+        /// <param name="set2"></param>
+        private static bool AreEqualityComparersEqual(PooledSet<T> set1, HashSet<T> set2)
+        {
+            return set1.Comparer.Equals(set2.Comparer);
+        }
+
+        /// <summary>
         /// Workaround Comparers that throw ArgumentNullException for GetHashCode(null).
         /// </summary>
         /// <param name="item"></param>
@@ -1770,6 +1937,17 @@ namespace Collections.Pooled
                 return 0;
             }
             return _comparer.GetHashCode(item) & Lower31BitMask;
+        }
+
+        public void Dispose()
+        {
+            ReturnArrays();
+            _size = 0;
+            _lastIndex = 0;
+            _count = 0;
+            _freeList = -1;
+
+            _version++;
         }
 
         #endregion

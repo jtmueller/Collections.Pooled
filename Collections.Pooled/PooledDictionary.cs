@@ -35,7 +35,7 @@ namespace Collections.Pooled
     }
 
     /// <remarks>
-    /// A PooledDictionary<TKey,TValue> can support multiple readers concurrently, as long as the collection is not modified. 
+    /// A <see cref="PooledDictionary{TKey,TValue}"/> can support multiple readers concurrently, as long as the collection is not modified. 
     /// Even so, enumerating through a collection is intrinsically not a thread-safe procedure. 
     /// In the rare case where an enumeration contends with write accesses, the collection must be locked during the entire enumeration. 
     /// To allow the collection to be accessed by multiple threads for reading and writing, you must implement your own synchronization. 
@@ -825,7 +825,7 @@ namespace Collections.Pooled
             Debug.Assert(!forceNewHashCodes || default(TKey) == null);
             Debug.Assert(newSize >= _size);
 
-            // Because ArrayPool might give us larger arrays than we asked for, see if we can 
+            // Because ArrayPool might have given us larger arrays than we asked for, see if we can 
             // use the existing capacity without actually resizing.
             if (_buckets.Length >= newSize && _entries.Length >= newSize)
             {

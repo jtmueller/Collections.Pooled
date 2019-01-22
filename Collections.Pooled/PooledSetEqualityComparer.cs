@@ -47,6 +47,10 @@ namespace Collections.Pooled
             {
                 return (_comparer == comparer._comparer);
             }
+            else if (obj is IEqualityComparer<T> ieq)
+            {
+                return _comparer == ieq;
+            }
             return false;
         }
 
