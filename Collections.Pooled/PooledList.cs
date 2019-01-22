@@ -1141,15 +1141,8 @@ namespace Collections.Pooled
                 return;
 
 #if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            {
-                // Clear the elements so that the gc can reclaim the references.
-                s_pool.Return(_items, clearArray: true);
-            }
-            else
-            {
-                s_pool.Return(_items);
-            }
+            // Clear the elements so that the gc can reclaim the references.
+            s_pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
             s_pool.Return(_items, clearArray: true);
 #endif
@@ -1160,6 +1153,7 @@ namespace Collections.Pooled
         {
             ReturnArray();
             _size = 0;
+            _version++;
         }
 
         private static bool IsCompatibleObject(object value)
