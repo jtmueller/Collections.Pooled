@@ -25,6 +25,7 @@ namespace Collections.Pooled
     /// and uses <see cref="ArrayPool{T}"/> when allocating internal arrays.
     /// </remarks>
     [DebuggerDisplay("Count = {Count}")]
+    [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
     public class PooledList<T> : IList<T>, IReadOnlyList<T>, IList, IDisposable
     {

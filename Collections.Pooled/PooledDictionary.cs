@@ -70,9 +70,9 @@ namespace Collections.Pooled
         // arrays down to the correct length.
         private int[] _buckets;
         private Entry[] _entries;
+        private int _size;
 
         private int _count;
-        private int _size;
         private int _freeList;
         private int _freeCount;
         private int _version;

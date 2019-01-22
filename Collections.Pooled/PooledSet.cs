@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -71,8 +72,19 @@ namespace Collections.Pooled
         private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
         private const string VersionName = "Version"; // Do not rename (binary serialization)
 
+        private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
+        private static readonly ArrayPool<Slot> s_slotPool = ArrayPool<Slot>.Shared;
+
+        // WARNING:
+        // It's important that the number of buckets be prime, and these arrays could exceed
+        // that size as they come from ArrayPool. Be careful not to index past _size or bad
+        // things will happen.
+        // Alternatively, use the private properties Buckets and Slots, which slice the
+        // arrays down to the correct length.
         private int[] _buckets;
         private Slot[] _slots;
+        private int _size;
+
         private int _count;
         private int _lastIndex;
         private int _freeList;
@@ -214,6 +226,10 @@ namespace Collections.Pooled
         }
 
         #endregion
+
+        private Span<int> Buckets => _buckets.AsSpan(0, _size);
+
+        private Span<Slot> Slots => _slots.AsSpan(0, _size);
 
         #region ICollection<T> methods
 
@@ -1118,11 +1134,12 @@ namespace Collections.Pooled
         {
             Debug.Assert(_buckets == null, "Initialize was called but _buckets was non-null");
 
-            int size = HashHelpers.GetPrime(capacity);
+            _size = HashHelpers.GetPrime(capacity);
+            _buckets = s_bucketPool.Rent(_size);
+            Array.Clear(_buckets, 0, _buckets.Length);
+            _slots = s_slotPool.Rent(_size);
 
-            _buckets = new int[size];
-            _slots = new Slot[size];
-            return size;
+            return _size;
         }
 
         /// <summary>
@@ -1155,21 +1172,41 @@ namespace Collections.Pooled
             Debug.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
             Debug.Assert(_buckets != null, "SetCapacity called on a set with no elements");
 
-            Slot[] newSlots = new Slot[newSize];
+            Slot[] newSlots = s_slotPool.Rent(newSize);
             if (_slots != null)
             {
                 Array.Copy(_slots, 0, newSlots, 0, _lastIndex);
             }
 
-            int[] newBuckets = new int[newSize];
+            int[] newBuckets = s_bucketPool.Rent(newSize);
+            Array.Clear(newBuckets, 0, newBuckets.Length);
             for (int i = 0; i < _lastIndex; i++)
             {
                 int bucket = newSlots[i].hashCode % newSize;
                 newSlots[i].next = newBuckets[bucket] - 1;
                 newBuckets[bucket] = i + 1;
             }
+
+            ReturnArrays();
             _slots = newSlots;
             _buckets = newBuckets;
+        }
+
+        private void ReturnArrays()
+        {
+            if (_slots?.Length > 0)
+            {
+#if NETCOREAPP2_1
+                s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+                s_slotPool.Return(_slots, true);
+#endif
+            }
+
+            if (_buckets?.Length > 0)
+            {
+                s_bucketPool.Return(_buckets);
+            }
         }
 
         /// <summary>
