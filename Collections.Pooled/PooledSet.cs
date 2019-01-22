@@ -436,14 +436,13 @@ namespace Collections.Pooled
                 return;
             }
 
-            int capacity = _size = _siInfo.GetInt32(CapacityName);
+            int capacity = _siInfo.GetInt32(CapacityName);
             _comparer = (IEqualityComparer<T>)_siInfo.GetValue(ComparerName, typeof(IEqualityComparer<T>));
             _freeList = -1;
 
             if (capacity != 0)
             {
-                _buckets = s_bucketPool.Rent(capacity);
-                _slots = s_slotPool.Rent(capacity);
+                Initialize(capacity);
 
                 T[] array = (T[])_siInfo.GetValue(ElementsName, typeof(T[]));
 
