@@ -137,10 +137,5 @@ namespace Collections.Pooled.Benchmarks.PooledStack
             intList = new List<int>(intArray);
             stringList = new List<string>(stringArray);
         }
-
-        public enum StackType
-        {
-            Int, String
-        }
     }
 }

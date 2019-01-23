@@ -39,7 +39,8 @@ namespace Collections.Pooled
     /// Even so, enumerating through a collection is intrinsically not a thread-safe procedure. 
     /// In the rare case where an enumeration contends with write accesses, the collection must be locked during the entire enumeration. 
     /// To allow the collection to be accessed by multiple threads for reading and writing, you must implement your own synchronization. 
-    /// <remarks/>
+    /// </remarks>
+    [DebuggerTypeProxy(typeof(IDictionaryDebugView<,>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
@@ -89,7 +90,7 @@ namespace Collections.Pooled
 
         public PooledDictionary(int capacity, IEqualityComparer<TKey> comparer)
         {
-            if (capacity < 0) throw new ArgumentOutOfRangeException(nameof(capacity));
+            if (capacity < 0) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             if (capacity > 0) Initialize(capacity);
             if (comparer != EqualityComparer<TKey>.Default)
             {
@@ -109,7 +110,7 @@ namespace Collections.Pooled
             this(dictionary?.Count ?? 0, comparer)
         {
             if (dictionary == null)
-                throw new ArgumentNullException(nameof(dictionary));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
 
             // It is likely that the passed-in dictionary is PooledDictionary<TKey,TValue>. When this is the case,
             // avoid the enumerator allocation and overhead by looping through the entries array directly.
@@ -141,7 +142,7 @@ namespace Collections.Pooled
             this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, comparer)
         {
             if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
 
             foreach (var pair in collection)
             {
@@ -155,7 +156,7 @@ namespace Collections.Pooled
             this((collection as ICollection<(TKey, TValue)>)?.Count ?? 0, comparer)
         {
             if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
 
             foreach (var (key, value) in collection)
             {
@@ -260,7 +261,8 @@ namespace Collections.Pooled
             {
                 int i = FindEntry(key);
                 if (i >= 0) return _entries[i].value;
-                throw new KeyNotFoundException($"Key not found: '{key}'.");
+                ThrowHelper.ThrowKeyNotFoundException(key);
+                return default;
             }
             set
             {
@@ -278,7 +280,7 @@ namespace Collections.Pooled
         public void AddRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
             if (enumerable is null)
-                throw new ArgumentNullException(nameof(enumerable));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
@@ -292,7 +294,7 @@ namespace Collections.Pooled
         public void AddRange(IEnumerable<(TKey key, TValue value)> enumerable)
         {
             if (enumerable is null)
-                throw new ArgumentNullException(nameof(enumerable));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
@@ -377,7 +379,7 @@ namespace Collections.Pooled
                 _count = 0;
                 _freeList = -1;
                 _freeCount = 0;
-                Entries.Slice(0, count).Clear();
+                Array.Clear(_entries, 0, count);
                 _size = 0;
                 _version++;
             }
@@ -424,13 +426,19 @@ namespace Collections.Pooled
         private void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
             if (array == null)
-                throw new ArgumentNullException(nameof(array));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
+            }
 
             if ((uint)index > (uint)array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
+            }
 
             if (array.Length - index < Count)
-                throw new ArgumentException("Destination array too small.");
+            {
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
+            }
 
             int count = _count;
             var entries = _entries;
@@ -452,7 +460,9 @@ namespace Collections.Pooled
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
-                throw new ArgumentNullException(nameof(info));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
+            }
 
             info.AddValue(VersionName, _version);
             info.AddValue(ComparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
@@ -469,7 +479,9 @@ namespace Collections.Pooled
         private int FindEntry(TKey key)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
 
             int i = -1;
             int length = _size;
@@ -503,7 +515,7 @@ namespace Collections.Pooled
                         {
                             // The chain of entries forms a loop; which means a concurrent update has happened.
                             // Break out of the loop and throw, rather than looping forever.
-                            throw new InvalidOperationException("Concurrent operations are not supported.");
+                            ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                         }
                         collisionCount++;
                     } while (true);
@@ -528,7 +540,7 @@ namespace Collections.Pooled
                         {
                             // The chain of entries forms a loop; which means a concurrent update has happened.
                             // Break out of the loop and throw, rather than looping forever.
-                            throw new InvalidOperationException("Concurrent operations are not supported.");
+                            ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                         }
                         collisionCount++;
                     } while (true);
@@ -554,7 +566,7 @@ namespace Collections.Pooled
                     {
                         // The chain of entries forms a loop; which means a concurrent update has happened.
                         // Break out of the loop and throw, rather than looping forever.
-                        throw new InvalidOperationException("Concurrent operations are not supported.");
+                        ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                     }
                     collisionCount++;
                 } while (true);
@@ -577,7 +589,9 @@ namespace Collections.Pooled
         private bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
 
             if (_buckets == null || _size == 0)
             {
@@ -621,7 +635,7 @@ namespace Collections.Pooled
 
                             if (behavior == InsertionBehavior.ThrowOnExisting)
                             {
-                                throw new ArgumentException("An element with the same key already exists in the dictionary.");
+                                ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
                             }
 
                             return false;
@@ -632,7 +646,7 @@ namespace Collections.Pooled
                         {
                             // The chain of entries forms a loop; which means a concurrent update has happened.
                             // Break out of the loop and throw, rather than looping forever.
-                            throw new InvalidOperationException("Concurrent operations are not supported.");
+                            ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                         }
                         collisionCount++;
                     } while (true);
@@ -663,7 +677,7 @@ namespace Collections.Pooled
 
                             if (behavior == InsertionBehavior.ThrowOnExisting)
                             {
-                                throw new ArgumentException("An element with the same key already exists in the dictionary.");
+                                ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
                             }
 
                             return false;
@@ -674,7 +688,7 @@ namespace Collections.Pooled
                         {
                             // The chain of entries forms a loop; which means a concurrent update has happened.
                             // Break out of the loop and throw, rather than looping forever.
-                            throw new InvalidOperationException("Concurrent operations are not supported.");
+                            ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                         }
                         collisionCount++;
                     } while (true);
@@ -702,7 +716,7 @@ namespace Collections.Pooled
 
                         if (behavior == InsertionBehavior.ThrowOnExisting)
                         {
-                            throw new ArgumentException("An element with the same key already exists in the dictionary.");
+                            ThrowHelper.ThrowAddingDuplicateWithKeyArgumentException(key);
                         }
 
                         return false;
@@ -713,7 +727,7 @@ namespace Collections.Pooled
                     {
                         // The chain of entries forms a loop; which means a concurrent update has happened.
                         // Break out of the loop and throw, rather than looping forever.
-                        throw new InvalidOperationException("Concurrent operations are not supported.");
+                        ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                     }
                     collisionCount++;
                 } while (true);
@@ -876,7 +890,9 @@ namespace Collections.Pooled
         public bool Remove(TKey key)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
 
             var buckets = _buckets;
             var entries = _entries;
@@ -931,7 +947,7 @@ namespace Collections.Pooled
                     {
                         // The chain of entries forms a loop; which means a concurrent update has happened.
                         // Break out of the loop and throw, rather than looping forever.
-                        throw new InvalidOperationException("Concurrent operations are not supported.");
+                        ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                     }
                     collisionCount++;
                 }
@@ -945,7 +961,9 @@ namespace Collections.Pooled
         public bool Remove(TKey key, out TValue value)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
 
             var buckets = _buckets;
             var entries = _entries;
@@ -1000,7 +1018,7 @@ namespace Collections.Pooled
                 {
                     // The chain of entries forms a loop; which means a concurrent update has happened.
                     // Break out of the loop and throw, rather than looping forever.
-                    throw new InvalidOperationException("Concurrent operations are not supported.");
+                    ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                 }
                 collisionCount++;
             }
@@ -1050,19 +1068,30 @@ namespace Collections.Pooled
         void ICollection.CopyTo(Array array, int index)
         {
             if (array == null)
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             if (array.Rank != 1)
-                throw new ArgumentException("Destination array must be one-dimensional.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             if (array.GetLowerBound(0) != 0)
-                throw new ArgumentException("Destination array must be zero-based.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
             if ((uint)index > (uint)array.Length)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
             if (array.Length - index < Count)
-                throw new ArgumentException("Destination array too small.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
             if (array is KeyValuePair<TKey, TValue>[] pairs)
             {
                 CopyTo(pairs, index);
+            }
+            else if (array is DictionaryEntry[] dictEntryArray)
+            {
+                Entry[] entries = _entries;
+                for (int i = 0; i < _count; i++)
+                {
+                    if (entries[i].hashCode >= 0)
+                    {
+                        dictEntryArray[index++] = new DictionaryEntry(entries[i].key, entries[i].value);
+                    }
+                }
             }
             else if (array is object[] objects)
             {
@@ -1080,12 +1109,12 @@ namespace Collections.Pooled
                 }
                 catch (ArrayTypeMismatchException)
                 {
-                    throw new ArgumentException("Invalid array type.");
+                    ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                 }
             }
             else
             {
-                throw new ArgumentException("Invalid array type.");
+                ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
             }
         }
 
@@ -1098,7 +1127,7 @@ namespace Collections.Pooled
         public int EnsureCapacity(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             int currentCapacity = _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;
@@ -1213,9 +1242,10 @@ namespace Collections.Pooled
             set
             {
                 if (key == null)
-                    throw new ArgumentNullException(nameof(key));
-                if (value == null && default(TValue) != null)
-                    throw new ArgumentNullException("Value cannot be null");
+                {
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+                }
+                ThrowHelper.IfNullAndNullsAreIllegalThenThrow<TValue>(value, ExceptionArgument.value);
 
                 try
                 {
@@ -1226,12 +1256,12 @@ namespace Collections.Pooled
                     }
                     catch (InvalidCastException)
                     {
-                        throw new ArgumentNullException($"Wrong value type. Expected {typeof(TValue).Name}.");
+                        ThrowHelper.ThrowWrongValueTypeArgumentException(value, typeof(TValue));
                     }
                 }
                 catch (InvalidCastException)
                 {
-                    throw new ArgumentNullException($"Wrong key type. Expected {typeof(TKey).Name}.");
+                    ThrowHelper.ThrowWrongKeyTypeArgumentException(key, typeof(TKey));
                 }
             }
         }
@@ -1259,16 +1289,20 @@ namespace Collections.Pooled
         private static bool IsCompatibleKey(object key)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
             return key is TKey;
         }
 
         void IDictionary.Add(object key, object value)
         {
             if (key == null)
-                throw new ArgumentNullException(nameof(key));
-            if (value == null && default(TValue) != null)
-                throw new ArgumentNullException("Value cannot be null");
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
+            }
+            ThrowHelper.IfNullAndNullsAreIllegalThenThrow<TValue>(value, ExceptionArgument.value);
+
 
             try
             {
@@ -1280,12 +1314,12 @@ namespace Collections.Pooled
                 }
                 catch (InvalidCastException)
                 {
-                    throw new ArgumentNullException($"Wrong value type. Expected {typeof(TValue).Name}.");
+                    ThrowHelper.ThrowWrongValueTypeArgumentException(value, typeof(TValue));
                 }
             }
             catch (InvalidCastException)
             {
-                throw new ArgumentNullException($"Wrong key type. Expected {typeof(TKey).Name}.");
+                ThrowHelper.ThrowWrongKeyTypeArgumentException(key, typeof(TKey));
             }
         }
 
@@ -1343,7 +1377,7 @@ namespace Collections.Pooled
             {
                 if (_version != _dictionary._version)
                 {
-                    throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 // Use unsigned comparison since we set index to dictionary.count+1 when the enumeration ends.
@@ -1376,7 +1410,7 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || (_index == _dictionary._count + 1))
                     {
-                        throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
 
                     if (_getEnumeratorRetType == DictEntry)
@@ -1394,7 +1428,7 @@ namespace Collections.Pooled
             {
                 if (_version != _dictionary._version)
                 {
-                    throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 _index = 0;
@@ -1407,7 +1441,7 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || (_index == _dictionary._count + 1))
                     {
-                        throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
 
                     return new DictionaryEntry(_current.Key, _current.Value);
@@ -1420,7 +1454,7 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || (_index == _dictionary._count + 1))
                     {
-                        throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
 
                     return _current.Key;
@@ -1433,7 +1467,7 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || (_index == _dictionary._count + 1))
                     {
-                        throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
 
                     return _current.Value;
@@ -1441,10 +1475,11 @@ namespace Collections.Pooled
             }
         }
 
+        [DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
         [DebuggerDisplay("Count = {Count}")]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
-            private PooledDictionary<TKey, TValue> _dictionary;
+            private readonly PooledDictionary<TKey, TValue> _dictionary;
 
             public KeyCollection(PooledDictionary<TKey, TValue> dictionary)
             {
@@ -1457,13 +1492,13 @@ namespace Collections.Pooled
             public void CopyTo(TKey[] array, int index)
             {
                 if (array == null)
-                    throw new ArgumentNullException(nameof(array));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
 
                 if (index < 0 || index > array.Length)
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
                 if (array.Length - index < _dictionary.Count)
-                    throw new ArgumentException("Destination array too small.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 int count = _dictionary._count;
                 var entries = _dictionary._entries;
@@ -1478,16 +1513,19 @@ namespace Collections.Pooled
             bool ICollection<TKey>.IsReadOnly => true;
 
             void ICollection<TKey>.Add(TKey item)
-                => throw new NotSupportedException();
+                => ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_KeyCollectionSet);
 
             void ICollection<TKey>.Clear()
-                => throw new NotSupportedException();
+                => ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_KeyCollectionSet);
 
             bool ICollection<TKey>.Contains(TKey item)
                 => _dictionary.ContainsKey(item);
 
             bool ICollection<TKey>.Remove(TKey item)
-                => throw new NotSupportedException();
+            {
+                ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_KeyCollectionSet);
+                return false;
+            }
 
             IEnumerator<TKey> IEnumerable<TKey>.GetEnumerator()
                 => new Enumerator(_dictionary);
@@ -1498,15 +1536,15 @@ namespace Collections.Pooled
             void ICollection.CopyTo(Array array, int index)
             {
                 if (array == null)
-                    throw new ArgumentNullException(nameof(array));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
                 if (array.Rank != 1)
-                    throw new ArgumentException("Destination array must be one-dimensional.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
                 if (array.GetLowerBound(0) != 0)
-                    throw new ArgumentException("Destination array must be zero-based.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
                 if ((uint)index > (uint)array.Length)
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
                 if (array.Length - index < _dictionary.Count)
-                    throw new ArgumentException("Destination array too small.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 if (array is TKey[] keys)
                 {
@@ -1514,9 +1552,10 @@ namespace Collections.Pooled
                 }
                 else
                 {
-                    if (!(array is object[] objects))
+                    object[] objects = array as object[];
+                    if (objects == null)
                     {
-                        throw new ArgumentException("Invalid array type.");
+                        ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                     }
 
                     int count = _dictionary._count;
@@ -1530,7 +1569,7 @@ namespace Collections.Pooled
                     }
                     catch (ArrayTypeMismatchException)
                     {
-                        throw new ArgumentException("Invalid array type.");
+                        ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                     }
                 }
             }
@@ -1562,7 +1601,7 @@ namespace Collections.Pooled
                 {
                     if (_version != _dictionary._version)
                     {
-                        throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                     }
 
                     while ((uint)_index < (uint)_dictionary._count)
@@ -1589,7 +1628,7 @@ namespace Collections.Pooled
                     {
                         if (_index == 0 || (_index == _dictionary._count + 1))
                         {
-                            throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                            ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                         }
 
                         return _currentKey;
@@ -1600,7 +1639,7 @@ namespace Collections.Pooled
                 {
                     if (_version != _dictionary._version)
                     {
-                        throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                     }
 
                     _index = 0;
@@ -1609,14 +1648,19 @@ namespace Collections.Pooled
             }
         }
 
+        [DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
         [DebuggerDisplay("Count = {Count}")]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
-            private PooledDictionary<TKey, TValue> _dictionary;
+            private readonly PooledDictionary<TKey, TValue> _dictionary;
 
             public ValueCollection(PooledDictionary<TKey, TValue> dictionary)
             {
-                _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
+                if (dictionary == null)
+                {
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
+                }
+                _dictionary = dictionary;
             }
 
             public Enumerator GetEnumerator()
@@ -1625,13 +1669,13 @@ namespace Collections.Pooled
             public void CopyTo(TValue[] array, int index)
             {
                 if (array == null)
-                    throw new ArgumentNullException(nameof(array));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
 
                 if (index < 0 || index > array.Length)
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
                 if (array.Length - index < _dictionary.Count)
-                    throw new ArgumentException("Destination array is too small.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 int count = _dictionary._count;
                 var entries = _dictionary._entries;
@@ -1646,13 +1690,16 @@ namespace Collections.Pooled
             bool ICollection<TValue>.IsReadOnly => true;
 
             void ICollection<TValue>.Add(TValue item)
-                => throw new NotSupportedException();
+                => ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ValueCollectionSet);
 
             bool ICollection<TValue>.Remove(TValue item)
-                => throw new NotSupportedException();
+            {
+                ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ValueCollectionSet);
+                return false;
+            }
 
             void ICollection<TValue>.Clear()
-                => throw new NotSupportedException();
+                => ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ValueCollectionSet);
 
             bool ICollection<TValue>.Contains(TValue item)
                 => _dictionary.ContainsValue(item);
@@ -1666,15 +1713,15 @@ namespace Collections.Pooled
             void ICollection.CopyTo(Array array, int index)
             {
                 if (array == null)
-                    throw new ArgumentNullException(nameof(array));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
                 if (array.Rank != 1)
-                    throw new ArgumentException("Destination array must be one-dimensional.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
                 if (array.GetLowerBound(0) != 0)
-                    throw new ArgumentException("Destination array must be zero-based.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
                 if ((uint)index > (uint)array.Length)
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
                 if (array.Length - index < _dictionary.Count)
-                    throw new ArgumentException("Destination array too small.");
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 if (array is TValue[] values)
                 {
@@ -1693,12 +1740,12 @@ namespace Collections.Pooled
                     }
                     catch (ArrayTypeMismatchException)
                     {
-                        throw new ArgumentException("Invalid array type.");
+                        ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                     }
                 }
                 else
                 {
-                    throw new ArgumentException("Invalid array type.");
+                    ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                 }
             }
 
@@ -1729,7 +1776,7 @@ namespace Collections.Pooled
                 {
                     if (_version != _dictionary._version)
                     {
-                        throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                     }
 
                     while ((uint)_index < (uint)_dictionary._count)
@@ -1755,7 +1802,7 @@ namespace Collections.Pooled
                     {
                         if (_index == 0 || (_index == _dictionary._count + 1))
                         {
-                            throw new InvalidOperationException("Invalid enumeration, index was out of range.");
+                            ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                         }
 
                         return _currentValue;
@@ -1766,7 +1813,7 @@ namespace Collections.Pooled
                 {
                     if (_version != _dictionary._version)
                     {
-                        throw new InvalidOperationException("PooledDictionary was modified during enumeration.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                     }
                     _index = 0;
                     _currentValue = default;

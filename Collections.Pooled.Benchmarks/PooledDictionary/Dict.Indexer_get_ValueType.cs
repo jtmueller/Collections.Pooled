@@ -9,6 +9,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 #elif NET472
     [ClrJob]
 #endif
+    [MemoryDiagnoser]
     public class Dict_Indexer_get_ValueType : DictBase
     {
         [Benchmark(Baseline = true)]

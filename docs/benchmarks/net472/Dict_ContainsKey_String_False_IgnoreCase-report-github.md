@@ -1,20 +1,20 @@
 ``` ini
 
-BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.288 (1809/October2018Update/Redstone5)
+BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.292 (1809/October2018Update/Redstone5)
 Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical cores
-  [Host] : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3260.0
-  Clr    : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3260.0
+  [Host] : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3324.0
+  Clr    : .NET Framework 4.7.2 (CLR 4.0.30319.42000), 64bit RyuJIT-v4.7.3324.0
 
 Job=Clr  Runtime=Clr  
 
 ```
-|                                    Method |      N |        Mean |     Error |    StdDev | Ratio | RatioSD |
-|------------------------------------------ |------- |------------:|----------:|----------:|------:|--------:|
-|   **DictContainsKey_String_False_IgnoreCase** |   **1000** |    **27.21 us** | **0.1243 us** | **0.1102 us** |  **1.00** |    **0.00** |
-| PooledContainsKey_String_False_IgnoreCase |   1000 |    25.35 us | 0.0845 us | 0.0749 us |  0.93 |    0.00 |
-|                                           |        |             |           |           |       |         |
-|   **DictContainsKey_String_False_IgnoreCase** |  **10000** |   **292.45 us** | **4.9918 us** | **4.6694 us** |  **1.00** |    **0.00** |
-| PooledContainsKey_String_False_IgnoreCase |  10000 |   274.67 us | 1.0159 us | 0.9006 us |  0.94 |    0.02 |
-|                                           |        |             |           |           |       |         |
-|   **DictContainsKey_String_False_IgnoreCase** | **100000** | **2,932.90 us** | **6.1308 us** | **5.7348 us** |  **1.00** |    **0.00** |
-| PooledContainsKey_String_False_IgnoreCase | 100000 | 2,557.54 us | 7.9452 us | 7.4320 us |  0.87 |    0.00 |
+|                                    Method |      N |        Mean |      Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|------------------------------------------ |------- |------------:|-----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|   **DictContainsKey_String_False_IgnoreCase** |   **1000** |    **26.90 us** |  **0.0603 us** | **0.0564 us** |  **1.00** |           **-** |           **-** |           **-** |                **40 B** |
+| PooledContainsKey_String_False_IgnoreCase |   1000 |    26.10 us |  0.0431 us | 0.0403 us |  0.97 |           - |           - |           - |                40 B |
+|                                           |        |             |            |           |       |             |             |             |                     |
+|   **DictContainsKey_String_False_IgnoreCase** |  **10000** |   **269.69 us** |  **0.8295 us** | **0.7759 us** |  **1.00** |           **-** |           **-** |           **-** |                **44 B** |
+| PooledContainsKey_String_False_IgnoreCase |  10000 |   261.83 us |  1.1252 us | 0.8785 us |  0.97 |           - |           - |           - |                44 B |
+|                                           |        |             |            |           |       |             |             |             |                     |
+|   **DictContainsKey_String_False_IgnoreCase** | **100000** | **2,701.84 us** | **10.2913 us** | **9.6265 us** |  **1.00** |           **-** |           **-** |           **-** |                **64 B** |
+| PooledContainsKey_String_False_IgnoreCase | 100000 | 2,649.86 us |  7.8299 us | 6.9410 us |  0.98 |           - |           - |           - |                64 B |

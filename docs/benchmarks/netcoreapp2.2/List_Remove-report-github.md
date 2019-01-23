@@ -1,6 +1,6 @@
 ``` ini
 
-BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.288 (1809/October2018Update/Redstone5)
+BenchmarkDotNet=v0.11.3, OS=Windows 10.0.17763.292 (1809/October2018Update/Redstone5)
 Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical cores
 .NET Core SDK=3.0.100-preview-009812
   [Host] : .NET Core 2.2.1 (CoreCLR 4.6.27207.03, CoreFX 4.6.27207.03), 64bit RyuJIT
@@ -10,14 +10,14 @@ Job=Core  Runtime=Core  InvocationCount=1
 UnrollFactor=1  
 
 ```
-|              Method |     N |       Mean |     Error |    StdDev |     Median | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|-------------------- |------ |-----------:|----------:|----------:|-----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|      **ListRemove_Int** |  **3000** |   **2.622 ms** | **0.0533 ms** | **0.1487 ms** |   **2.575 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-|    PooledRemove_Int |  3000 |   2.669 ms | 0.0611 ms | 0.1792 ms |   2.627 ms |  1.02 |    0.09 |           - |           - |           - |                   - |
-|   ListRemove_String |  3000 |  25.204 ms | 0.4704 ms | 0.4170 ms |  25.145 ms |  9.68 |    0.59 |           - |           - |           - |                   - |
-| PooledRemove_String |  3000 |  24.159 ms | 0.4805 ms | 1.1232 ms |  24.143 ms |  9.24 |    0.68 |           - |           - |           - |                   - |
-|                     |       |            |           |           |            |       |         |             |             |             |                     |
-|      **ListRemove_Int** | **10000** |  **27.963 ms** | **0.2471 ms** | **0.2312 ms** |  **27.995 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-|    PooledRemove_Int | 10000 |  29.377 ms | 0.5770 ms | 1.1916 ms |  29.393 ms |  1.03 |    0.03 |           - |           - |           - |                   - |
-|   ListRemove_String | 10000 | 272.959 ms | 5.3967 ms | 5.3003 ms | 272.982 ms |  9.76 |    0.23 |           - |           - |           - |                   - |
-| PooledRemove_String | 10000 | 275.767 ms | 3.2306 ms | 3.0219 ms | 275.372 ms |  9.86 |    0.17 |           - |           - |           - |                   - |
+|              Method |     N |       Mean |     Error |    StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|-------------------- |------ |-----------:|----------:|----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
+|      **ListRemove_Int** |  **3000** |   **2.831 ms** | **0.0588 ms** | **0.1697 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+|    PooledRemove_Int |  3000 |   2.853 ms | 0.0729 ms | 0.2079 ms |  1.01 |    0.08 |           - |           - |           - |                   - |
+|   ListRemove_String |  3000 |  23.222 ms | 0.4523 ms | 0.6487 ms |  8.08 |    0.58 |           - |           - |           - |                   - |
+| PooledRemove_String |  3000 |  23.737 ms | 0.4695 ms | 0.8585 ms |  8.27 |    0.59 |           - |           - |           - |                   - |
+|                     |       |            |           |           |       |         |             |             |             |                     |
+|      **ListRemove_Int** | **10000** |  **25.586 ms** | **0.3591 ms** | **0.2998 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+|    PooledRemove_Int | 10000 |  26.053 ms | 0.5064 ms | 0.5418 ms |  1.02 |    0.02 |           - |           - |           - |                   - |
+|   ListRemove_String | 10000 | 250.975 ms | 3.0312 ms | 2.8354 ms |  9.82 |    0.12 |           - |           - |           - |                   - |
+| PooledRemove_String | 10000 | 249.741 ms | 2.2638 ms | 2.1176 ms |  9.75 |    0.15 |           - |           - |           - |                   - |

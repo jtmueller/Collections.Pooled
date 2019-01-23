@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 namespace Collections.Pooled
 {
     /// <summary>
-    /// NonRandomizedStringEqualityComparer is the comparer used by default with the <see cref="PooledDictionary{string, TValue}"/>.
+    /// NonRandomizedStringEqualityComparer is the comparer used by default with the PooledDictionary.
     /// We use NonRandomizedStringEqualityComparer as default comparer as it doesnt use the randomized string hashing which 
     /// keeps the performance not affected till we hit collision threshold and then we switch to the comparer which is using 
     /// randomized string hashing.
@@ -41,7 +41,7 @@ namespace Collections.Pooled
         // Use this if and only if 'Denial of Service' attacks are not a concern (i.e. never used for free-form user input),
         // or are otherwise mitigated.
         // This code was ported from an internal method on String, which relied on private members to get the char* pointer.
-        private unsafe int GetNonRandomizedHashCode(string str)
+        private static unsafe int GetNonRandomizedHashCode(string str)
         {
             ReadOnlySpan<char> chars = str.AsSpan();
             fixed (char* src = chars)

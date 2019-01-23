@@ -27,7 +27,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
-    public class PooledList<T> : IList<T>, IReadOnlyList<T>, IList, IDisposable
+    public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable
     {
         // internal constant copied from Array.MaxArrayLength
         private const int MaxArrayLength = 0X7FEFFFFF;
@@ -60,7 +60,7 @@ namespace Collections.Pooled
         public PooledList(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity), "Capacity must be a positive number.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (capacity == 0)
             {
@@ -101,7 +101,8 @@ namespace Collections.Pooled
             switch (collection)
             {
                 case null:
-                    throw new ArgumentNullException(nameof(collection));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                    break;
 
                 case ICollection<T> c:
                     int count = c.Count;
@@ -134,6 +135,9 @@ namespace Collections.Pooled
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
 
+        /// <inheritdoc/>
+        ReadOnlySpan<T> IReadOnlyPooledList<T>.Span => Span;
+
         /// <summary>
         /// Gets and sets the capacity of this list.  The capacity is the size of
         /// the internal array used to hold items.  When set, the internal 
@@ -147,7 +151,7 @@ namespace Collections.Pooled
             {
                 if (value < _size)
                 {
-                    throw new ArgumentException("Can't set the capacity below the current size.");
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.value, ExceptionResource.ArgumentOutOfRange_SmallCapacity);
                 }
 
                 if (value != _items.Length)
@@ -199,31 +203,6 @@ namespace Collections.Pooled
             }
         }
 
-        object IList.this[int index]
-        {
-            get
-            {
-                return this[index];
-            }
-            set
-            {
-                if (value is null && default(T) != null)
-                {
-                    // can't set a null value type
-                    throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(value));
-                }
-
-                try
-                {
-                    this[index] = (T)value;
-                }
-                catch (InvalidCastException)
-                {
-                    throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(value));
-                }
-            }
-        }
-
         /// <summary>
         /// Gets or sets the element at the given index.
         /// </summary>
@@ -234,7 +213,7 @@ namespace Collections.Pooled
                 // Following trick can reduce the range check by one
                 if ((uint)index >= (uint)_size)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
                 return _items[index];
             }
@@ -242,9 +221,39 @@ namespace Collections.Pooled
             set
             {
                 if ((uint)index >= (uint)_size)
-                    throw new ArgumentOutOfRangeException(nameof(index));
+                {
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+                }
                 _items[index] = value;
                 _version++;
+            }
+        }
+
+        private static bool IsCompatibleObject(object value)
+        {
+            // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
+            // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
+            return ((value is T) || (value == null && default(T) == null));
+        }
+
+        object IList.this[int index]
+        {
+            get
+            {
+                return this[index];
+            }
+            set
+            {
+                ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(value, ExceptionArgument.value);
+
+                try
+                {
+                    this[index] = (T)value;
+                }
+                catch (InvalidCastException)
+                {
+                    ThrowHelper.ThrowWrongValueTypeArgumentException(value, typeof(T));
+                }
             }
         }
 
@@ -277,6 +286,22 @@ namespace Collections.Pooled
             EnsureCapacity(size + 1);
             _size = size + 1;
             _items[size] = item;
+        }
+
+        int IList.Add(object item)
+        {
+            ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(item, ExceptionArgument.item);
+
+            try
+            {
+                Add((T)item);
+            }
+            catch (InvalidCastException)
+            {
+                ThrowHelper.ThrowWrongValueTypeArgumentException(item, typeof(T));
+            }
+
+            return Count - 1;
         }
 
         /// <summary>
@@ -343,11 +368,11 @@ namespace Collections.Pooled
         public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
         {
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             if (_size - index < count)
-                throw new ArgumentException("Search range did not match available items.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
 
             return Array.BinarySearch(_items, index, count, item, comparer);
         }
@@ -375,36 +400,30 @@ namespace Collections.Pooled
         public void Clear()
         {
             _version++;
+            int size = _size;
+            _size = 0;
 #if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                int size = _size;
-                _size = 0;
                 if (size > 0)
                 {
                     // Clear the elements so that the gc can reclaim the references.
                     Array.Clear(_items, 0, _size);
                 }
-            }
-            else
-            {
-                _size = 0;
             }
 #else
-                int size = _size;
-                _size = 0;
-                if (size > 0)
-                {
-                    // Clear the elements so that the gc can reclaim the references.
-                    Array.Clear(_items, 0, _size);
-                }
+            if (size > 0)
+            {
+                // Clear the elements so that the gc can reclaim the references.
+                Array.Clear(_items, 0, _size);
+            }
 #endif
         }
 
         /// <summary>
         /// Contains returns true if the specified element is in the List.
         /// It does a linear, O(n) search.  Equality is determined by calling
-        /// <see cref="EqualityComparer{T}.Default.Equals"/>.
+        /// EqualityComparer{T}.Default.Equals.
         /// </summary>
         public bool Contains(T item)
         {
@@ -419,10 +438,21 @@ namespace Collections.Pooled
             return _size != 0 && IndexOf(item) != -1;
         }
 
+        bool IList.Contains(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                return Contains((T)item);
+            }
+            return false;
+        }
+
         public PooledList<TOutput> ConvertAll<TOutput>(Func<T, TOutput> converter)
         {
             if (converter == null)
-                throw new ArgumentNullException(nameof(converter));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.converter);
+            }
 
             var list = new PooledList<TOutput>(_size);
             for (int i = 0; i < _size; i++)
@@ -447,6 +477,26 @@ namespace Collections.Pooled
         void ICollection<T>.CopyTo(T[] array, int arrayIndex)
         {
             Array.Copy(_items, 0, array, arrayIndex, _size);
+        }
+
+        // Copies this List into array, which must be of a 
+        // compatible array type.  
+        void ICollection.CopyTo(Array array, int arrayIndex)
+        {
+            if ((array != null) && (array.Rank != 1))
+            {
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
+            }
+
+            try
+            {
+                // Array.Copy will check for NULL.
+                Array.Copy(_items, 0, array, arrayIndex, _size);
+            }
+            catch (ArrayTypeMismatchException)
+            {
+                ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
+            }
         }
 
         /// <summary>
@@ -474,7 +524,7 @@ namespace Collections.Pooled
         public bool TryFind(Func<T, bool> match, out T result)
         {
             if (match == null)
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             for (int i = 0; i < _size; i++)
             {
@@ -485,16 +535,14 @@ namespace Collections.Pooled
                 }
             }
 
-#pragma warning disable CS8625
             result = default;
-#pragma warning restore CS8625
             return false;
         }
 
         public PooledList<T> FindAll(Func<T, bool> match)
         {
             if (match == null)
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             var list = new PooledList<T>();
             for (int i = 0; i < _size; i++)
@@ -516,13 +564,13 @@ namespace Collections.Pooled
         public int FindIndex(int startIndex, int count, Func<T, bool> match)
         {
             if ((uint)startIndex > (uint)_size)
-                throw new ArgumentOutOfRangeException(nameof(startIndex));
+                ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
 
             if (count < 0 || startIndex > _size - count)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
             if (match is null)
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
@@ -536,7 +584,7 @@ namespace Collections.Pooled
         {
             if (match is null)
             {
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = _size - 1; i >= 0; i--)
@@ -548,9 +596,7 @@ namespace Collections.Pooled
                 }
             }
 
-#pragma warning disable CS8625
             result = default;
-#pragma warning restore CS8625
             return false;
         }
 
@@ -563,24 +609,32 @@ namespace Collections.Pooled
         public int FindLastIndex(int startIndex, int count, Func<T, bool> match)
         {
             if (match == null)
-                throw new ArgumentNullException(nameof(match));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+            }
 
             if (_size == 0)
             {
                 // Special case for 0 length List
                 if (startIndex != -1)
-                    throw new ArgumentOutOfRangeException(nameof(startIndex));
+                {
+                    ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
+                }
             }
             else
             {
                 // Make sure we're not out of range
                 if ((uint)startIndex >= (uint)_size)
-                    throw new ArgumentOutOfRangeException(nameof(startIndex));
+                {
+                    ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
+                }
             }
 
             // 2nd half of this also catches when startIndex == MAXINT, so MAXINT - 0 + 1 == -1, which is < 0.
             if (count < 0 || startIndex - count + 1 < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+            {
+                ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
+            }
 
             int endIndex = startIndex - count;
             for (int i = startIndex; i > endIndex; i--)
@@ -596,7 +650,9 @@ namespace Collections.Pooled
         public void ForEach(Action<T> action)
         {
             if (action == null)
-                throw new ArgumentNullException(nameof(action));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
+            }
 
             int version = _version;
             for (int i = 0; i < _size; i++)
@@ -609,34 +665,43 @@ namespace Collections.Pooled
             }
 
             if (version != _version)
-                throw new InvalidOperationException("Collection was modified during enumeration.");
+                ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
         }
 
-        // Returns an enumerator for this list with the given
-        // permission for removal of elements. If modifications made to the list 
-        // while an enumeration is in progress, the MoveNext and 
-        // GetObject methods of the enumerator will throw an exception.
+        /// <summary>
+        /// Returns an enumerator for this list with the given
+        /// permission for removal of elements. If modifications made to the list 
+        /// while an enumeration is in progress, the MoveNext and 
+        /// GetObject methods of the enumerator will throw an exception.
+        /// </summary>
         public Enumerator GetEnumerator()
             => new Enumerator(this);
 
-#pragma warning disable CS8616 // Nullability of reference types in return type doesn't match implemented member.
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
             => new Enumerator(this);
-#pragma warning restore CS8616
 
         IEnumerator IEnumerable.GetEnumerator()
             => new Enumerator(this);
 
+        /// <summary>
+        /// Equivalent to PooledList.Span.Slice(index, count).
+        /// </summary>
         public Span<T> GetRange(int index, int count)
         {
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
+            }
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+            }
 
             if (_size - index < count)
-                throw new ArgumentException("Range is outside the bounds of the list.");
+            {
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
+            }
 
             return Span.Slice(index, count);
         }
@@ -648,6 +713,15 @@ namespace Collections.Pooled
         public int IndexOf(T item)
             => Array.IndexOf(_items, item, 0, _size);
 
+        int IList.IndexOf(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                return IndexOf((T)item);
+            }
+            return -1;
+        }
+
         /// <summary>
         /// Returns the index of the first occurrence of a given value in a range of
         /// this list. The list is searched forwards, starting at index
@@ -656,7 +730,7 @@ namespace Collections.Pooled
         public int IndexOf(T item, int index)
         {
             if (index > _size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRange_IndexException();
             return Array.IndexOf(_items, item, index, _size - index);
         }
 
@@ -668,10 +742,10 @@ namespace Collections.Pooled
         public int IndexOf(T item, int index, int count)
         {
             if (index > _size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRange_IndexException();
 
             if (count < 0 || index > _size - count)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
             return Array.IndexOf(_items, item, index, count);
         }
@@ -685,7 +759,9 @@ namespace Collections.Pooled
         {
             // Note that insertions at the end are legal.
             if ((uint)index > (uint)_size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
+            }
 
             if (_size == _items.Length) EnsureCapacity(_size + 1);
             if (index < _size)
@@ -697,6 +773,20 @@ namespace Collections.Pooled
             _version++;
         }
 
+        void IList.Insert(int index, object item)
+        {
+            ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(item, ExceptionArgument.item);
+
+            try
+            {
+                Insert(index, (T)item);
+            }
+            catch (InvalidCastException)
+            {
+                ThrowHelper.ThrowWrongValueTypeArgumentException(item, typeof(T));
+            }
+        }
+
         /// <summary>
         /// Inserts the elements of the given collection at a given index. If
         /// required, the capacity of the list is increased to twice the previous
@@ -706,12 +796,15 @@ namespace Collections.Pooled
         public void InsertRange(int index, IEnumerable<T> collection)
         {
             if ((uint)index > (uint)_size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+            }
 
             switch (collection)
             {
                 case null:
-                    throw new ArgumentNullException(nameof(collection));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                    break;
 
                 case ICollection<T> c:
                     int count = c.Count;
@@ -842,7 +935,7 @@ namespace Collections.Pooled
         public int LastIndexOf(T item, int index)
         {
             if (index >= _size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRange_IndexException();
             return LastIndexOf(item, index, index + 1);
         }
 
@@ -854,10 +947,14 @@ namespace Collections.Pooled
         public int LastIndexOf(T item, int index, int count)
         {
             if (Count != 0 && index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
+            }
 
             if (Count != 0 && count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+            }
 
             if (_size == 0)
             {  
@@ -866,10 +963,14 @@ namespace Collections.Pooled
             }
 
             if (index >= _size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
+            }
 
             if (count > index + 1)
-                throw new ArgumentOutOfRangeException(nameof(count));
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
+            }
 
             return Array.LastIndexOf(_items, item, index, count);
         }
@@ -888,6 +989,14 @@ namespace Collections.Pooled
             return false;
         }
 
+        void IList.Remove(object item)
+        {
+            if (IsCompatibleObject(item))
+            {
+                Remove((T)item);
+            }
+        }
+
         /// <summary>
         /// This method removes all items which match the predicate.
         /// The complexity is O(n).
@@ -895,7 +1004,7 @@ namespace Collections.Pooled
         public int RemoveAll(Func<T, bool> match)
         {
             if (match == null)
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int freeIndex = 0;   // the first free slot in items array
 
@@ -939,7 +1048,7 @@ namespace Collections.Pooled
         public void RemoveAt(int index)
         {
             if ((uint)index >= (uint)_size)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentOutOfRange_IndexException();
 
             _size--;
             if (index < _size)
@@ -948,7 +1057,6 @@ namespace Collections.Pooled
             }
             _version++;
 
-#pragma warning disable CS8625
 #if NETCOREAPP2_1
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
@@ -958,7 +1066,6 @@ namespace Collections.Pooled
 #else
             _items[_size] = default;
 #endif
-#pragma warning restore CS8625
         }
 
         /// <summary>
@@ -967,13 +1074,13 @@ namespace Collections.Pooled
         public void RemoveRange(int index, int count)
         {
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
 
             if (count > 0)
             {
@@ -1012,13 +1119,13 @@ namespace Collections.Pooled
         public void Reverse(int index, int count)
         {
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
-                throw new ArgumentException("Range is outside the bounds of the list.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
 
             if (count > 1)
             {
@@ -1054,13 +1161,13 @@ namespace Collections.Pooled
         public void Sort(int index, int count, IComparer<T> comparer)
         {
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException(nameof(count));
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
-                throw new ArgumentException("Range is outside the bounds of the list.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
 
             if (count > 1)
             {
@@ -1073,7 +1180,7 @@ namespace Collections.Pooled
         {
             if (comparison == null)
             {
-                throw new ArgumentNullException(nameof(comparison));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.comparison);
             }
 
             if (_size > 1)
@@ -1123,7 +1230,9 @@ namespace Collections.Pooled
         public bool TrueForAll(Func<T, bool> match)
         {
             if (match == null)
-                throw new ArgumentNullException(nameof(match));
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+            }
 
             for (int i = 0; i < _size; i++)
             {
@@ -1156,97 +1265,6 @@ namespace Collections.Pooled
             _version++;
         }
 
-        private static bool IsCompatibleObject(object value)
-        {
-            // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
-            // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-            return ((value is T) || (value == null && default(T) == null));
-        }
-
-        int IList.Add(object item)
-        {
-            if (item is null && default(T) != null)
-            {
-                // can't set a null value type
-                throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(item));
-            }
-
-            try
-            {
-                Add((T)item);
-            }
-            catch (InvalidCastException)
-            {
-                throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(item));
-            }
-
-            return Count - 1;
-        }
-
-        bool IList.Contains(object item)
-        {
-            if (IsCompatibleObject(item))
-            {
-                return Contains((T)item);
-            }
-            return false;
-        }
-
-        int IList.IndexOf(object item)
-        {
-            if (IsCompatibleObject(item))
-            {
-                return IndexOf((T)item);
-            }
-            return -1;
-        }
-
-        void IList.Insert(int index, object item)
-        {
-            if (item is null && default(T) != null)
-            {
-                // can't set a null value type
-                throw new ArgumentNullException($"The type '{typeof(T)}' cannot be null.", nameof(item));
-            }
-
-            try
-            {
-                Insert(index, (T)item);
-            }
-            catch (InvalidCastException)
-            {
-                throw new ArgumentException($"Value given was not compatible with type: '{typeof(T)}'.", nameof(item));
-            }
-        }
-
-        void IList.Remove(object item)
-        {
-            if (IsCompatibleObject(item))
-            {
-                Remove((T)item);
-            }
-        }
-
-        // Copies this List into array, which must be of a 
-        // compatible array type.  
-        void ICollection.CopyTo(Array array, int arrayIndex)
-        {
-            if ((array != null) && (array.Rank != 1))
-            {
-                throw new ArgumentException("Multi-dimensional arrays are not supported.", nameof(array));
-            }
-
-            try
-            {
-                // Array.Copy will check for NULL.
-                Array.Copy(_items, 0, array, arrayIndex, _size);
-            }
-            catch (ArrayTypeMismatchException)
-            {
-                throw new ArgumentException($"The given array was not compatible with type: '${typeof(T)}'.");
-            }
-        }
-
         public struct Enumerator : IEnumerator<T>, IEnumerator
         {
             private readonly PooledList<T> _list;
@@ -1259,9 +1277,7 @@ namespace Collections.Pooled
                 _list = list;
                 _index = 0;
                 _version = list._version;
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                 _current = default;
-#pragma warning restore CS8625
             }
 
             public void Dispose()
@@ -1285,13 +1301,11 @@ namespace Collections.Pooled
             {
                 if (_version != _list._version)
                 {
-                    throw new InvalidOperationException("Collection was modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 _index = _list._size + 1;
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                 _current = default;
-#pragma warning restore CS8625
                 return false;
             }
 
@@ -1303,11 +1317,9 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || _index == _list._size + 1)
                     {
-                        throw new InvalidOperationException("Enumeration exceeded list bounds.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
-#pragma warning disable CS8603 // Possible null reference return.
                     return Current;
-#pragma warning restore CS8603
                 }
             }
 
@@ -1315,13 +1327,11 @@ namespace Collections.Pooled
             {
                 if (_version != _list._version)
                 {
-                    throw new InvalidOperationException("Collection was modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 _index = 0;
-#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference or unconstrained type parameter.
                 _current = default;
-#pragma warning restore CS8625
             }
         }
 
