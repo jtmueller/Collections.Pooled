@@ -129,8 +129,8 @@ namespace Collections.Pooled.Tests.PooledList
             Assert.All(InvalidParameters, invalidSet =>
             {
                 var (index, count) = invalidSet;
-                //if (index >= 0 && count >= 0)
-                    AssertExtensions.Throws<ArgumentOutOfRangeException>(null, () => list.RemoveRange(index, count));
+                if (index >= 0 && count >= 0)
+                    AssertExtensions.Throws<ArgumentException>(null, () => list.RemoveRange(index, count));
             });
 
             list.Dispose();

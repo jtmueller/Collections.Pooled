@@ -429,6 +429,8 @@ namespace Collections.Pooled
                     return "exceptions";
                 case ExceptionArgument.exception:
                     return "exception";
+                case ExceptionArgument.enumerable:
+                    return "enumerable";
                 case ExceptionArgument.start:
                     return "start";
                 case ExceptionArgument.format:
@@ -544,9 +546,9 @@ namespace Collections.Pooled
                 case ExceptionResource.Serialization_NullKey:
                     return "Serialization error: null key.";
                 case ExceptionResource.NotSupported_KeyCollectionSet:
-                    return "The KeyCollection does not support setting values.";
+                    return "The KeyCollection does not support modification.";
                 case ExceptionResource.NotSupported_ValueCollectionSet:
-                    return "The ValueCollection does not support setting values.";
+                    return "The ValueCollection does not support modification.";
                 case ExceptionResource.InvalidOperation_NullArray:
                     return "Null arrays are not supported.";
                 case ExceptionResource.NotSupported_StringComparison:
@@ -613,6 +615,7 @@ namespace Collections.Pooled
         comparison,
         exceptions,
         exception,
+        enumerable,
         start,
         format,
         culture,
