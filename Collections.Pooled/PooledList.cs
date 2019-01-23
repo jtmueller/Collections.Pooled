@@ -27,7 +27,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
-    public class PooledList<T> : IList<T>, IReadOnlyList<T>, IList, IDisposable
+    public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable
     {
         // internal constant copied from Array.MaxArrayLength
         private const int MaxArrayLength = 0X7FEFFFFF;
@@ -134,6 +134,9 @@ namespace Collections.Pooled
         /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
+
+        /// <inheritdoc/>
+        ReadOnlySpan<T> IReadOnlyPooledList<T>.Span => Span;
 
         /// <summary>
         /// Gets and sets the capacity of this list.  The capacity is the size of
