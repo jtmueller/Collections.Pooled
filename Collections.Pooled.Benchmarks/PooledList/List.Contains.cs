@@ -9,6 +9,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
 #elif NET472
     [ClrJob]
 #endif
+    [MemoryDiagnoser]
     public class List_Contains : ListBase
     {
         [Benchmark(Baseline = true)]
