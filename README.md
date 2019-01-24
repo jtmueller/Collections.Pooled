@@ -1,4 +1,4 @@
-# Collections.Pooled [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/)
+# Collections.Pooled [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/) [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
