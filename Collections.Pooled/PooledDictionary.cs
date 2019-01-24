@@ -845,6 +845,8 @@ namespace Collections.Pooled
             // use the existing capacity without actually resizing.
             if (_buckets.Length >= newSize && _entries.Length >= newSize)
             {
+                Array.Clear(_buckets, 0, _buckets.Length);
+                Array.Clear(_entries, _size, newSize - _size);
                 buckets = _buckets;
                 entries = _entries;
                 replaceArrays = false;
@@ -852,8 +854,9 @@ namespace Collections.Pooled
             else
             {
                 buckets = s_bucketPool.Rent(newSize);
-                Array.Clear(buckets, 0, buckets.Length);
                 entries = s_entryPool.Rent(newSize);
+
+                Array.Clear(buckets, 0, buckets.Length);
                 Array.Copy(_entries, 0, entries, 0, count);
                 replaceArrays = true;
             }
