@@ -20,6 +20,9 @@ namespace Collections.Pooled.Tests
         {
             yield return new object[] { 0 };
             yield return new object[] { 1 };
+            //for (int i = 2; i < 11; i++)
+            //    yield return new object[] { i };
+            yield return new object[] { 5 };
             yield return new object[] { 75 };
         }
 
