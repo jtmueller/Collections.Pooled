@@ -599,14 +599,13 @@ namespace Collections.Pooled
             }
 
             var entries = _entries;
-            var buckets = _buckets;
             var comparer = _comparer;
             var size = _size;
 
             int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & 0x7FFFFFFF;
 
             int collisionCount = 0;
-            ref int bucket = ref buckets[hashCode % size];
+            ref int bucket = ref _buckets[hashCode % size];
             // Value in _buckets is 1-based
             int i = bucket - 1;
 
@@ -749,9 +748,7 @@ namespace Collections.Pooled
                 {
                     Resize();
                     size = _size;
-                    buckets = _buckets;
-                    entries = _entries;
-                    bucket = ref buckets[hashCode % size];
+                    bucket = ref _buckets[hashCode % size];
                 }
                 index = count;
                 _count = count + 1;
@@ -839,20 +836,27 @@ namespace Collections.Pooled
             Debug.Assert(!forceNewHashCodes || default(TKey) == null);
             Debug.Assert(newSize >= _size);
 
+            int[] buckets;
+            Entry[] entries;
+            bool replaceArrays;
+            int count = _count;
+
             // Because ArrayPool might give us larger arrays than we asked for, see if we can 
             // use the existing capacity without actually resizing.
             if (_buckets.Length >= newSize && _entries.Length >= newSize)
             {
-                _size = newSize;
-                return;
+                buckets = _buckets;
+                entries = _entries;
+                replaceArrays = false;
             }
-
-            int[] buckets = s_bucketPool.Rent(newSize);
-            Array.Clear(buckets, 0, buckets.Length);
-            Entry[] entries = s_entryPool.Rent(newSize);
-
-            int count = _count;
-            Array.Copy(_entries, 0, entries, 0, count);
+            else
+            {
+                buckets = s_bucketPool.Rent(newSize);
+                Array.Clear(buckets, 0, buckets.Length);
+                entries = s_entryPool.Rent(newSize);
+                Array.Copy(_entries, 0, entries, 0, count);
+                replaceArrays = true;
+            }
 
             if (default(TKey) == null && forceNewHashCodes)
             {
@@ -878,9 +882,12 @@ namespace Collections.Pooled
                 }
             }
 
-            ReturnArrays();
-            _buckets = buckets;
-            _entries = entries;
+            if (replaceArrays)
+            {
+                ReturnArrays();
+                _buckets = buckets;
+                _entries = entries;
+            }
             _size = newSize;
         }
 
