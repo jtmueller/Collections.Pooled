@@ -4,12 +4,14 @@
 
 using System;
 using System.Collections.Generic;
+using Xunit;
 
 namespace Collections.Pooled.Tests
 {
     /// <summary>
     /// Provides a base set of nongeneric operations that are used by all other testing interfaces.
     /// </summary>
+    [Collection("TestBase Collection")] // this prevents subclass tests from being run in parallel
     public abstract class TestBase : IDisposable
     {
         private readonly PooledList<IDisposable> _disposables = new PooledList<IDisposable>();
@@ -20,8 +22,6 @@ namespace Collections.Pooled.Tests
         {
             yield return new object[] { 0 };
             yield return new object[] { 1 };
-            //for (int i = 2; i < 11; i++)
-            //    yield return new object[] { i };
             yield return new object[] { 5 };
             yield return new object[] { 75 };
         }
