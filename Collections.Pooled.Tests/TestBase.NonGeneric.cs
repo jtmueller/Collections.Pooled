@@ -11,7 +11,6 @@ namespace Collections.Pooled.Tests
     /// <summary>
     /// Provides a base set of nongeneric operations that are used by all other testing interfaces.
     /// </summary>
-    [Collection("TestBase Collection")] // this prevents subclass tests from being run in parallel
     public abstract class TestBase : IDisposable
     {
         private readonly PooledList<IDisposable> _disposables = new PooledList<IDisposable>();
