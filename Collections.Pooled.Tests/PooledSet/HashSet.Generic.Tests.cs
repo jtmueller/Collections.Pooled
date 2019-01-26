@@ -78,6 +78,16 @@ namespace Collections.Pooled.Tests.PooledSet
         }
 
         [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void HashSet_Generic_Constructor_Span(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
+            var span = enumerable.ToArray().AsSpan();
+            PooledSet<T> set = new PooledSet<T>(span);
+            Assert.True(set.SetEquals(enumerable));
+        }
+
+        [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_IEnumerable_WithManyDuplicates(int count)
         {
@@ -355,5 +365,295 @@ namespace Collections.Pooled.Tests.PooledSet
             ISet <T> iset = (set as ISet<T>);
             Assert.NotNull(iset);
         }
+
+        #region Set Validation: Spans
+
+        private bool SpanContains(Span<T> span, T value, IEqualityComparer<T> comparer)
+        {
+            foreach (T x in span)
+            {
+                if (comparer.Equals(x, value))
+                    return true;
+            }
+            return false;
+        }
+
+        private void Validate_ExceptWith(PooledSet<T> set, Span<T> span)
+        {
+            if (set.Count == 0)
+            {
+                set.ExceptWith(span);
+                Assert.Equal(0, set.Count);
+            }
+            else
+            {
+                PooledSet<T> expected = new PooledSet<T>(set, set.Comparer);
+                RegisterForDispose(expected);
+                foreach (T element in span)
+                    expected.Remove(element);
+                set.ExceptWith(span);
+                Assert.Equal(expected.Count, set.Count);
+                Assert.True(expected.SetEquals(set));
+            }
+        }
+
+        private void Validate_IntersectWith(PooledSet<T> set, Span<T> span)
+        {
+            if (set.Count == 0 || span.Length == 0)
+            {
+                set.IntersectWith(span);
+                Assert.Equal(0, set.Count);
+            }
+            else
+            {
+                IEqualityComparer<T> comparer = set.Comparer;
+                PooledSet<T> expected = new PooledSet<T>(comparer);
+                RegisterForDispose(expected);
+                foreach (T value in set)
+                    if (SpanContains(span, value, comparer))
+                        expected.Add(value);
+                set.IntersectWith(span);
+                Assert.Equal(expected.Count, set.Count);
+                Assert.True(expected.SetEquals(set));
+            }
+        }
+
+        private void Validate_IsProperSubsetOf(PooledSet<T> set, Span<T> span)
+        {
+            bool setContainsValueNotInEnumerable = false;
+            bool enumerableContainsValueNotInSet = false;
+            IEqualityComparer<T> comparer = set.Comparer;
+            foreach (T value in set) // Every value in Set must be in Enumerable
+            {
+                if (!SpanContains(span, value, comparer))
+                {
+                    setContainsValueNotInEnumerable = true;
+                    break;
+                }
+            }
+            foreach (T value in span) // Enumerable must contain at least one value not in Set
+            {
+                if (!set.Contains(value))
+                {
+                    enumerableContainsValueNotInSet = true;
+                    break;
+                }
+            }
+            Assert.Equal(!setContainsValueNotInEnumerable && enumerableContainsValueNotInSet, set.IsProperSubsetOf(span));
+        }
+
+        private void Validate_IsProperSupersetOf(PooledSet<T> set, Span<T> span)
+        {
+            bool isProperSuperset = true;
+            bool setContainsElementsNotInEnumerable = false;
+            IEqualityComparer<T> comparer = set.Comparer;
+            foreach (T value in span)
+            {
+                if (!set.Contains(value))
+                {
+                    isProperSuperset = false;
+                    break;
+                }
+            }
+            foreach (T value in set)
+            {
+                if (!SpanContains(span, value, comparer))
+                {
+                    setContainsElementsNotInEnumerable = true;
+                    break;
+                }
+            }
+            isProperSuperset = isProperSuperset && setContainsElementsNotInEnumerable;
+            Assert.Equal(isProperSuperset, set.IsProperSupersetOf(span));
+        }
+
+        private void Validate_IsSubsetOf(PooledSet<T> set, Span<T> span)
+        {
+            IEqualityComparer<T> comparer = set.Comparer;
+            foreach (T value in set)
+                if (!SpanContains(span, value, comparer))
+                {
+                    Assert.False(set.IsSubsetOf(span));
+                    return;
+                }
+            Assert.True(set.IsSubsetOf(span));
+        }
+
+        private void Validate_IsSupersetOf(PooledSet<T> set, Span<T> span)
+        {
+            foreach (T value in span)
+                if (!set.Contains(value))
+                {
+                    Assert.False(set.IsSupersetOf(span));
+                    return;
+                }
+            Assert.True(set.IsSupersetOf(span));
+        }
+
+        private void Validate_Overlaps(PooledSet<T> set, Span<T> span)
+        {
+            foreach (T value in span)
+            {
+                if (set.Contains(value))
+                {
+                    Assert.True(set.Overlaps(span));
+                    return;
+                }
+            }
+            Assert.False(set.Overlaps(span));
+        }
+
+        private void Validate_SetEquals(PooledSet<T> set, Span<T> span)
+        {
+            IEqualityComparer<T> comparer = set.Comparer;
+            foreach (T value in set)
+            {
+                if (!SpanContains(span, value, comparer))
+                {
+                    Assert.False(set.SetEquals(span));
+                    return;
+                }
+            }
+            foreach (T value in span)
+            {
+                if (!set.Contains(value, comparer))
+                {
+                    Assert.False(set.SetEquals(span));
+                    return;
+                }
+            }
+            Assert.True(set.SetEquals(span));
+        }
+
+        private void Validate_SymmetricExceptWith(PooledSet<T> set, Span<T> span)
+        {
+            IEqualityComparer<T> comparer = set.Comparer;
+            PooledSet<T> expected = new PooledSet<T>(comparer);
+            RegisterForDispose(expected);
+            foreach (T element in span)
+                if (!set.Contains(element))
+                    expected.Add(element);
+            foreach (T element in set)
+                if (!SpanContains(span, element, comparer))
+                    expected.Add(element);
+            set.SymmetricExceptWith(span);
+            Assert.Equal(expected.Count, set.Count);
+            Assert.True(expected.SetEquals(set));
+        }
+
+        private void Validate_UnionWith(PooledSet<T> set, Span<T> span)
+        {
+            IEqualityComparer<T> comparer = set.Comparer;
+            PooledSet<T> expected = new PooledSet<T>(set, comparer);
+            RegisterForDispose(expected);
+            foreach (T element in span)
+                if (!set.Contains(element))
+                    expected.Add(element);
+            set.UnionWith(span);
+            Assert.Equal(expected.Count, set.Count);
+            Assert.True(expected.SetEquals(set));
+        }
+
+        #endregion
+
+        #region Set Function tests: Span
+
+        private Span<T> CreateSpan(EnumerableType type, IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            IEnumerable<T> enumerable = CreateEnumerable(type, enumerableToMatchTo, count, numberOfMatchingElements, numberOfDuplicateElements);
+            return enumerable.ToArray().AsSpan();
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_ExceptWith(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_ExceptWith(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_IntersectWith(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_IntersectWith(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_IsProperSubsetOf(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_IsProperSubsetOf(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_IsProperSupersetOf(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_IsProperSupersetOf(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_IsSubsetOf(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_IsSubsetOf(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_IsSupersetOf(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_IsSupersetOf(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_Overlaps(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_Overlaps(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_SetEquals(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_SetEquals(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_SymmetricExceptWith(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_SymmetricExceptWith(set, span);
+        }
+
+        [Theory]
+        [MemberData(nameof(EnumerableTestData))]
+        public void PooledSet_Span_UnionWith(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
+        {
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Span<T> span = CreateSpan(enumerableType, set, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
+            Validate_UnionWith(set, span);
+        }
+
+        #endregion
     }
 }

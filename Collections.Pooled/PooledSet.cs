@@ -131,7 +131,7 @@ namespace Collections.Pooled
         /// Creates a new instance of PooledSet.
         /// </summary>
         public PooledSet(IEnumerable<T> collection)
-            : this(collection, EqualityComparer<T>.Default)
+            : this(collection, collection is PooledSet<T> ps ? ps.Comparer : EqualityComparer<T>.Default)
         { }
 
         /// <summary>

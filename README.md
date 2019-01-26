@@ -85,7 +85,21 @@ modified to use ArrayPool for internal storage allocation.
   * Other than the ability to pass Spans into the constructor, there are no API changes
     compared to the original Stack.
   * Significantly reduced memory allocations when pushing many items.
-  * **PooledStack implements IDisposable.** Disposing the stack returns the internal arrays to the ArrayPool.
+  * **PooledStack implements IDisposable.** Disposing the stack returns the internal array to the ArrayPool.
     If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
   * A selection of `ToPooledStack()` extension methods are provided.
+
+### `PooledSet<T>`
+
+`PooledSet<T>` is based on the corefx source code for `System.Generic.Collections.HashSet<T>`,
+modified to use ArrayPool for internal storage allocation, and to support `ReadOnlySpan<T>` for all set functions.
+
+  * Constructors, and all set functions have overloads that accept `ReadOnlySpan<T>`.
+  * There are also overloads that accept arrays, simply because otherwise there would
+    be ambiguous overloads between `IEnumerable<T>` and `ReadOnlySpan<T>` when passing in an array.
+    The array overloads simply forward to the span overloads.
+  * **PooledSet implements IDisposable.** Disposing the set returns the internal arrays to the ArrayPool.
+    If you forget to dispose the set, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `HashSet<T>` (you will still benefit from pooling of intermediate arrays as the PooledSet is resized).
+  * A selection of `ToPooledSet()` extension methods are provided.
