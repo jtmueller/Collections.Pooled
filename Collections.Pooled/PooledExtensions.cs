@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Collections.Pooled
 {
     /// <summary>
-    /// Extensions methods for creating pooled collections.
+    /// Extension methods for creating pooled collections.
     /// </summary>
     public static class PooledExtensions
     {
