@@ -95,10 +95,16 @@ namespace Collections.Pooled
 
         #region Constructors
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet()
             : this(EqualityComparer<T>.Default)
         { }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(IEqualityComparer<T> comparer)
         {
             if (comparer == null)
@@ -114,10 +120,16 @@ namespace Collections.Pooled
             _size = 0;
         }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(int capacity)
             : this(capacity, EqualityComparer<T>.Default)
         { }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(IEnumerable<T> collection)
             : this(collection, EqualityComparer<T>.Default)
         { }
@@ -158,18 +170,30 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(T[] array)
             : this(array.AsSpan(), null)
         { }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(T[] array, IEqualityComparer<T> comparer)
             : this(array.AsSpan(), comparer)
         { }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(ReadOnlySpan<T> span)
             : this(span, null)
         { }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(ReadOnlySpan<T> span, IEqualityComparer<T> comparer)
             : this(comparer)
         {
@@ -186,6 +210,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         protected PooledSet(SerializationInfo info, StreamingContext context)
         {
             // We can't do anything with the keys and values until the entire graph has been 
@@ -243,6 +270,9 @@ namespace Collections.Pooled
             _count = count;
         }
 
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
         public PooledSet(int capacity, IEqualityComparer<T> comparer)
             : this(comparer)
         {
@@ -409,6 +439,9 @@ namespace Collections.Pooled
 
         #region IEnumerable methods
 
+        /// <summary>
+        /// Gets an enumerator with which to enumerate the set.
+        /// </summary>
         public Enumerator GetEnumerator()
             => new Enumerator(this);
 
@@ -422,6 +455,9 @@ namespace Collections.Pooled
 
         #region ISerializable methods
 
+        /// <summary>
+        /// Gets object data for serialization.
+        /// </summary>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
@@ -445,6 +481,9 @@ namespace Collections.Pooled
 
         #region IDeserializationCallback methods
 
+        /// <summary>
+        /// Deserialization callback.
+        /// </summary>
         public virtual void OnDeserialization(object sender)
         {
             if (_siInfo == null)
@@ -573,7 +612,8 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Takes the intersection of this set with other. Modifies this set.
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation Notes: 
         /// We get better perf if other is a hashset using same equality comparer, because we 
         /// get constant contains check in other. Resulting cost is O(n1) to iterate over this.
@@ -583,7 +623,7 @@ namespace Collections.Pooled
         /// 
         /// Attempts to return early based on counts alone, using the property that the 
         /// intersection of anything with the empty set is the empty set.
-        /// </summary>
+        /// </remarks>
         /// <param name="other">enumerable with items to add </param>
         public void IntersectWith(IEnumerable<T> other)
         {
@@ -635,22 +675,29 @@ namespace Collections.Pooled
         /// <summary>
         /// Takes the intersection of this set with other. Modifies this set.
         /// </summary>
-        public void IntersectWith(T[] other) => IntersectWith(new ReadOnlySpan<T>(other));
-
-        /// <summary>
-        /// Takes the intersection of this set with other. Modifies this set.
-        /// 
+        /// <remarks>
         /// Implementation Notes: 
-        /// We get better perf if other is a hashset using same equality comparer, because we 
-        /// get constant contains check in other. Resulting cost is O(n1) to iterate over this.
-        /// 
-        /// If we can't go above route, iterate over the other and mark intersection by checking
+        /// Iterate over the other and mark intersection by checking
         /// contains in this. Then loop over and delete any unmarked elements. Total cost is n2+n1. 
         /// 
         /// Attempts to return early based on counts alone, using the property that the 
         /// intersection of anything with the empty set is the empty set.
+        /// </remarks>
+        /// <param name="other">enumerable with items to add </param>
+        public void IntersectWith(T[] other) => IntersectWith(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Takes the intersection of this set with other. Modifies this set.
         /// </summary>
-        /// <param name="other">span with items to add </param>
+        /// <remarks>
+        /// Implementation Notes: 
+        /// Iterate over the other and mark intersection by checking
+        /// contains in this. Then loop over and delete any unmarked elements. Total cost is n2+n1. 
+        /// 
+        /// Attempts to return early based on counts alone, using the property that the 
+        /// intersection of anything with the empty set is the empty set.
+        /// </remarks>
+        /// <param name="other">enumerable with items to add </param>
         public void IntersectWith(ReadOnlySpan<T> other)
         {
             // intersection of anything with empty set is empty set, so return if count is 0
@@ -792,7 +839,8 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Checks if this is a subset of other.
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation Notes:
         /// The following properties are used up-front to avoid element-wise checks:
         /// 1. If this is the empty set, then it's a subset of anything, including the empty set
@@ -801,7 +849,7 @@ namespace Collections.Pooled
         /// 
         /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
         /// faster element-wise check.
-        /// </summary>
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a subset of other; false if not</returns>
         public bool IsSubsetOf(IEnumerable<T> other)
@@ -857,15 +905,13 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Checks if this is a subset of other.
-        /// 
-        /// Implementation Notes:
-        /// The following properties are used up-front to avoid element-wise checks:
-        /// 1. If this is the empty set, then it's a subset of anything, including the empty set
-        /// 2. If other has unique elements according to this equality comparer, and this has more
-        /// elements than other, then it can't be a subset.
-        /// 
-        /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
-        /// faster element-wise check.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>true if this is a subset of other; false if not</returns>
+        public bool IsSubsetOf(T[] other) => IsSubsetOf(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Checks if this is a subset of other.
         /// </summary>
         /// <param name="other"></param>
         /// <returns>true if this is a subset of other; false if not</returns>
@@ -883,7 +929,8 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Checks if this is a proper subset of other (i.e. strictly contained in)
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation Notes:
         /// The following properties are used up-front to avoid element-wise checks:
         /// 1. If this is the empty set, then it's a proper subset of a set that contains at least
@@ -893,7 +940,7 @@ namespace Collections.Pooled
         /// 
         /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
         /// faster element-wise check.
-        /// </summary>
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper subset of other; false if not</returns>
         public bool IsProperSubsetOf(IEnumerable<T> other)
@@ -954,23 +1001,25 @@ namespace Collections.Pooled
         /// <summary>
         /// Checks if this is a proper subset of other (i.e. strictly contained in)
         /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public bool IsProperSubsetOf(T[] other) => IsProperSubsetOf(new ReadOnlySpan<T>(other));
-
-        /// <summary>
-        /// Checks if this is a proper subset of other (i.e. strictly contained in)
-        /// 
+        /// <remarks>
         /// Implementation Notes:
         /// The following properties are used up-front to avoid element-wise checks:
         /// 1. If this is the empty set, then it's a proper subset of a set that contains at least
         /// one element, but it's not a proper subset of the empty set.
-        /// 2. If other has unique elements according to this equality comparer, and this has >=
-        /// the number of elements in other, then this can't be a proper subset.
-        /// 
-        /// Furthermore, if other is a hashset using the same equality comparer, we can use a 
-        /// faster element-wise check.
+        /// </remarks>
+        /// <param name="other"></param>
+        /// <returns>true if this is a proper subset of other; false if not</returns>
+        public bool IsProperSubsetOf(T[] other) => IsProperSubsetOf(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Checks if this is a proper subset of other (i.e. strictly contained in)
         /// </summary>
+        /// <remarks>
+        /// Implementation Notes:
+        /// The following properties are used up-front to avoid element-wise checks:
+        /// 1. If this is the empty set, then it's a proper subset of a set that contains at least
+        /// one element, but it's not a proper subset of the empty set.
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper subset of other; false if not</returns>
         public bool IsProperSubsetOf(ReadOnlySpan<T> other)
@@ -993,15 +1042,15 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Checks if this is a superset of other
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation Notes:
         /// The following properties are used up-front to avoid element-wise checks:
         /// 1. If other has no elements (it's the empty set), then this is a superset, even if this
         /// is also the empty set.
         /// 2. If other has unique elements according to this equality comparer, and this has less 
         /// than the number of elements in other, then this can't be a superset
-        /// 
-        /// </summary>
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a superset of other; false if not</returns>
         public bool IsSupersetOf(IEnumerable<T> other)
@@ -1050,19 +1099,25 @@ namespace Collections.Pooled
         /// <summary>
         /// Checks if this is a superset of other
         /// </summary>
-        public bool IsSupersetOf(T[] other) => IsSupersetOf(new ReadOnlySpan<T>(other));
-
-        /// <summary>
-        /// Checks if this is a superset of other
-        /// 
+        /// <remarks>
         /// Implementation Notes:
         /// The following properties are used up-front to avoid element-wise checks:
         /// 1. If other has no elements (it's the empty set), then this is a superset, even if this
         /// is also the empty set.
-        /// 2. If other has unique elements according to this equality comparer, and this has less 
-        /// than the number of elements in other, then this can't be a superset
-        /// 
+        /// </remarks>
+        /// <param name="other"></param>
+        /// <returns>true if this is a superset of other; false if not</returns>
+        public bool IsSupersetOf(T[] other) => IsSupersetOf(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Checks if this is a superset of other
         /// </summary>
+        /// <remarks>
+        /// Implementation Notes:
+        /// The following properties are used up-front to avoid element-wise checks:
+        /// 1. If other has no elements (it's the empty set), then this is a superset, even if this
+        /// is also the empty set.
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a superset of other; false if not</returns>
         public bool IsSupersetOf(ReadOnlySpan<T> other)
@@ -1078,9 +1133,10 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation Notes: 
-        /// This is slightly more complicated than above because we have to keep track if there
+        /// This is slightly more complicated than IsSupersetOf because we have to keep track if there
         /// was at least one element not contained in other.
         /// 
         /// The following properties are used up-front to avoid element-wise checks:
@@ -1093,7 +1149,7 @@ namespace Collections.Pooled
         /// 
         /// Furthermore, if other has unique elements according to this equality comparer, we can
         /// use a faster element-wise check.
-        /// </summary>
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper superset of other; false if not</returns>
         public bool IsProperSupersetOf(IEnumerable<T> other)
@@ -1152,13 +1208,9 @@ namespace Collections.Pooled
         /// <summary>
         /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
         /// </summary>
-        public bool IsProperSupersetOf(T[] other) => IsProperSupersetOf(new ReadOnlySpan<T>(other));
-
-        /// <summary>
-        /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
-        /// 
+        /// <remarks>
         /// Implementation Notes: 
-        /// This is slightly more complicated than above because we have to keep track if there
+        /// This is slightly more complicated than IsSupersetOf because we have to keep track if there
         /// was at least one element not contained in other.
         /// 
         /// The following properties are used up-front to avoid element-wise checks:
@@ -1166,12 +1218,25 @@ namespace Collections.Pooled
         /// other is the empty set.
         /// 2. If other is an empty set and this contains at least 1 element, then this is a proper
         /// superset.
-        /// 3. If other has unique elements according to this equality comparer, and other's count
-        /// is greater than or equal to this count, then this can't be a proper superset
-        /// 
-        /// Furthermore, if other has unique elements according to this equality comparer, we can
-        /// use a faster element-wise check.
+        /// </remarks>
+        /// <param name="other"></param>
+        /// <returns>true if this is a proper superset of other; false if not</returns>
+        public bool IsProperSupersetOf(T[] other) => IsProperSupersetOf(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
         /// </summary>
+        /// <remarks>
+        /// Implementation Notes: 
+        /// This is slightly more complicated than IsSupersetOf because we have to keep track if there
+        /// was at least one element not contained in other.
+        /// 
+        /// The following properties are used up-front to avoid element-wise checks:
+        /// 1. If this is the empty set, then it can't be a proper superset of any set, even if 
+        /// other is the empty set.
+        /// 2. If other is an empty set and this contains at least 1 element, then this is a proper
+        /// superset.
+        /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper superset of other; false if not</returns>
         public bool IsProperSupersetOf(ReadOnlySpan<T> other)
@@ -1229,6 +1294,8 @@ namespace Collections.Pooled
         /// <summary>
         /// Checks if this set overlaps other (i.e. they share at least one item)
         /// </summary>
+        /// <param name="other"></param>
+        /// <returns>true if these have at least one common element; false if disjoint</returns>
         public bool Overlaps(T[] other) => Overlaps(new ReadOnlySpan<T>(other));
 
         /// <summary>
@@ -1318,6 +1385,8 @@ namespace Collections.Pooled
         /// Checks if this and other contain the same elements. This is set equality: 
         /// duplicates and order are ignored
         /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool SetEquals(T[] other) => SetEquals(new ReadOnlySpan<T>(other));
 
         /// <summary>
@@ -1338,8 +1407,15 @@ namespace Collections.Pooled
             return (result.uniqueCount == _count && result.unfoundCount == 0);
         }
 
+        /// <summary>
+        /// Copies the set to the given array.
+        /// </summary>
         public void CopyTo(T[] array) => CopyTo(array, 0, _count);
 
+        /// <summary>
+        /// Copies <paramref name="count"/> items of the set to the given array, starting 
+        /// at <paramref name="arrayIndex"/> in the destination array.
+        /// </summary>
         public void CopyTo(T[] array, int arrayIndex, int count)
         {
             if (array == null)
@@ -1378,8 +1454,14 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Copies the set to the given span.
+        /// </summary>
         public void CopyTo(Span<T> span) => CopyTo(span, _count);
 
+        /// <summary>
+        /// Copies <paramref name="count"/> items from the set to the given span.
+        /// </summary>
         public void CopyTo(Span<T> span, int count)
         {
             if (span.Length < _count || span.Length < count)
@@ -1533,7 +1615,6 @@ namespace Collections.Pooled
         /// <summary>
         /// Used for deep equality of HashSet testing
         /// </summary>
-        /// <returns></returns>
         public static IEqualityComparer<PooledSet<T>> CreateSetComparer()
             => new PooledSetEqualityComparer<T>();
 
@@ -2469,6 +2550,9 @@ namespace Collections.Pooled
             return _comparer.GetHashCode(item) & Lower31BitMask;
         }
 
+        /// <summary>
+        /// Clears all values and returns internal arrays to the ArrayPool.
+        /// </summary>
         public void Dispose()
         {
             ReturnArrays();
@@ -2496,11 +2580,14 @@ namespace Collections.Pooled
             internal T value;
         }
 
+        /// <summary>
+        /// Enumerates the PooledSet.
+        /// </summary>
         public struct Enumerator : IEnumerator<T>, IEnumerator
         {
-            private PooledSet<T> _set;
+            private readonly PooledSet<T> _set;
             private int _index;
-            private int _version;
+            private readonly int _version;
             private T _current;
 
             internal Enumerator(PooledSet<T> set)
@@ -2511,10 +2598,13 @@ namespace Collections.Pooled
                 _current = default;
             }
 
-            public void Dispose()
+            void IDisposable.Dispose()
             {
             }
 
+            /// <summary>
+            /// Moves to the next item in the set.
+            /// </summary>
             public bool MoveNext()
             {
                 if (_version != _set._version)
@@ -2537,6 +2627,9 @@ namespace Collections.Pooled
                 return false;
             }
 
+            /// <summary>
+            /// Gets the current element in the set.
+            /// </summary>
             public T Current => _current;
 
             object IEnumerator.Current
