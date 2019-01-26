@@ -552,7 +552,7 @@ namespace Collections.Pooled
                     list.Add(_items[i]);
                 }
             }
-            return list; 
+            return list;
         }
 
         public int FindIndex(Func<T, bool> match)
@@ -957,7 +957,7 @@ namespace Collections.Pooled
             }
 
             if (_size == 0)
-            {  
+            {
                 // Special case for empty list
                 return -1;
             }

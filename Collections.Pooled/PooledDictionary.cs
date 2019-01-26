@@ -54,6 +54,9 @@ namespace Collections.Pooled
             public TValue value;    // Value of entry
         }
 
+        // store lower 31 bits of hash code
+        private const int Lower31BitMask = 0x7FFFFFFF;
+
         // constants for serialization
         private const string VersionName = "Version"; // Do not rename (binary serialization)
         private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
@@ -315,7 +318,7 @@ namespace Collections.Pooled
             }
         }
 
-        public void AddRange((TKey key, TValue value)[] array) 
+        public void AddRange((TKey key, TValue value)[] array)
             => AddRange(array.AsSpan());
 
         public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
@@ -374,13 +377,13 @@ namespace Collections.Pooled
             int count = _count;
             if (count > 0)
             {
-                Buckets.Clear();
+                Array.Clear(_buckets, 0, _size);
 
                 _count = 0;
                 _freeList = -1;
                 _freeCount = 0;
-                Array.Clear(_entries, 0, count);
                 _size = 0;
+                Array.Clear(_entries, 0, count);
                 _version++;
             }
         }
@@ -495,7 +498,7 @@ namespace Collections.Pooled
 
             if (comparer == null)
             {
-                int hashCode = key.GetHashCode() & 0x7FFFFFFF;
+                int hashCode = key.GetHashCode() & Lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
                 if (default(TKey) != null)
@@ -548,7 +551,7 @@ namespace Collections.Pooled
             }
             else
             {
-                int hashCode = comparer.GetHashCode(key) & 0x7FFFFFFF;
+                int hashCode = comparer.GetHashCode(key) & Lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
                 do
@@ -602,7 +605,7 @@ namespace Collections.Pooled
             var comparer = _comparer;
             var size = _size;
 
-            int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & 0x7FFFFFFF;
+            int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & Lower31BitMask;
 
             int collisionCount = 0;
             ref int bucket = ref _buckets[hashCode % size];
@@ -868,7 +871,7 @@ namespace Collections.Pooled
                     if (entries[i].hashCode >= 0)
                     {
                         Debug.Assert(_comparer == null);
-                        entries[i].hashCode = (entries[i].key.GetHashCode() & 0x7FFFFFFF);
+                        entries[i].hashCode = (entries[i].key.GetHashCode() & Lower31BitMask);
                     }
                 }
             }
@@ -909,7 +912,7 @@ namespace Collections.Pooled
             int collisionCount = 0;
             if (_size > 0)
             {
-                int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & 0x7FFFFFFF;
+                int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & Lower31BitMask;
                 int bucket = hashCode % _size;
                 int last = -1;
                 // Value in buckets is 1-based
@@ -978,7 +981,7 @@ namespace Collections.Pooled
             var buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
-            int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & 0x7FFFFFFF;
+            int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & Lower31BitMask;
             int bucket = hashCode % _size;
             int last = -1;
             // Value in buckets is 1-based
@@ -1108,7 +1111,7 @@ namespace Collections.Pooled
                 try
                 {
                     int count = _count;
-                    var entries = Entries;
+                    var entries = _entries;
                     for (int i = 0; i < count; i++)
                     {
                         if (entries[i].hashCode >= 0)

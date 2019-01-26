@@ -21,7 +21,7 @@ namespace Collections.Pooled
             _comparer = EqualityComparer<T>.Default;
         }
 
-        // using m_comparer to keep equals properties in tact; don't want to choose one of the comparers
+        // using m_comparer to keep equals properties intact; don't want to choose one of the comparers
         public bool Equals(PooledSet<T> x, PooledSet<T> y)
         {
             return PooledSet<T>.HashSetEquals(x, y, _comparer);
@@ -34,7 +34,7 @@ namespace Collections.Pooled
             {
                 foreach (T t in obj)
                 {
-                    hashCode = hashCode ^ (_comparer.GetHashCode(t) & 0x7FFFFFFF);
+                    hashCode ^= (_comparer.GetHashCode(t) & 0x7FFFFFFF);
                 }
             } // else returns hashcode of 0 for null hashsets
             return hashCode;

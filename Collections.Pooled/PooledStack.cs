@@ -51,7 +51,9 @@ namespace Collections.Pooled
         public PooledStack(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity), capacity, "Capacity must not be a negative number.");
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+            }
             _array = s_pool.Rent(capacity);
         }
 
@@ -64,7 +66,8 @@ namespace Collections.Pooled
             switch (enumerable)
             {
                 case null:
-                    throw new ArgumentNullException(nameof(enumerable));
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+                    break;
 
                 case ICollection<T> collection:
                     if (collection.Count == 0)
@@ -153,17 +156,17 @@ namespace Collections.Pooled
         {
             if (array == null)
             {
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "Index was out of bounds.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex);
             }
 
             if (array.Length - arrayIndex < _size)
             {
-                throw new ArgumentException("Destination array does not have enough space after the start index.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
 
             Debug.Assert(array != _array);
@@ -175,31 +178,46 @@ namespace Collections.Pooled
             }
         }
 
+        public void CopyTo(Span<T> span)
+        {
+            if (span.Length < _size)
+            {
+                ThrowHelper.ThrowArgumentException_DestinationTooShort();
+            }
+
+            int srcIndex = 0;
+            int dstIndex = _size;
+            while (srcIndex < _size)
+            {
+                span[--dstIndex] = _array[srcIndex++];
+            }
+        }
+
         void ICollection.CopyTo(Array array, int arrayIndex)
         {
             if (array == null)
             {
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
             if (array.Rank != 1)
             {
-                throw new ArgumentException("Multi-dimensional destination arrays are not supported.", nameof(array));
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }
 
             if (array.GetLowerBound(0) != 0)
             {
-                throw new ArgumentException("Destination arrays with a non-zero lower bound are not supported.", nameof(array));
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound, ExceptionArgument.array);
             }
 
             if (arrayIndex < 0 || arrayIndex > array.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "Index was out of range.");
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex);
             }
 
             if (array.Length - arrayIndex < _size)
             {
-                throw new ArgumentException("Destination array does not have enough space after the start index.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
             }
 
             try
@@ -209,7 +227,7 @@ namespace Collections.Pooled
             }
             catch (ArrayTypeMismatchException)
             {
-                throw new ArgumentException("Invalid array type.", nameof(array));
+                ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
             }
         }
 
@@ -218,20 +236,14 @@ namespace Collections.Pooled
         /// </summary>
         /// <returns></returns>
         public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         /// <internalonly/>
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         public void TrimExcess()
         {
@@ -242,7 +254,7 @@ namespace Collections.Pooled
                 return;
             }
 
-            int threshold = (int)(_array.Length * 0.7);
+            int threshold = (int)(_array.Length * 0.9);
             if (_size < threshold)
             {
                 var newArray = s_pool.Rent(_size);

@@ -134,7 +134,7 @@ namespace Collections.Pooled
         {
             if (collection == null)
             {
-                throw new ArgumentNullException(nameof(collection));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
             }
 
             if (collection is PooledSet<T> otherAsSet && AreEqualityComparersEqual(this, otherAsSet))
@@ -189,6 +189,7 @@ namespace Collections.Pooled
                 Array.Clear(_buckets, 0, _buckets.Length);
                 Array.Copy(source._buckets, _buckets, capacity);
                 _slots = s_slotPool.Rent(capacity);
+                Array.Copy(source._slots, _slots, capacity);
 
                 _lastIndex = source._lastIndex;
                 _freeList = source._freeList;
@@ -288,7 +289,7 @@ namespace Collections.Pooled
                     if (collisionCount >= _size)
                     {
                         // The chain of entries forms a loop, which means a concurrent update has happened.
-                        throw new InvalidOperationException("Concurrent operations not supported.");
+                        ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                     }
                     collisionCount++;
                 }
@@ -385,19 +386,13 @@ namespace Collections.Pooled
         #region IEnumerable methods
 
         public Enumerator GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator()
-        {
-            return new Enumerator(this);
-        }
+            => new Enumerator(this);
 
         #endregion
 
@@ -407,7 +402,7 @@ namespace Collections.Pooled
         {
             if (info == null)
             {
-                throw new ArgumentNullException(nameof(info));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
             info.AddValue(VersionName, _version); // need to serialize version to avoid problems with serializing while enumerating
@@ -448,7 +443,7 @@ namespace Collections.Pooled
 
                 if (array == null)
                 {
-                    throw new SerializationException("Serialization data missing keys.");
+                    ThrowHelper.ThrowSerializationException(ExceptionResource.Serialization_MissingKeys);
                 }
 
                 // there are no resizes here because we already set capacity above
@@ -520,7 +515,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             foreach (T item in other)
@@ -547,7 +542,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // intersection of anything with empty set is empty set, so return if count is 0
@@ -598,7 +593,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // this is already the empty set; return
@@ -629,7 +624,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // if set is empty, then symmetric difference is other
@@ -683,7 +678,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // The empty set is a subset of any set
@@ -749,7 +744,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // no set is a proper subset of itself.
@@ -817,7 +812,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // a set is always a superset of itself
@@ -843,7 +838,7 @@ namespace Collections.Pooled
                         return false;
                     }
                 }
-                
+
                 if (other is HashSet<T> otherAsHs && AreEqualityComparersEqual(this, otherAsHs))
                 {
                     if (otherAsHs.Count > _count)
@@ -880,7 +875,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // the empty set isn't a proper superset of any set.
@@ -938,7 +933,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             if (_count == 0)
@@ -972,7 +967,7 @@ namespace Collections.Pooled
         {
             if (other == null)
             {
-                throw new ArgumentNullException(nameof(other));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
             // a set is equal to itself
@@ -1029,19 +1024,19 @@ namespace Collections.Pooled
         {
             if (array == null)
             {
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
             // check array index valid index into array
             if (arrayIndex < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(arrayIndex), arrayIndex, "Must be a non-negative number.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum, ExceptionArgument.arrayIndex);
             }
 
             // also throw if count less than 0
             if (count < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count), count, "Must be a non-negative number.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum, ExceptionArgument.count);
             }
 
             // will array, starting at arrayIndex, be able to hold elements? Note: not
@@ -1049,7 +1044,7 @@ namespace Collections.Pooled
             // count of 0; subsequent check takes care of the rest)
             if (arrayIndex > array.Length || count > array.Length - arrayIndex)
             {
-                throw new ArgumentException("Array index plus array length is too small to hold this set.");
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
 
             int numCopied = 0;
@@ -1058,6 +1053,26 @@ namespace Collections.Pooled
                 if (_slots[i].hashCode >= 0)
                 {
                     array[arrayIndex + numCopied] = _slots[i].value;
+                    numCopied++;
+                }
+            }
+        }
+
+        public void CopyTo(Span<T> span) => CopyTo(span, _count);
+
+        public void CopyTo(Span<T> span, int count)
+        {
+            if (span.Length < _count || span.Length < count)
+            {
+                ThrowHelper.ThrowArgumentException_DestinationTooShort();
+            }
+
+            int numCopied = 0;
+            for (int i = 0; i < _lastIndex && numCopied < count; i++)
+            {
+                if (_slots[i].hashCode >= 0)
+                {
+                    span[numCopied] = _slots[i].value;
                     numCopied++;
                 }
             }
@@ -1072,7 +1087,7 @@ namespace Collections.Pooled
         {
             if (match == null)
             {
-                throw new ArgumentNullException(nameof(match));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             int numRemoved = 0;
@@ -1107,7 +1122,7 @@ namespace Collections.Pooled
         public int EnsureCapacity(int capacity)
         {
             if (capacity < 0)
-                throw new ArgumentOutOfRangeException(nameof(capacity));
+                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             int currentCapacity = _slots == null ? 0 : _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;
@@ -1200,9 +1215,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <returns></returns>
         public static IEqualityComparer<PooledSet<T>> CreateSetComparer()
-        {
-            return new PooledSetEqualityComparer<T>();
-        }
+            => new PooledSetEqualityComparer<T>();
 
         /// <summary>
         /// Initializes buckets and slots arrays. Uses suggested capacity by finding next prime
@@ -1234,7 +1247,7 @@ namespace Collections.Pooled
             int newSize = HashHelpers.ExpandPrime(_count);
             if (newSize <= _count)
             {
-                throw new ArgumentException("Capacity overflow: cannot increase capacity.");
+                ThrowHelper.ThrowInvalidOperationException(ExceptionResource.InvalidOperation_HSCapacityOverflow);
             }
 
             // Able to increase capacity; copy elements to larger array and rehash
@@ -1251,22 +1264,33 @@ namespace Collections.Pooled
             Debug.Assert(HashHelpers.IsPrime(newSize), "New size is not prime!");
             Debug.Assert(_buckets != null, "SetCapacity called on a set with no elements");
 
+            int[] newBuckets;
+            Slot[] newSlots;
+            bool replaceArrays;
+
             // Because ArrayPool might have given us larger arrays than we asked for, see if we can 
             // use the existing capacity without actually resizing.
-            if (_buckets.Length >= newSize && _slots.Length >= newSize)
+            if (_buckets?.Length >= newSize && _slots?.Length >= newSize)
             {
-                _size = newSize;
-                return;
+                Array.Clear(_buckets, 0, _buckets.Length);
+                Array.Clear(_slots, _size, newSize - _size);
+                newBuckets = _buckets;
+                newSlots = _slots;
+                replaceArrays = false;
+            }
+            else
+            {
+                newSlots = s_slotPool.Rent(newSize);
+                newBuckets = s_bucketPool.Rent(newSize);
+
+                Array.Clear(newBuckets, 0, newBuckets.Length);
+                if (_slots != null)
+                {
+                    Array.Copy(_slots, 0, newSlots, 0, _lastIndex);
+                }
+                replaceArrays = true;
             }
 
-            Slot[] newSlots = s_slotPool.Rent(newSize);
-            if (_slots != null)
-            {
-                Array.Copy(_slots, 0, newSlots, 0, _lastIndex);
-            }
-
-            int[] newBuckets = s_bucketPool.Rent(newSize);
-            Array.Clear(newBuckets, 0, newBuckets.Length);
             for (int i = 0; i < _lastIndex; i++)
             {
                 int bucket = newSlots[i].hashCode % newSize;
@@ -1274,9 +1298,14 @@ namespace Collections.Pooled
                 newBuckets[bucket] = i + 1;
             }
 
-            ReturnArrays();
-            _slots = newSlots;
-            _buckets = newBuckets;
+            if (replaceArrays)
+            {
+                ReturnArrays();
+                _slots = newSlots;
+                _buckets = newBuckets;
+            }
+
+            _size = newSize;
         }
 
         private void ReturnArrays()
@@ -1326,7 +1355,7 @@ namespace Collections.Pooled
                 if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
-                    throw new InvalidOperationException("Concurrent operations not supported.");
+                    ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                 }
                 collisionCount++;
             }
@@ -1505,17 +1534,10 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            BitHelper bitHelper;
-            if (intArrayLength <= StackAllocThreshold)
-            {
-                int* bitArrayPtr = stackalloc int[intArrayLength];
-                bitHelper = new BitHelper(bitArrayPtr, intArrayLength);
-            }
-            else
-            {
-                int[] bitArray = new int[intArrayLength];
-                bitHelper = new BitHelper(bitArray, intArrayLength);
-            }
+            Span<int> span = stackalloc int[StackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= StackAllocThreshold ?
+                new BitHelper(span.Slice(0, intArrayLength), clear: true) :
+                new BitHelper(new int[intArrayLength], clear: false);
 
             // mark if contains: find index of in slots array and mark corresponding element in bit array
             foreach (T item in other)
@@ -1561,7 +1583,7 @@ namespace Collections.Pooled
                 if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
-                    throw new InvalidOperationException("Concurrent operations not supported.");
+                    ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                 }
                 collisionCount++;
             }
@@ -1629,24 +1651,15 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            BitHelper itemsToRemove;
-            BitHelper itemsAddedFromOther;
-            if (intArrayLength <= StackAllocThreshold / 2)
-            {
-                int* itemsToRemovePtr = stackalloc int[intArrayLength];
-                itemsToRemove = new BitHelper(itemsToRemovePtr, intArrayLength);
+            Span<int> itemsToRemoveSpan = stackalloc int[StackAllocThreshold / 2];
+            BitHelper itemsToRemove = intArrayLength <= StackAllocThreshold / 2 ?
+                new BitHelper(itemsToRemoveSpan.Slice(0, intArrayLength), clear: true) :
+                new BitHelper(new int[intArrayLength], clear: false);
 
-                int* itemsAddedFromOtherPtr = stackalloc int[intArrayLength];
-                itemsAddedFromOther = new BitHelper(itemsAddedFromOtherPtr, intArrayLength);
-            }
-            else
-            {
-                int[] itemsToRemoveArray = new int[intArrayLength];
-                itemsToRemove = new BitHelper(itemsToRemoveArray, intArrayLength);
-
-                int[] itemsAddedFromOtherArray = new int[intArrayLength];
-                itemsAddedFromOther = new BitHelper(itemsAddedFromOtherArray, intArrayLength);
-            }
+            Span<int> itemsAddedFromOtherSpan = stackalloc int[StackAllocThreshold / 2];
+            BitHelper itemsAddedFromOther = intArrayLength <= StackAllocThreshold / 2 ?
+                new BitHelper(itemsAddedFromOtherSpan.Slice(0, intArrayLength), clear: true) :
+                new BitHelper(new int[intArrayLength], clear: false);
 
             foreach (T item in other)
             {
@@ -1712,7 +1725,7 @@ namespace Collections.Pooled
                 if (collisionCount >= _size)
                 {
                     // The chain of entries forms a loop, which means a concurrent update has happened.
-                    throw new InvalidOperationException("Concurrent operations not supported.");
+                    ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                 }
                 collisionCount++;
             }
@@ -1792,17 +1805,10 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            BitHelper bitHelper;
-            if (intArrayLength <= StackAllocThreshold)
-            {
-                int* bitArrayPtr = stackalloc int[intArrayLength];
-                bitHelper = new BitHelper(bitArrayPtr, intArrayLength);
-            }
-            else
-            {
-                int[] bitArray = new int[intArrayLength];
-                bitHelper = new BitHelper(bitArray, intArrayLength);
-            }
+            Span<int> span = stackalloc int[StackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= StackAllocThreshold ?
+                new BitHelper(span.Slice(0, intArrayLength), clear: true) :
+                new BitHelper(new int[intArrayLength], clear: false);
 
             // count of items in other not found in this
             int unfoundCount = 0;
@@ -1988,7 +1994,7 @@ namespace Collections.Pooled
             {
                 if (_version != _set._version)
                 {
-                    throw new InvalidOperationException("Collection modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 while (_index < _set._lastIndex)
@@ -2014,7 +2020,7 @@ namespace Collections.Pooled
                 {
                     if (_index == 0 || _index == _set._lastIndex + 1)
                     {
-                        throw new InvalidOperationException("Enumeration exceeded collection bounds.");
+                        ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
                     return Current;
                 }
@@ -2024,7 +2030,7 @@ namespace Collections.Pooled
             {
                 if (_version != _set._version)
                 {
-                    throw new InvalidOperationException("Collection was modified during enumeration.");
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 }
 
                 _index = 0;
