@@ -14,50 +14,50 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class Set_Add : SetBase
+    public class Set_Remove : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Add()
+        public void HashSet_Remove()
         {
-            foreach (int thing in stuffToAdd)
+            foreach (int thing in stuffToRemove)
             {
-                hashSet.Add(thing);
+                hashSet.Remove(thing);
             }
         }
 
         [Benchmark]
-        public void PooledSet_Add()
+        public void PooledSet_Remove()
         {
-            foreach (int thing in stuffToAdd)
+            foreach (int thing in stuffToRemove)
             {
-                pooledSet.Add(thing);
+                pooledSet.Remove(thing);
             }
         }
 
         private int[] startingElements;
-        private int[] stuffToAdd;
+        private int[] stuffToRemove;
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000, 100000)]
-        public int CountToAdd;
+        [Params(1, 100, 10000)]
+        public int CountToRemove;
 
-        [Params(0, SetSize_Large)]
+        [Params(SetSize_Large)]
         public int InitialSetSize;
 
-        [IterationSetup(Target = nameof(HashSet_Add))]
+        [IterationSetup(Target = nameof(HashSet_Remove))]
         public void HashIterationSetup()
         {
             hashSet = new HashSet<int>(startingElements);
         }
 
-        [IterationSetup(Target = nameof(PooledSet_Add))]
+        [IterationSetup(Target = nameof(PooledSet_Remove))]
         public void PooledIterationSetup()
         {
             pooledSet = new PooledSet<int>(startingElements);
         }
 
-        [IterationCleanup(Target = nameof(PooledSet_Add))]
+        [IterationCleanup(Target = nameof(PooledSet_Remove))]
         public void PooledIterationCleanup()
         {
             pooledSet?.Dispose();
@@ -68,7 +68,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            stuffToAdd = intGenerator.MakeNewTs(CountToAdd);
+            stuffToRemove = intGenerator.GenerateSelectionSubset(startingElements, CountToRemove);
         }
     }
 }

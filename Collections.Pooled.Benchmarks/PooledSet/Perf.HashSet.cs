@@ -96,46 +96,46 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        [InlineData(InitialSetSize, 1)]
-        [InlineData(InitialSetSize, 100)]
-        [InlineData(InitialSetSize, 10000)]
-        public static void Remove(int initialSetSize, int countToRemove)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
-            int[] stuffToRemove = intGenerator.GenerateSelectionSubset(startingElements, countToRemove);
+        //[Benchmark]
+        //[InlineData(InitialSetSize, 1)]
+        //[InlineData(InitialSetSize, 100)]
+        //[InlineData(InitialSetSize, 10000)]
+        //public static void Remove(int initialSetSize, int countToRemove)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
+        //    int[] stuffToRemove = intGenerator.GenerateSelectionSubset(startingElements, countToRemove);
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                HashSet<int> theSet = new HashSet<int>(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        HashSet<int> theSet = new HashSet<int>(startingElements);
 
-                using (iteration.StartMeasurement())
-                {
-                    foreach (int thing in stuffToRemove)
-                    {
-                        theSet.Remove(thing);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            foreach (int thing in stuffToRemove)
+        //            {
+        //                theSet.Remove(thing);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(InitialSetSize_small)]
-        public static void Clear(int initialSetSize)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingSet = intGenerator.MakeNewTs(initialSetSize);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(InitialSetSize_small)]
+        //public static void Clear(int initialSetSize)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingSet = intGenerator.MakeNewTs(initialSetSize);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingSet);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingSet);
 
-                using (iteration.StartMeasurement())
-                    theSet.Clear();
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //            theSet.Clear();
+        //    }
+        //}
 
         [Benchmark]
         [InlineData(MaxStartSize, InitialSetSize_small)]

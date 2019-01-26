@@ -416,7 +416,7 @@ namespace Collections.Pooled
                     if (collisionCount >= _size)
                     {
                         // The chain of entries forms a loop, which means a concurrent update has happened.
-                        throw new InvalidOperationException("Concurrent operations not supported.");
+                        ThrowHelper.ThrowInvalidOperationException_ConcurrentOperationsNotSupported();
                     }
                     collisionCount++;
                 }
@@ -1577,6 +1577,8 @@ namespace Collections.Pooled
                     s_bucketPool.Return(newBuckets);
                     return;
                 }
+
+                Array.Clear(newBuckets, 0, newBuckets.Length);
 
                 // move down slots and rehash at the same time. newIndex keeps track of current 
                 // position in newSlots array

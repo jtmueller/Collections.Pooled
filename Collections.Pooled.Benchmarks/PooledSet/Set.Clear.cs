@@ -14,53 +14,37 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class Set_Add : SetBase
+    public class Set_Clear : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Add()
+        public void HashSet_Clear()
         {
-            foreach (int thing in stuffToAdd)
-            {
-                hashSet.Add(thing);
-            }
+            hashSet.Clear();
         }
 
         [Benchmark]
-        public void PooledSet_Add()
+        public void PooledSet_Clear()
         {
-            foreach (int thing in stuffToAdd)
-            {
-                pooledSet.Add(thing);
-            }
+            pooledSet.Clear();
         }
 
         private int[] startingElements;
-        private int[] stuffToAdd;
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000, 100000)]
-        public int CountToAdd;
-
-        [Params(0, SetSize_Large)]
+        [Params(SetSize_Small)]
         public int InitialSetSize;
 
-        [IterationSetup(Target = nameof(HashSet_Add))]
+        [IterationSetup(Target = nameof(HashSet_Clear))]
         public void HashIterationSetup()
         {
-            hashSet = new HashSet<int>(startingElements);
+            hashSet.UnionWith(startingElements);
         }
 
-        [IterationSetup(Target = nameof(PooledSet_Add))]
+        [IterationSetup(Target = nameof(PooledSet_Clear))]
         public void PooledIterationSetup()
         {
-            pooledSet = new PooledSet<int>(startingElements);
-        }
-
-        [IterationCleanup(Target = nameof(PooledSet_Add))]
-        public void PooledIterationCleanup()
-        {
-            pooledSet?.Dispose();
+            pooledSet.UnionWith(startingElements);
         }
 
         [GlobalSetup]
@@ -68,7 +52,15 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            stuffToAdd = intGenerator.MakeNewTs(CountToAdd);
+
+            hashSet = new HashSet<int>();
+            pooledSet = new PooledSet<int>();
+        }
+
+        [GlobalCleanup]
+        public void GlobalCleanup()
+        {
+            pooledSet?.Dispose();
         }
     }
 }
