@@ -24,7 +24,7 @@ namespace Collections.Pooled
         // using m_comparer to keep equals properties intact; don't want to choose one of the comparers
         public bool Equals(PooledSet<T> x, PooledSet<T> y)
         {
-            return PooledSet<T>.HashSetEquals(x, y, _comparer);
+            return PooledSet<T>.PooledSetEquals(x, y, _comparer);
         }
 
         public int GetHashCode(PooledSet<T> obj)

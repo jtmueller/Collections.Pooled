@@ -190,10 +190,6 @@ namespace Collections.Pooled
             HashHelpers.SerializationInfoTable.Add(this, info);
         }
 
-        private Span<int> Buckets => _buckets.AsSpan(0, _size);
-
-        private Span<Entry> Entries => _entries.AsSpan(0, _size);
-
         public IEqualityComparer<TKey> Comparer
         {
             get
