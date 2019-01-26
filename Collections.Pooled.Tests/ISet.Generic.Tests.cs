@@ -498,99 +498,102 @@ namespace Collections.Pooled.Tests.PooledSet
             Validate_UnionWith(set, set);
         }
 
-#endregion
+        #endregion
 
-#region Set Function tests on a large Set
+        #region Set Function tests on a large Set
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_ExceptWith_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_ExceptWith(set, enumerable);
-        }
+        // Tests marked as Outerloop are for scenarios that don't need to run every build.
+        // https://github.com/dotnet/corefx/blob/master/Documentation/project-docs/developer-guide.md#outerloopattribute
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_IntersectWith_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_IntersectWith(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_ExceptWith_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_ExceptWith(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_IsProperSubsetOf_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_IsProperSubsetOf(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_IntersectWith_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_IntersectWith(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_IsProperSupersetOf_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_IsProperSupersetOf(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_IsProperSubsetOf_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_IsProperSubsetOf(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_IsSubsetOf_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_IsSubsetOf(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_IsProperSupersetOf_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_IsProperSupersetOf(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_IsSupersetOf_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_IsSupersetOf(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_IsSubsetOf_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_IsSubsetOf(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_Overlaps_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_Overlaps(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_IsSupersetOf_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_IsSupersetOf(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_SetEquals_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_SetEquals(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_Overlaps_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_Overlaps(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_SymmetricExceptWith_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_SymmetricExceptWith(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_SetEquals_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_SetEquals(set, enumerable);
+        //}
 
-        [Fact]
-        //[OuterLoop]
-        public void ISet_Generic_UnionWith_LargeSet()
-        {
-            ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
-            IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
-            Validate_UnionWith(set, enumerable);
-        }
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_SymmetricExceptWith_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_SymmetricExceptWith(set, enumerable);
+        //}
+
+        //[Fact]
+        ////[OuterLoop]
+        //public void ISet_Generic_UnionWith_LargeSet()
+        //{
+        //    ISet<T> set = GenericISetFactory(ISet_Large_Capacity);
+        //    IEnumerable<T> enumerable = CreateEnumerable(EnumerableType.List, set, 150, 0, 0);
+        //    Validate_UnionWith(set, enumerable);
+        //}
 
 #endregion
 

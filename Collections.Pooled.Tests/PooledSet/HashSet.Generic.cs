@@ -83,135 +83,138 @@ namespace Collections.Pooled.Tests.PooledSet
         }
     }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_EquatableBackwardsOrder : HashSet_Generic_Tests<EquatableBackwardsOrder>
-    {
-        protected override EquatableBackwardsOrder CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return new EquatableBackwardsOrder(rand.Next());
-        }
+    // Tests marked as Outerloop are for scenarios that don't need to run every build.
+    // https://github.com/dotnet/corefx/blob/master/Documentation/project-docs/developer-guide.md#outerloopattribute
 
-        protected override ISet<EquatableBackwardsOrder> GenericISetFactory()
-        {
-            var set = new PooledSet<EquatableBackwardsOrder>();
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_EquatableBackwardsOrder : HashSet_Generic_Tests<EquatableBackwardsOrder>
+    //{
+    //    protected override EquatableBackwardsOrder CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return new EquatableBackwardsOrder(rand.Next());
+    //    }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_int_With_Comparer_SameAsDefaultComparer : HashSet_Generic_Tests<int>
-    {
-        protected override IEqualityComparer<int> GetIEqualityComparer()
-        {
-            return new Comparer_SameAsDefaultComparer();
-        }
+    //    protected override ISet<EquatableBackwardsOrder> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<EquatableBackwardsOrder>();
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 
-        protected override int CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return rand.Next();
-        }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_int_With_Comparer_SameAsDefaultComparer : HashSet_Generic_Tests<int>
+    //{
+    //    protected override IEqualityComparer<int> GetIEqualityComparer()
+    //    {
+    //        return new Comparer_SameAsDefaultComparer();
+    //    }
 
-        protected override ISet<int> GenericISetFactory()
-        {
-            var set = new PooledSet<int>(new Comparer_SameAsDefaultComparer());
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    //    protected override int CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return rand.Next();
+    //    }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_int_With_Comparer_HashCodeAlwaysReturnsZero : HashSet_Generic_Tests<int>
-    {
-        protected override IEqualityComparer<int> GetIEqualityComparer()
-        {
-            return new Comparer_HashCodeAlwaysReturnsZero();
-        }
+    //    protected override ISet<int> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<int>(new Comparer_SameAsDefaultComparer());
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 
-        protected override int CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return rand.Next();
-        }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_int_With_Comparer_HashCodeAlwaysReturnsZero : HashSet_Generic_Tests<int>
+    //{
+    //    protected override IEqualityComparer<int> GetIEqualityComparer()
+    //    {
+    //        return new Comparer_HashCodeAlwaysReturnsZero();
+    //    }
 
-        protected override ISet<int> GenericISetFactory()
-        {
-            var set = new PooledSet<int>(new Comparer_HashCodeAlwaysReturnsZero());
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    //    protected override int CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return rand.Next();
+    //    }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_int_With_Comparer_ModOfInt : HashSet_Generic_Tests<int>
-    {
-        protected override IEqualityComparer<int> GetIEqualityComparer()
-        {
-            return new Comparer_ModOfInt(15000);
-        }
+    //    protected override ISet<int> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<int>(new Comparer_HashCodeAlwaysReturnsZero());
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 
-        protected override IComparer<int> GetIComparer()
-        {
-            return new Comparer_ModOfInt(15000);
-        }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_int_With_Comparer_ModOfInt : HashSet_Generic_Tests<int>
+    //{
+    //    protected override IEqualityComparer<int> GetIEqualityComparer()
+    //    {
+    //        return new Comparer_ModOfInt(15000);
+    //    }
 
-        protected override int CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return rand.Next();
-        }
+    //    protected override IComparer<int> GetIComparer()
+    //    {
+    //        return new Comparer_ModOfInt(15000);
+    //    }
 
-        protected override ISet<int> GenericISetFactory()
-        {
-            var set = new PooledSet<int>(new Comparer_ModOfInt(15000));
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    //    protected override int CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return rand.Next();
+    //    }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_int_With_Comparer_AbsOfInt : HashSet_Generic_Tests<int>
-    {
-        protected override IEqualityComparer<int> GetIEqualityComparer()
-        {
-            return new Comparer_AbsOfInt();
-        }
+    //    protected override ISet<int> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<int>(new Comparer_ModOfInt(15000));
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 
-        protected override int CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return rand.Next();
-        }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_int_With_Comparer_AbsOfInt : HashSet_Generic_Tests<int>
+    //{
+    //    protected override IEqualityComparer<int> GetIEqualityComparer()
+    //    {
+    //        return new Comparer_AbsOfInt();
+    //    }
 
-        protected override ISet<int> GenericISetFactory()
-        {
-            var set = new PooledSet<int>(new Comparer_AbsOfInt());
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    //    protected override int CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return rand.Next();
+    //    }
 
-    //[OuterLoop]
-    public class HashSet_Generic_Tests_int_With_Comparer_BadIntEqualityComparer : HashSet_Generic_Tests<int>
-    {
-        protected override IEqualityComparer<int> GetIEqualityComparer()
-        {
-            return new BadIntEqualityComparer();
-        }
+    //    protected override ISet<int> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<int>(new Comparer_AbsOfInt());
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 
-        protected override int CreateT(int seed)
-        {
-            Random rand = new Random(seed);
-            return rand.Next();
-        }
+    ////[OuterLoop]
+    //public class HashSet_Generic_Tests_int_With_Comparer_BadIntEqualityComparer : HashSet_Generic_Tests<int>
+    //{
+    //    protected override IEqualityComparer<int> GetIEqualityComparer()
+    //    {
+    //        return new BadIntEqualityComparer();
+    //    }
 
-        protected override ISet<int> GenericISetFactory()
-        {
-            var set = new PooledSet<int>(new BadIntEqualityComparer());
-            RegisterForDispose(set);
-            return set;
-        }
-    }
+    //    protected override int CreateT(int seed)
+    //    {
+    //        Random rand = new Random(seed);
+    //        return rand.Next();
+    //    }
+
+    //    protected override ISet<int> GenericISetFactory()
+    //    {
+    //        var set = new PooledSet<int>(new BadIntEqualityComparer());
+    //        RegisterForDispose(set);
+    //        return set;
+    //    }
+    //}
 }
