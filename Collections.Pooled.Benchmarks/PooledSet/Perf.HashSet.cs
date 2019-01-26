@@ -21,80 +21,80 @@ namespace System.Collections.Tests
         private const int InitialSetSize_small = 320000;
         private const int MaxStartSize = 32000;
 
-        [Benchmark]
-        [InlineData(InitialSetSize, 1)]
-        [InlineData(InitialSetSize, 100)]
-        [InlineData(InitialSetSize, 10000)]
-        public static void Add(int initialSetSize, int countToAdd)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            // n is varying start size of set
-            int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
-            int[] stuffToAdd = intGenerator.MakeNewTs(countToAdd);
+        //[Benchmark]
+        //[InlineData(InitialSetSize, 1)]
+        //[InlineData(InitialSetSize, 100)]
+        //[InlineData(InitialSetSize, 10000)]
+        //public static void Add(int initialSetSize, int countToAdd)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    // n is varying start size of set
+        //    int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
+        //    int[] stuffToAdd = intGenerator.MakeNewTs(countToAdd);
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                HashSet<int> theSet = new HashSet<int>(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        HashSet<int> theSet = new HashSet<int>(startingElements);
 
-                using (iteration.StartMeasurement())
-                {
-                    foreach (int thing in stuffToAdd)
-                    {
-                        theSet.Add(thing);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            foreach (int thing in stuffToAdd)
+        //            {
+        //                theSet.Add(thing);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(InitialSetSize, 1)]
-        [InlineData(InitialSetSize, 100)]
-        [InlineData(InitialSetSize, 10000)]
-        public static void Contains_True(int initialSetSize, int countToCheck)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
-            int[] subsetToCheck = intGenerator.GenerateSelectionSubset(startingElements, countToCheck);
-            bool present;
+        //[Benchmark]
+        //[InlineData(InitialSetSize, 1)]
+        //[InlineData(InitialSetSize, 100)]
+        //[InlineData(InitialSetSize, 10000)]
+        //public static void Contains_True(int initialSetSize, int countToCheck)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
+        //    int[] subsetToCheck = intGenerator.GenerateSelectionSubset(startingElements, countToCheck);
+        //    bool present;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                HashSet<int> theSet = new HashSet<int>(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        HashSet<int> theSet = new HashSet<int>(startingElements);
 
-                using (iteration.StartMeasurement())
-                {
-                    foreach (int thing in subsetToCheck)
-                    {
-                        present = theSet.Contains(thing);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            foreach (int thing in subsetToCheck)
+        //            {
+        //                present = theSet.Contains(thing);
+        //            }
+        //        }
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(InitialSetSize, 1)]
-        [InlineData(InitialSetSize, 100)]
-        [InlineData(InitialSetSize, 10000)]
-        public static void Contains_False(int initialSetSize, int countToCheck)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
-            int missingValue = InstanceCreators.IntGenerator_MaxValue + 1;
-            bool present;
+        //[Benchmark]
+        //[InlineData(InitialSetSize, 1)]
+        //[InlineData(InitialSetSize, 100)]
+        //[InlineData(InitialSetSize, 10000)]
+        //public static void Contains_False(int initialSetSize, int countToCheck)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(initialSetSize);
+        //    int missingValue = InstanceCreators.IntGenerator_MaxValue + 1;
+        //    bool present;
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                HashSet<int> theSet = new HashSet<int>(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        HashSet<int> theSet = new HashSet<int>(startingElements);
 
-                using (iteration.StartMeasurement())
-                {
-                    for (int i = 0; i < countToCheck; i++)
-                    {
-                        present = theSet.Contains(missingValue);
-                    }
-                }
-            }
-        }
+        //        using (iteration.StartMeasurement())
+        //        {
+        //            for (int i = 0; i < countToCheck; i++)
+        //            {
+        //                present = theSet.Contains(missingValue);
+        //            }
+        //        }
+        //    }
+        //}
 
         [Benchmark]
         [InlineData(InitialSetSize, 1)]
