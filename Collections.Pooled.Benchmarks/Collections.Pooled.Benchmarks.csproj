@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PooledSet\Perf.HashSet.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="PooledSet\Perf.HashSet.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
   </ItemGroup>
 

@@ -1030,13 +1030,13 @@ namespace Collections.Pooled
             // check array index valid index into array
             if (arrayIndex < 0)
             {
-                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum, ExceptionArgument.arrayIndex);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
 
             // also throw if count less than 0
             if (count < 0)
             {
-                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum, ExceptionArgument.count);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
 
             // will array, starting at arrayIndex, be able to hold elements? Note: not
@@ -1122,7 +1122,7 @@ namespace Collections.Pooled
         public int EnsureCapacity(int capacity)
         {
             if (capacity < 0)
-                ThrowHelper.ThrowArgumentException(ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             int currentCapacity = _slots == null ? 0 : _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;

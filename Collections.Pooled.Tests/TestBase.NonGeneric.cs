@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Collections.Pooled.Tests
@@ -25,10 +26,19 @@ namespace Collections.Pooled.Tests
             yield return new object[] { 75 };
         }
 
-        public void RegisterForDispose(object obj)
+        protected T RegisterForDispose<T>(T obj)
         {
             if (obj is IDisposable disposable)
                 _disposables.Add(disposable);
+            return obj;
+        }
+
+        protected void RegisterForDispose<T>(params T[] objects)
+        {
+            if (objects.Length == 0)
+                return;
+
+            _disposables.AddRange(objects.OfType<IDisposable>());
         }
 
         public virtual void Dispose()

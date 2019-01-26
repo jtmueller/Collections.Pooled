@@ -216,7 +216,7 @@ namespace Collections.Pooled.Tests
         /// </summary>
         protected IEnumerable<T> CreateHashSet(IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements)
         {
-            var set = new HashSet<T>(GetIEqualityComparer());
+            var set = new PooledSet<T>(GetIEqualityComparer());
             RegisterForDispose(set);
             int seed = 528;
             List<T> match = null;
