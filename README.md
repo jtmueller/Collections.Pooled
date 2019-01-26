@@ -24,9 +24,7 @@ paket add Collections.Pooled
   * [.NET Core](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/netcoreapp2.2)
   * [.NET Framework](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/net472)
 
-## Collections
-
-### `PooledList<T>`
+## `PooledList<T>`
 
 `PooledList<T>` is based on the corefx source code for `System.Collections.Generic.List<T>`,
 modified to use ArrayPool for internal array-storage allocation, and to support `Span<T>`.
@@ -61,7 +59,8 @@ There are some API changes worth noting:
 Please review the benchmark links above for complete details. Performance and memory allocations
 both range from "on par with `List<T>`" to "far better than `List<T>`" depending on the operation.
 
-### `PooledDictionary<TKey, TValue>`
+
+## `PooledDictionary<TKey, TValue>`
 
 `PooledDictionary<TKey, TValue>` is based on the corefx source code for `System.Collections.Generic.Dictionary<TKey, TValue>`,
 modified to use ArrayPool for internal storage allocation, and to support `Span<T>`.
@@ -77,7 +76,13 @@ There are some API changes worth noting:
     of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
   * A selection of `ToPooledDictionary()` extension methods are provided.
 
-### `PooledStack<T>`
+#### Performance
+
+Adding to dictionaries is where using ArrayPool really has an impact:
+![Dictionary Add Timings](./docs/benchmarks/netcoreapp2.2/Dict_Add_Milliseconds.svg) 
+![Dictionary Add Memory Allocations](./docs/benchmarks/netcoreapp2.2/Dict_Add_Memory.svg)
+
+## `PooledStack<T>`
 
 `PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
 modified to use ArrayPool for internal storage allocation.
@@ -90,7 +95,7 @@ modified to use ArrayPool for internal storage allocation.
     of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
   * A selection of `ToPooledStack()` extension methods are provided.
 
-### `PooledSet<T>`
+## `PooledSet<T>`
 
 `PooledSet<T>` is based on the corefx source code for `System.Generic.Collections.HashSet<T>`,
 modified to use ArrayPool for internal storage allocation, and to support `ReadOnlySpan<T>` for all set functions.
