@@ -7,9 +7,9 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public abstract class SetBase
     {
         protected const int RAND_SEED = 24565653;
-        protected const int SetSize_Large = 8000000;
-        protected const int SetSize_Small = 320000;
-        protected const int MaxStartSize = 32000;
+        protected const int SetSize_Large = 8_000_000;
+        protected const int SetSize_Small = 320_000;
+        protected const int MaxStartSize = 32_000;
 
         protected static HashSet<int> CreateSet(int size)
         {

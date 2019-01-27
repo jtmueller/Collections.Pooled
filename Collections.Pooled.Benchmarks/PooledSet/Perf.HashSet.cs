@@ -137,25 +137,25 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        [InlineData(MaxStartSize, InitialSetSize_small)]
-        public static void Union(int startSize, int countToUnion)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
-            int[] stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, countToUnion);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(MaxStartSize, InitialSetSize_small)]
+        //public static void Union(int startSize, int countToUnion)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
+        //    int[] stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, countToUnion);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.UnionWith(stuffToUnion);
+        //        using (iteration.StartMeasurement())
+        //            theSet.UnionWith(stuffToUnion);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
         [Benchmark]
         [InlineData(MaxStartSize, InitialSetSize_small)]
