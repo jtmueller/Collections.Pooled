@@ -60,7 +60,7 @@ There are some API changes worth noting:
 #### Performance
 
 Adding items to a list is one area where ArrayPool helps us quite a bit:
-![List Add Timings](./docs/benchmarks/netcoreapp2.2/LIst_Add_Microseconds.svg) 
+![List Add Timings](./docs/benchmarks/netcoreapp2.2/List_Add_Microseconds.svg) 
 ![List Add Memory Allocations](./docs/benchmarks/netcoreapp2.2/List_Add_Bytes.svg)
 
 ## `PooledDictionary<TKey, TValue>`
