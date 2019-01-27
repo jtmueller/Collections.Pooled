@@ -13,49 +13,73 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public class Set_Union : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Union()
+        public void HashSet_Union_Hashset()
+        {
+            hashSet.UnionWith(hashSetToUnion);
+        }
+
+        [Benchmark]
+        public void PooledSet_Union_PooledSet()
+        {
+            pooledSet.UnionWith(pooledSetToUnion);
+        }
+
+        [Benchmark]
+        public void HashSet_Union_Enum()
+        {
+            hashSet.UnionWith(GetEnum());
+        }
+
+        [Benchmark]
+        public void PooledSet_Union_Enum()
+        {
+            pooledSet.UnionWith(GetEnum());
+        }
+
+        [Benchmark]
+        public void HashSet_Union_Array()
         {
             hashSet.UnionWith(stuffToUnion);
         }
 
         [Benchmark]
-        public void PooledSet_Union()
+        public void PooledSet_Union_Array()
         {
             pooledSet.UnionWith(stuffToUnion);
+        }
+
+        private IEnumerable<int> GetEnum()
+        {
+            for (int i = 0; i < stuffToUnion.Length; i++)
+            {
+                yield return stuffToUnion[i];
+            }
         }
 
         private int[] startingElements;
         private int[] stuffToUnion;
         private HashSet<int> hashSet;
+        private HashSet<int> hashSetToUnion;
         private PooledSet<int> pooledSet;
+        private PooledSet<int> pooledSetToUnion;
 
         [Params(SetSize_Small, MaxStartSize)]
         public int CountToUnion;
 
-        [Params(MaxStartSize, SetSize_Small, SetSize_Large)]
+        [Params(SetSize_Small, SetSize_Large)]
         public int InitialSetSize;
 
-        [IterationSetup(Target = nameof(HashSet_Union))]
-        public void HashIterationSetup()
+        [IterationSetup]
+        public void IterationSetup()
         {
             hashSet.UnionWith(startingElements);
-        }
-
-        [IterationCleanup(Target = nameof(HashSet_Union))]
-        public void HashIterationCleanup()
-        {
-            hashSet.Clear();
-        }
-
-        [IterationSetup(Target = nameof(PooledSet_Union))]
-        public void PooledIterationSetup()
-        {
             pooledSet.UnionWith(startingElements);
         }
 
-        [IterationCleanup(Target = nameof(PooledSet_Union))]
-        public void PooledIterationCleanup()
+        [IterationCleanup]
+        public void IterationCleanup()
         {
+            hashSet.Clear();
             pooledSet.Clear();
         }
 
@@ -67,13 +91,16 @@ namespace Collections.Pooled.Benchmarks.PooledSet
             stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, CountToUnion);
 
             hashSet = new HashSet<int>();
+            hashSetToUnion = new HashSet<int>(stuffToUnion);
             pooledSet = new PooledSet<int>();
+            pooledSetToUnion = new PooledSet<int>(stuffToUnion);
         }
 
         [GlobalCleanup]
         public void GlobalCleanup()
         {
             pooledSet?.Dispose();
+            pooledSetToUnion?.Dispose();
         }
     }
 }

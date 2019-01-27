@@ -277,69 +277,69 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        public static void TestIsSubsetHashSet()
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(InitialSetSize_small);
-            HashSet<int> theSet = new HashSet<int>();
-            theSet.UnionWith(startingElements);
+        //[Benchmark]
+        //public static void TestIsSubsetHashSet()
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(InitialSetSize_small);
+        //    HashSet<int> theSet = new HashSet<int>();
+        //    theSet.UnionWith(startingElements);
 
-            // this makes perf as bad as possible; has fallout case for count check
-            int[] additionalStuffToAdd = intGenerator.MakeNewTs((Math.Max(0, InitialSetSize_small - theSet.Count)));
-            HashSet<int> setToCheckSubset = new HashSet<int>(startingElements);
-            setToCheckSubset.UnionWith(additionalStuffToAdd);
+        //    // this makes perf as bad as possible; has fallout case for count check
+        //    int[] additionalStuffToAdd = intGenerator.MakeNewTs((Math.Max(0, InitialSetSize_small - theSet.Count)));
+        //    HashSet<int> setToCheckSubset = new HashSet<int>(startingElements);
+        //    setToCheckSubset.UnionWith(additionalStuffToAdd);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    theSet.IsSubsetOf(setToCheckSubset);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            theSet.IsSubsetOf(setToCheckSubset);
+        //}
 
-        [Benchmark]
-        public static void TestIsSubsetEnum()
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
-            int[] stuffToCheckSubset = intGenerator.GenerateMixedSelection(startingElements, InitialSetSize_small);
-            HashSet<int> theSet = new HashSet<int>();
-            theSet.UnionWith(startingElements);
+        //[Benchmark]
+        //public static void TestIsSubsetEnum()
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
+        //    int[] stuffToCheckSubset = intGenerator.GenerateMixedSelection(startingElements, InitialSetSize_small);
+        //    HashSet<int> theSet = new HashSet<int>();
+        //    theSet.UnionWith(startingElements);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    theSet.IsSubsetOf(stuffToCheckSubset);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            theSet.IsSubsetOf(stuffToCheckSubset);
+        //}
 
-        [Benchmark]
-        public static void TestIsProperSubsetHashSet()
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(InitialSetSize_small);
-            HashSet<int> theSet = new HashSet<int>();
-            theSet.UnionWith(startingElements);
+        //[Benchmark]
+        //public static void TestIsProperSubsetHashSet()
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(InitialSetSize_small);
+        //    HashSet<int> theSet = new HashSet<int>();
+        //    theSet.UnionWith(startingElements);
 
-            // this makes perf as bad as possible; avoids fallout case based on count
-            int[] additionalStuffToAdd = intGenerator.MakeNewTs(Math.Max(0, InitialSetSize_small - theSet.Count));
-            HashSet<int> setToCheckSubset = new HashSet<int>(startingElements);
-            setToCheckSubset.UnionWith(additionalStuffToAdd);
+        //    // this makes perf as bad as possible; avoids fallout case based on count
+        //    int[] additionalStuffToAdd = intGenerator.MakeNewTs(Math.Max(0, InitialSetSize_small - theSet.Count));
+        //    HashSet<int> setToCheckSubset = new HashSet<int>(startingElements);
+        //    setToCheckSubset.UnionWith(additionalStuffToAdd);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    theSet.IsProperSubsetOf(setToCheckSubset);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            theSet.IsProperSubsetOf(setToCheckSubset);
+        //}
 
-        [Benchmark]
-        public static void TestIsProperSubsetEnum()
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
-            int[] stuffToCheckSubset = intGenerator.GenerateMixedSelection(startingElements, InitialSetSize_small);
-            HashSet<int> theSet = new HashSet<int>();
-            theSet.UnionWith(startingElements);
+        //[Benchmark]
+        //public static void TestIsProperSubsetEnum()
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
+        //    int[] stuffToCheckSubset = intGenerator.GenerateMixedSelection(startingElements, InitialSetSize_small);
+        //    HashSet<int> theSet = new HashSet<int>();
+        //    theSet.UnionWith(startingElements);
 
-            foreach (var iteration in Benchmark.Iterations)
-                using (iteration.StartMeasurement())
-                    theSet.IsProperSubsetOf(stuffToCheckSubset);
-        }
+        //    foreach (var iteration in Benchmark.Iterations)
+        //        using (iteration.StartMeasurement())
+        //            theSet.IsProperSubsetOf(stuffToCheckSubset);
+        //}
 
         [Benchmark]
         public static void TestIsSuperset()
