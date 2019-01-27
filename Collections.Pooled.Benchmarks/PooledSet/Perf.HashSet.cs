@@ -174,108 +174,108 @@ namespace System.Collections.Tests
         //    }
         //}
 
-        [Benchmark]
-        [InlineData(InitialSetSize_small, MaxStartSize)]
-        public static void IntersectHashSet(int startSize, int countToIntersect)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(startSize);
-            int[] stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, countToIntersect);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(InitialSetSize_small, MaxStartSize)]
+        //public static void IntersectHashSet(int startSize, int countToIntersect)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(startSize);
+        //    int[] stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, countToIntersect);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            HashSet<int> hashSetToIntersect = new HashSet<int>(stuffToIntersect);
+        //    HashSet<int> hashSetToIntersect = new HashSet<int>(stuffToIntersect);
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.IntersectWith(hashSetToIntersect);
+        //        using (iteration.StartMeasurement())
+        //            theSet.IntersectWith(hashSetToIntersect);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(MaxStartSize, InitialSetSize_small)]
-        private static void TestIntersectEnum(int startSize, int countToIntersect)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(startSize);
-            int[] stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, countToIntersect);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(MaxStartSize, InitialSetSize_small)]
+        //private static void TestIntersectEnum(int startSize, int countToIntersect)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(startSize);
+        //    int[] stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, countToIntersect);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.IntersectWith(stuffToIntersect);
+        //        using (iteration.StartMeasurement())
+        //            theSet.IntersectWith(stuffToIntersect);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(MaxStartSize, InitialSetSize_small)]
-        public static void Except(int startSize, int countToExcept)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(startSize);
-            int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(MaxStartSize, InitialSetSize_small)]
+        //public static void Except(int startSize, int countToExcept)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(startSize);
+        //    int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.ExceptWith(stuffToExcept);
+        //        using (iteration.StartMeasurement())
+        //            theSet.ExceptWith(stuffToExcept);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(MaxStartSize, InitialSetSize_small)]
-        public static void SymmetricExcept(int startSize, int countToExcept)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(startSize);
-            int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
-            HashSet<int> theSet = new HashSet<int>();
-            HashSet<int> otherSet = new HashSet<int>(stuffToExcept);
+        //[Benchmark]
+        //[InlineData(MaxStartSize, InitialSetSize_small)]
+        //public static void SymmetricExcept(int startSize, int countToExcept)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(startSize);
+        //    int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
+        //    HashSet<int> theSet = new HashSet<int>();
+        //    HashSet<int> otherSet = new HashSet<int>(stuffToExcept);
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.SymmetricExceptWith(otherSet);
+        //        using (iteration.StartMeasurement())
+        //            theSet.SymmetricExceptWith(otherSet);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
-        [Benchmark]
-        [InlineData(MaxStartSize, InitialSetSize_small)]
-        public static void SymmetricExceptEnum(int startSize, int countToExcept)
-        {
-            RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(startSize);
-            int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
-            HashSet<int> theSet = new HashSet<int>();
+        //[Benchmark]
+        //[InlineData(MaxStartSize, InitialSetSize_small)]
+        //public static void SymmetricExceptEnum(int startSize, int countToExcept)
+        //{
+        //    RandomTGenerator<int> intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
+        //    int[] startingElements = intGenerator.MakeNewTs(startSize);
+        //    int[] stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, countToExcept);
+        //    HashSet<int> theSet = new HashSet<int>();
 
-            foreach (var iteration in Benchmark.Iterations)
-            {
-                theSet.UnionWith(startingElements);
+        //    foreach (var iteration in Benchmark.Iterations)
+        //    {
+        //        theSet.UnionWith(startingElements);
 
-                using (iteration.StartMeasurement())
-                    theSet.SymmetricExceptWith(stuffToExcept);
+        //        using (iteration.StartMeasurement())
+        //            theSet.SymmetricExceptWith(stuffToExcept);
 
-                theSet.Clear();
-            }
-        }
+        //        theSet.Clear();
+        //    }
+        //}
 
         [Benchmark]
         public static void TestIsSubsetHashSet()

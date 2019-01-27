@@ -819,7 +819,13 @@ namespace Collections.Pooled
         /// <summary>
         /// Takes symmetric difference (XOR) with other and this set. Modifies this set.
         /// </summary>
-        /// <param name="other">enumerable with items to XOR</param>
+        /// <param name="other">array with items to XOR</param>
+        public void SymmetricExceptWith(T[] other) => SymmetricExceptWith(new ReadOnlySpan<T>(other));
+
+        /// <summary>
+        /// Takes symmetric difference (XOR) with other and this set. Modifies this set.
+        /// </summary>
+        /// <param name="other">span with items to XOR</param>
         public void SymmetricExceptWith(ReadOnlySpan<T> other)
         {
             // if set is empty, then symmetric difference is other

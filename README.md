@@ -1,6 +1,6 @@
 # Collections.Pooled 
 
-| Master | Lastest |
+| Master | Latest  |
 |--------|---------|
 | [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4/branch/master?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled) |
 
