@@ -10,36 +10,28 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class Set_Contains_False : SetBase
+    public class Set_Union_NoOp : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Contains_False()
+        public void HashSet_Union_NoOp()
         {
-            bool present;
-            for (int i = 0; i < CountToCheck; i++)
-            {
-                present = hashSet.Contains(missingValue);
-            }
+            hashSet.UnionWith(stuffToUnion);
         }
 
         [Benchmark]
-        public void PooledSet_Contains_False()
+        public void PooledSet_Union_NoOp()
         {
-            bool present;
-            for (int i = 0; i < CountToCheck; i++)
-            {
-                present = pooledSet.Contains(missingValue);
-            }
+            pooledSet.UnionWith(stuffToUnion);
         }
 
-        private readonly int missingValue = InstanceCreators.IntGenerator_MaxValue + 1;
+        private int[] stuffToUnion;
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000)]
-        public int CountToCheck;
+        [Params(SetSize_Small, MaxStartSize)]
+        public int CountToUnion;
 
-        [Params(SetSize_Large)]
+        [Params(MaxStartSize, SetSize_Small)]
         public int InitialSetSize;
 
         [GlobalSetup]
@@ -47,9 +39,12 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             int[] startingElements = intGenerator.MakeNewTs(InitialSetSize);
+            stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, CountToUnion);
 
             hashSet = new HashSet<int>(startingElements);
+            hashSet.UnionWith(stuffToUnion);
             pooledSet = new PooledSet<int>(startingElements);
+            pooledSet.UnionWith(stuffToUnion);
         }
 
         [GlobalCleanup]

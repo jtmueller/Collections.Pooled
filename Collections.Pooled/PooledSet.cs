@@ -535,9 +535,7 @@ namespace Collections.Pooled
         /// <param name="item"></param>
         /// <returns>true if added, false if already present</returns>
         public bool Add(T item)
-        {
-            return AddIfNotPresent(item);
-        }
+            => AddIfNotPresent(item);
 
         /// <summary>
         /// Searches the set for a given value and returns the equal value it finds, if any.
@@ -568,11 +566,12 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Take the union of this HashSet with other. Modifies this set.
-        /// 
+        /// </summary>
+        /// <remarks>
         /// Implementation note: GetSuggestedCapacity (to increase capacity in advance avoiding 
         /// multiple resizes ended up not being useful in practice; quickly gets to the 
         /// point where it's a wasteful check.
-        /// </summary>
+        /// </remarks>
         /// <param name="other">enumerable with items to add</param>
         public void UnionWith(IEnumerable<T> other)
         {
@@ -596,17 +595,13 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Take the union of this PooledSet with other. Modifies this set.
-        /// 
-        /// Implementation note: GetSuggestedCapacity (to increase capacity in advance avoiding 
-        /// multiple resizes ended up not being useful in practice; quickly gets to the 
-        /// point where it's a wasteful check.
         /// </summary>
         /// <param name="other">enumerable with items to add</param>
         public void UnionWith(ReadOnlySpan<T> other)
         {
-            foreach (T item in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                AddIfNotPresent(item);
+                AddIfNotPresent(other[i]);
             }
         }
 
@@ -771,9 +766,9 @@ namespace Collections.Pooled
             }
 
             // remove every element in other from this
-            foreach (T element in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                Remove(element);
+                Remove(other[i]);
             }
         }
 
@@ -1310,9 +1305,9 @@ namespace Collections.Pooled
                 return false;
             }
 
-            foreach (T element in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                if (Contains(element))
+                if (Contains(other[i]))
                 {
                     return true;
                 }
@@ -2004,9 +1999,9 @@ namespace Collections.Pooled
                 : new BitHelper(new int[intArrayLength], clear: false);
 
             // mark if contains: find index of in slots array and mark corresponding element in bit array
-            foreach (T item in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                int index = InternalIndexOf(item);
+                int index = InternalIndexOf(other[i]);
                 if (index >= 0)
                 {
                     bitHelper.MarkBit(index);
@@ -2192,9 +2187,9 @@ namespace Collections.Pooled
                 ? new BitHelper(itemsAddedFromOtherSpan.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
-            foreach (T item in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                bool added = AddOrGetLocation(item, out int location);
+                bool added = AddOrGetLocation(other[i], out int location);
                 if (added)
                 {
                     // wasn't already present in collection; flag it as something not to remove
@@ -2424,9 +2419,9 @@ namespace Collections.Pooled
             // count of unique items in other found in this
             int uniqueFoundCount = 0;
 
-            foreach (T item in other)
+            for (int i = 0, len = other.Length; i < len; i++)
             {
-                int index = InternalIndexOf(item);
+                int index = InternalIndexOf(other[i]);
                 if (index >= 0)
                 {
                     if (!bitHelper.IsMarked(index))
@@ -2562,7 +2557,6 @@ namespace Collections.Pooled
             _lastIndex = 0;
             _count = 0;
             _freeList = -1;
-
             _version++;
         }
 
