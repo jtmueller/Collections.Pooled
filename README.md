@@ -13,6 +13,12 @@ Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as we
 optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
 
+```
+Total tests: 26371. Passed: 26371. Failed: 0. Skipped: 0.
+Test Run Successful.
+Test execution time: 11.3671 Seconds
+```
+
 ## Installation
 
 [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/) 
@@ -112,7 +118,10 @@ modified to use ArrayPool for internal storage allocation, and to support `ReadO
   * Constructors, and all set methods have overloads that accept `ReadOnlySpan<T>`.
   * There are also overloads that accept arrays but forward to the span implementation. They are present 
     to avoid ambiguous method calls.
+  * PooledSet slightly outstrips HashSet in performance in almost every case, while allocating less memory.
+    In cases where the internal arrays must be resized, PooledSet enjoys a substantial advantage.
   * **PooledSet implements IDisposable.** Disposing the set returns the internal arrays to the ArrayPool.
     If you forget to dispose the set, nothing will break, but memory allocations and GC pauses will be closer to those
     of `HashSet<T>` (you will still benefit from pooling of intermediate arrays as the PooledSet is resized).
   * A selection of `ToPooledSet()` extension methods are provided.
+
