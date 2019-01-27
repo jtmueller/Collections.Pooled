@@ -9,42 +9,42 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class Set_IsSubset : SetBase
+    public class Set_IsProperSuperset : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_IsSubset_Hashset()
+        public void HashSet_IsProperSuperset_Hashset()
         {
-            hashSet.IsSubsetOf(hashSetToCheck);
+            hashSet.IsSupersetOf(hashSetToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_PooledSet()
+        public void PooledSet_IsProperSuperset_PooledSet()
         {
-            pooledSet.IsSubsetOf(pooledSetToCheck);
+            pooledSet.IsSupersetOf(pooledSetToCheck);
         }
 
         [Benchmark]
-        public void HashSet_IsSubset_Enum()
+        public void HashSet_IsProperSuperset_Enum()
         {
-            hashSet.IsSubsetOf(GetEnum());
+            hashSet.IsSupersetOf(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_Enum()
+        public void PooledSet_IsProperSuperset_Enum()
         {
-            pooledSet.IsSubsetOf(GetEnum());
+            pooledSet.IsSupersetOf(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_IsSubset_Array()
+        public void HashSet_IsProperSuperset_Array()
         {
-            hashSet.IsSubsetOf(stuffToCheck);
+            hashSet.IsSupersetOf(stuffToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_Array()
+        public void PooledSet_IsProperSuperset_Array()
         {
-            pooledSet.IsSubsetOf(stuffToCheck);
+            pooledSet.IsSupersetOf(stuffToCheck);
         }
 
         private IEnumerable<int> GetEnum()
@@ -61,16 +61,16 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private PooledSet<int> pooledSet;
         private PooledSet<int> pooledSetToCheck;
 
-        [Params(SetSize_Small, SetSize_Large)]
+        [Params(MaxStartSize, SetSize_Small)]
         public int InitialSetSize;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            int[] startingElements = intGenerator.MakeNewTs(InitialSetSize);
+            int[] startingElements = intGenerator.MakeNewTs(MaxStartSize);
 
-            stuffToCheck = intGenerator.GenerateMixedSelection(startingElements, InitialSetSize);
+            stuffToCheck = intGenerator.GenerateSelectionSubset(startingElements, InitialSetSize);
 
             hashSet = new HashSet<int>(startingElements);
             hashSetToCheck = new HashSet<int>(stuffToCheck);
