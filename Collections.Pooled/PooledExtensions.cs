@@ -205,8 +205,20 @@ namespace Collections.Pooled
 
         #region PooledSet
 
-        public static PooledSet<T> ToPooledSet<T>(IEnumerable<T> source, IEqualityComparer<T> comparer = null)
+        public static PooledSet<T> ToPooledSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
             => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this Span<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this ReadOnlySpan<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this Memory<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source.Span, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this ReadOnlyMemory<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source.Span, comparer);
 
         #endregion
     }
