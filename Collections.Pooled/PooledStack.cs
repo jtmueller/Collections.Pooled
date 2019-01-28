@@ -151,6 +151,50 @@ namespace Collections.Pooled
             return _size != 0 && Array.LastIndexOf(_array, item, _size - 1) != -1;
         }
 
+        /// <summary>
+        /// This method removes all items which match the predicate.
+        /// The complexity is O(n).
+        /// </summary>
+        public int RemoveWhere(Func<T, bool> match)
+        {
+            if (match == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+
+            int freeIndex = 0;   // the first free slot in items array
+
+            // Find the first item which needs to be removed.
+            while (freeIndex < _size && !match(_array[freeIndex])) freeIndex++;
+            if (freeIndex >= _size) return 0;
+
+            int current = freeIndex + 1;
+            while (current < _size)
+            {
+                // Find the first item which needs to be kept.
+                while (current < _size && match(_array[current])) current++;
+
+                if (current < _size)
+                {
+                    // copy item to the free slot.
+                    _array[freeIndex++] = _array[current++];
+                }
+            }
+
+#if NETCOREAPP2_1
+            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            {
+                // Clear the removed elements so that the gc can reclaim the references.
+                Array.Clear(_array, freeIndex, _size - freeIndex);
+            }
+#else
+            Array.Clear(_array, freeIndex, _size - freeIndex);
+#endif
+
+            int result = _size - freeIndex;
+            _size = freeIndex;
+            _version++;
+            return result;
+        }
+
         // Copies the stack into an array.
         public void CopyTo(T[] array, int arrayIndex)
         {

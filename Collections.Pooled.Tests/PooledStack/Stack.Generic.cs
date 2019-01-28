@@ -16,6 +16,10 @@ namespace Collections.Pooled.Tests.PooledStack
             rand.NextBytes(bytes);
             return Convert.ToBase64String(bytes);
         }
+
+
+        protected override bool RemoveWherePredicate(string item)
+            => item.GetHashCode() % 2 == 0;
     }
 
     public class Stack_Generic_Tests_int : Stack_Generic_Tests<int>
@@ -25,5 +29,8 @@ namespace Collections.Pooled.Tests.PooledStack
             Random rand = new Random(seed);
             return rand.Next();
         }
+
+        protected override bool RemoveWherePredicate(int item)
+            => item % 2 == 0;
     }
 }

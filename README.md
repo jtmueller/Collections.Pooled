@@ -96,8 +96,9 @@ Adding to dictionaries is where using ArrayPool really has an impact:
 `PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
 modified to use ArrayPool for internal storage allocation.
 
-  * Other than the ability to pass Spans into the constructor, there are no API changes
-    compared to the original Stack.
+  * Other than the ability to pass Spans into the constructor, the only other API change from
+    `Stack<T>` is the addition of the RemoveWhere method: because sometimes you just need to remove
+    something from a stack.
   * Significantly reduced memory allocations when pushing many items.
   * **PooledStack implements IDisposable.** Disposing the stack returns the internal array to the ArrayPool.
     If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
