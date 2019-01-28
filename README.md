@@ -14,9 +14,9 @@ optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmark
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 26371. Passed: 26371. Failed: 0. Skipped: 0.
+Total tests: 26379. Passed: 26379. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 11.3671 Seconds
+Test execution time: 11.6976 Seconds
 ```
 
 ## Installation
@@ -66,8 +66,7 @@ There are some API changes worth noting:
 #### Performance
 
 Adding items to a list is one area where ArrayPool helps us quite a bit:
-![List Add Timings](./docs/benchmarks/netcoreapp2.2/List_Add_Microseconds.svg) 
-![List Add Memory Allocations](./docs/benchmarks/netcoreapp2.2/List_Add_Bytes.svg)
+![List Add Benchmarks](./docs/benchmarks/netcoreapp2.2/List_Add.svg) 
 
 ## `PooledDictionary<TKey, TValue>`
 
@@ -88,8 +87,7 @@ There are some API changes worth noting:
 #### Performance
 
 Adding to dictionaries is where using ArrayPool really has an impact:
-![Dictionary Add Timings](./docs/benchmarks/netcoreapp2.2/Dict_Add_Milliseconds.svg) 
-![Dictionary Add Memory Allocations](./docs/benchmarks/netcoreapp2.2/Dict_Add_Memory.svg)
+![Dictionary Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Dict_Add.svg) 
 
 ## `PooledStack<T>`
 
@@ -108,8 +106,7 @@ modified to use ArrayPool for internal storage allocation.
 #### Performance
 
 Once again, pushing to a stack shows off some of the advantages of using ArrayPool:
-![Stack Push Timings](./docs/benchmarks/netcoreapp2.2/Stack_Push_Microseconds.svg) 
-![Stack Push Memory Allocations](./docs/benchmarks/netcoreapp2.2/Stack_Push_Bytes.svg)
+![Stack Push Benchmarks](./docs/benchmarks/netcoreapp2.2/Stack_Push.svg) 
 
 ## `PooledSet<T>`
 
@@ -126,3 +123,8 @@ modified to use ArrayPool for internal storage allocation, and to support `ReadO
     of `HashSet<T>` (you will still benefit from pooling of intermediate arrays as the PooledSet is resized).
   * A selection of `ToPooledSet()` extension methods are provided.
 
+#### Performance
+
+Here's what pooling does for us when adding to a PooledSet. 
+
+![Set Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Set_Add.svg) 
