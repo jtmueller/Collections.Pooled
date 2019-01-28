@@ -118,7 +118,8 @@ namespace Collections.Pooled.Tests
         /// </summary>
         protected IEnumerable<T> CreateQueue(IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            Queue<T> queue = new Queue<T>(count);
+            PooledQueue<T> queue = new PooledQueue<T>(count);
+            RegisterForDispose(queue);
             int seed = 528;
             int duplicateAdded = 0;
             List<T> match = null;

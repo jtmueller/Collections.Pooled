@@ -52,7 +52,8 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, 
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
             _array = s_pool.Rent(capacity);
         }
