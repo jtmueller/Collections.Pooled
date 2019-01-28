@@ -14,6 +14,9 @@ using System.Runtime.Serialization;
 namespace Collections.Pooled
 {
     /// <summary>
+    /// Represents a set of values.
+    /// </summary>
+    /// <remarks>
     /// Implementation notes:
     /// This uses an array-based implementation similar to <see cref="Dictionary{TKey, TValue}"/>, using a buckets array
     /// to map hash values to the Slots array. Items in the Slots array that hash to the same value
@@ -47,7 +50,7 @@ namespace Collections.Pooled
     /// A couple of methods have a special case if other is this (e.g. SymmetricExceptWith). 
     /// If we didn't have these checks, we could be iterating over the set and modifying at
     /// the same time. 
-    /// </summary>
+    /// </remarks>
     /// <typeparam name="T"></typeparam>
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
@@ -590,7 +593,7 @@ namespace Collections.Pooled
         /// Take the union of this PooledSet with other. Modifies this set.
         /// </summary>
         /// <param name="other"></param>
-        public void UnionWith(T[] other) => UnionWith(new ReadOnlySpan<T>(other));
+        public void UnionWith(T[] other) => UnionWith((ReadOnlySpan<T>)other);
 
 
         /// <summary>
@@ -679,7 +682,7 @@ namespace Collections.Pooled
         /// intersection of anything with the empty set is the empty set.
         /// </remarks>
         /// <param name="other">enumerable with items to add </param>
-        public void IntersectWith(T[] other) => IntersectWith(new ReadOnlySpan<T>(other));
+        public void IntersectWith(T[] other) => IntersectWith((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Takes the intersection of this set with other. Modifies this set.
@@ -746,7 +749,7 @@ namespace Collections.Pooled
         /// Remove items in other from this set. Modifies this set.
         /// </summary>
         /// <param name="other">enumerable with items to remove</param>
-        public void ExceptWith(T[] other) => ExceptWith(new ReadOnlySpan<T>(other));
+        public void ExceptWith(T[] other) => ExceptWith((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Remove items in other from this set. Modifies this set.
@@ -820,7 +823,7 @@ namespace Collections.Pooled
         /// Takes symmetric difference (XOR) with other and this set. Modifies this set.
         /// </summary>
         /// <param name="other">array with items to XOR</param>
-        public void SymmetricExceptWith(T[] other) => SymmetricExceptWith(new ReadOnlySpan<T>(other));
+        public void SymmetricExceptWith(T[] other) => SymmetricExceptWith((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Takes symmetric difference (XOR) with other and this set. Modifies this set.
@@ -909,7 +912,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="other"></param>
         /// <returns>true if this is a subset of other; false if not</returns>
-        public bool IsSubsetOf(T[] other) => IsSubsetOf(new ReadOnlySpan<T>(other));
+        public bool IsSubsetOf(T[] other) => IsSubsetOf((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this is a subset of other.
@@ -1010,7 +1013,7 @@ namespace Collections.Pooled
         /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper subset of other; false if not</returns>
-        public bool IsProperSubsetOf(T[] other) => IsProperSubsetOf(new ReadOnlySpan<T>(other));
+        public bool IsProperSubsetOf(T[] other) => IsProperSubsetOf((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this is a proper subset of other (i.e. strictly contained in)
@@ -1108,7 +1111,7 @@ namespace Collections.Pooled
         /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a superset of other; false if not</returns>
-        public bool IsSupersetOf(T[] other) => IsSupersetOf(new ReadOnlySpan<T>(other));
+        public bool IsSupersetOf(T[] other) => IsSupersetOf((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this is a superset of other
@@ -1222,7 +1225,7 @@ namespace Collections.Pooled
         /// </remarks>
         /// <param name="other"></param>
         /// <returns>true if this is a proper superset of other; false if not</returns>
-        public bool IsProperSupersetOf(T[] other) => IsProperSupersetOf(new ReadOnlySpan<T>(other));
+        public bool IsProperSupersetOf(T[] other) => IsProperSupersetOf((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this is a proper superset of other (i.e. other strictly contained in this)
@@ -1297,7 +1300,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="other"></param>
         /// <returns>true if these have at least one common element; false if disjoint</returns>
-        public bool Overlaps(T[] other) => Overlaps(new ReadOnlySpan<T>(other));
+        public bool Overlaps(T[] other) => Overlaps((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this set overlaps other (i.e. they share at least one item)
@@ -1388,7 +1391,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="other"></param>
         /// <returns></returns>
-        public bool SetEquals(T[] other) => SetEquals(new ReadOnlySpan<T>(other));
+        public bool SetEquals(T[] other) => SetEquals((ReadOnlySpan<T>)other);
 
         /// <summary>
         /// Checks if this and other contain the same elements. This is set equality: 
