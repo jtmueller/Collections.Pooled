@@ -6,9 +6,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList, PooledDictionary, and PooledStack: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
+    <Description>Includes PooledList, PooledDictionary, PooledStack and PooledSet: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018, 2019 Joel Mueller, based on code from the .NET Foundation</Copyright>
-    <PackageTags>List ArrayPool Span Dictionary Stack</PackageTags>
+    <PackageTags>List ArrayPool Span Dictionary Stack Set HashSet</PackageTags>
     <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
@@ -16,7 +16,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>
-    <PackageReleaseNotes>Bug fix in a PooledDictionary performance optimization</PackageReleaseNotes>
+    <PackageReleaseNotes>Adding PooledSet class, unit tests, benchmarks.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

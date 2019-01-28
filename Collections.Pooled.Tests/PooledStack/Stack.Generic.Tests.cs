@@ -133,6 +133,25 @@ namespace Collections.Pooled.Tests.PooledStack
 
         #endregion
 
+        #region RemoveWhere
+
+        protected abstract bool RemoveWherePredicate(T item);
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Stack_Generic_RemoveWhere(int count)
+        {
+            PooledStack<T> stack = GenericStackFactory(count);
+            var startingCount = stack.Count;
+            var expected = stack.Where(x => !RemoveWherePredicate(x)).ToPooledList();
+            stack.RemoveWhere(RemoveWherePredicate);
+            Assert.Equal(expected.Count, stack.Count);
+            Assert.Equal(expected, stack);
+            expected.Dispose();
+        }
+
+        #endregion
+
         #region ToArray
 
         [Theory]

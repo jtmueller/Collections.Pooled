@@ -4,10 +4,34 @@ using System.Collections.Generic;
 namespace Collections.Pooled
 {
     /// <summary>
-    /// Extension methods for creating <see cref="PooledDictionary{TKey, TValue}"/> instances.
+    /// Extension methods for creating pooled collections.
     /// </summary>
-    public static class PooledDictionaryExtensions
+    public static class PooledExtensions
     {
+        #region PooledList
+
+        public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
+            => new PooledList<T>(items);
+
+        public static PooledList<T> ToPooledList<T>(this T[] array)
+            => new PooledList<T>(array.AsSpan());
+
+        public static PooledList<T> ToPooledList<T>(this ReadOnlySpan<T> span)
+            => new PooledList<T>(span);
+
+        public static PooledList<T> ToPooledList<T>(this Span<T> span)
+            => new PooledList<T>(span);
+
+        public static PooledList<T> ToPooledList<T>(this ReadOnlyMemory<T> memory)
+            => new PooledList<T>(memory.Span);
+
+        public static PooledList<T> ToPooledList<T>(this Memory<T> memory)
+            => new PooledList<T>(memory.Span);
+
+        #endregion
+
+        #region PooledDictionary
+
         /// <summary>
         /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from an <see cref="IEnumerable{TSource}"/> according to specified 
         /// key selector and element selector functions, as well as a comparer.
@@ -154,5 +178,48 @@ namespace Collections.Pooled
         {
             return new PooledDictionary<TKey, TValue>(source, comparer);
         }
+
+        #endregion
+
+        #region PooledStack
+
+        public static PooledStack<T> ToPooledStack<T>(this IEnumerable<T> items)
+            => new PooledStack<T>(items);
+
+        public static PooledStack<T> ToPooledStack<T>(this T[] array)
+            => new PooledStack<T>(array.AsSpan());
+
+        public static PooledStack<T> ToPooledStack<T>(this ReadOnlySpan<T> span)
+            => new PooledStack<T>(span);
+
+        public static PooledStack<T> ToPooledStack<T>(this Span<T> span)
+            => new PooledStack<T>(span);
+
+        public static PooledStack<T> ToPooledStack<T>(this ReadOnlyMemory<T> memory)
+            => new PooledStack<T>(memory.Span);
+
+        public static PooledStack<T> ToPooledStack<T>(this Memory<T> memory)
+            => new PooledStack<T>(memory.Span);
+
+        #endregion
+
+        #region PooledSet
+
+        public static PooledSet<T> ToPooledSet<T>(this IEnumerable<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this Span<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this ReadOnlySpan<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this Memory<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source.Span, comparer);
+
+        public static PooledSet<T> ToPooledSet<T>(this ReadOnlyMemory<T> source, IEqualityComparer<T> comparer = null)
+            => new PooledSet<T>(source.Span, comparer);
+
+        #endregion
     }
 }

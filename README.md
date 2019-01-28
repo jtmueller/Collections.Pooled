@@ -1,4 +1,8 @@
-# Collections.Pooled [![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/) [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4/branch/master?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled/branch/master)
+# Collections.Pooled 
+
+| Master | Latest  |
+|--------|---------|
+| [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4/branch/master?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled) |
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
@@ -9,9 +13,15 @@ Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as we
 optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmarks have
 been ported from [corefx](https://github.com/dotnet/corefx).
 
+```
+Total tests: 26379. Passed: 26379. Failed: 0. Skipped: 0.
+Test Run Successful.
+Test execution time: 11.5340 Seconds
+```
+
 ## Installation
 
-Available on NuGet:
+[![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/) 
 ```
 Install-Package Collections.Pooled
 dotnet add package Collections.Pooled
@@ -23,9 +33,7 @@ paket add Collections.Pooled
   * [.NET Core](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/netcoreapp2.2)
   * [.NET Framework](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/net472)
 
-## Collections
-
-### `PooledList<T>`
+## `PooledList<T>`
 
 `PooledList<T>` is based on the corefx source code for `System.Collections.Generic.List<T>`,
 modified to use ArrayPool for internal array-storage allocation, and to support `Span<T>`.
@@ -57,10 +65,10 @@ There are some API changes worth noting:
 
 #### Performance
 
-Please review the benchmark links above for complete details. Performance and memory allocations
-both range from "on par with `List<T>`" to "far better than `List<T>`" depending on the operation.
+Adding items to a list is one area where ArrayPool helps us quite a bit:
+![List Add Benchmarks](./docs/benchmarks/netcoreapp2.2/List_Add.svg) 
 
-### `PooledDictionary<TKey, TValue>`
+## `PooledDictionary<TKey, TValue>`
 
 `PooledDictionary<TKey, TValue>` is based on the corefx source code for `System.Collections.Generic.Dictionary<TKey, TValue>`,
 modified to use ArrayPool for internal storage allocation, and to support `Span<T>`.
@@ -76,15 +84,47 @@ There are some API changes worth noting:
     of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
   * A selection of `ToPooledDictionary()` extension methods are provided.
 
-### `PooledStack<T>`
+#### Performance
+
+Adding to dictionaries is where using ArrayPool really has an impact:
+![Dictionary Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Dict_Add.svg) 
+
+## `PooledStack<T>`
 
 `PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
 modified to use ArrayPool for internal storage allocation.
 
-  * Other than the ability to pass Spans into the constructor, there are no API changes
-    compared to the original Stack.
+  * Other than the ability to pass Spans into the constructor, the only other API change from
+    `Stack<T>` is the addition of the RemoveWhere method: because sometimes you just need to remove
+    something from a stack.
   * Significantly reduced memory allocations when pushing many items.
-  * **PooledStack implements IDisposable.** Disposing the stack returns the internal arrays to the ArrayPool.
+  * **PooledStack implements IDisposable.** Disposing the stack returns the internal array to the ArrayPool.
     If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
   * A selection of `ToPooledStack()` extension methods are provided.
+
+#### Performance
+
+Once again, pushing to a stack shows off some of the advantages of using ArrayPool:
+![Stack Push Benchmarks](./docs/benchmarks/netcoreapp2.2/Stack_Push.svg) 
+
+## `PooledSet<T>`
+
+`PooledSet<T>` is based on the corefx source code for `System.Generic.Collections.HashSet<T>`,
+modified to use ArrayPool for internal storage allocation, and to support `ReadOnlySpan<T>` for all set functions.
+
+  * Constructors, and all set methods have overloads that accept `ReadOnlySpan<T>`.
+  * There are also overloads that accept arrays but forward to the span implementation. They are present 
+    to avoid ambiguous method calls.
+  * PooledSet slightly outstrips HashSet in performance in almost every case, while allocating less memory.
+    In cases where the internal arrays must be resized, PooledSet enjoys a substantial advantage.
+  * **PooledSet implements IDisposable.** Disposing the set returns the internal arrays to the ArrayPool.
+    If you forget to dispose the set, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `HashSet<T>` (you will still benefit from pooling of intermediate arrays as the PooledSet is resized).
+  * A selection of `ToPooledSet()` extension methods are provided.
+
+#### Performance
+
+Here's what pooling does for us when adding to a PooledSet. 
+
+![Set Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Set_Add.svg) 

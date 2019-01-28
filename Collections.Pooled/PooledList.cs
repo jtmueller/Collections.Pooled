@@ -30,7 +30,7 @@ namespace Collections.Pooled
     public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable
     {
         // internal constant copied from Array.MaxArrayLength
-        private const int MaxArrayLength = 0X7FEFFFFF;
+        private const int MaxArrayLength = 0x7FEFFFFF;
         private const int DefaultCapacity = 4;
         private static readonly ArrayPool<T> s_pool = ArrayPool<T>.Shared;
         private static readonly T[] s_emptyArray = Array.Empty<T>();
@@ -552,7 +552,7 @@ namespace Collections.Pooled
                     list.Add(_items[i]);
                 }
             }
-            return list; 
+            return list;
         }
 
         public int FindIndex(Func<T, bool> match)
@@ -957,7 +957,7 @@ namespace Collections.Pooled
             }
 
             if (_size == 0)
-            {  
+            {
                 // Special case for empty list
                 return -1;
             }

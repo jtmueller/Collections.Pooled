@@ -551,6 +551,8 @@ namespace Collections.Pooled
                     return "The ValueCollection does not support modification.";
                 case ExceptionResource.InvalidOperation_NullArray:
                     return "Null arrays are not supported.";
+                case ExceptionResource.InvalidOperation_HSCapacityOverflow:
+                    return "Set hash capacity overflow. Cannot increase size.";
                 case ExceptionResource.NotSupported_StringComparison:
                     return "String comparison not supported.";
                 case ExceptionResource.ConcurrentCollection_SyncRoot_NotSupported:
@@ -672,6 +674,7 @@ namespace Collections.Pooled
         NotSupported_KeyCollectionSet,
         NotSupported_ValueCollectionSet,
         InvalidOperation_NullArray,
+        InvalidOperation_HSCapacityOverflow,
         NotSupported_StringComparison,
         ConcurrentCollection_SyncRoot_NotSupported,
         ArgumentException_OtherNotArrayOfCorrectLength,
