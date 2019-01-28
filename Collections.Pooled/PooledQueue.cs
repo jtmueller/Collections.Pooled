@@ -329,7 +329,7 @@ namespace Collections.Pooled
         {
             if (_size == 0)
             {
-            	result = default(T);
+            	result = default;
             	return false;
             }
 

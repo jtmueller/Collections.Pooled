@@ -1951,7 +1951,7 @@ namespace Collections.Pooled
         /// This attempts to allocate on the stack, if below StackAllocThreshold.
         /// </summary>
         /// <param name="other"></param>
-        private unsafe void IntersectWithEnumerable(IEnumerable<T> other)
+        private void IntersectWithEnumerable(IEnumerable<T> other)
         {
             Debug.Assert(_buckets != null, "_buckets shouldn't be null; callers should check first");
 
@@ -1993,7 +1993,7 @@ namespace Collections.Pooled
         /// This attempts to allocate on the stack, if below StackAllocThreshold.
         /// </summary>
         /// <param name="other"></param>
-        private unsafe void IntersectWithSpan(ReadOnlySpan<T> other)
+        private void IntersectWithSpan(ReadOnlySpan<T> other)
         {
             Debug.Assert(_buckets != null, "_buckets shouldn't be null; callers should check first");
 
@@ -2114,7 +2114,7 @@ namespace Collections.Pooled
         ///
         /// </summary>
         /// <param name="other"></param>
-        private unsafe void SymmetricExceptWithEnumerable(IEnumerable<T> other)
+        private void SymmetricExceptWithEnumerable(IEnumerable<T> other)
         {
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
@@ -2181,7 +2181,7 @@ namespace Collections.Pooled
         ///
         /// </summary>
         /// <param name="other"></param>
-        private unsafe void SymmetricExceptWithSpan(ReadOnlySpan<T> other)
+        private void SymmetricExceptWithSpan(ReadOnlySpan<T> other)
         {
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
@@ -2316,7 +2316,7 @@ namespace Collections.Pooled
         /// <param name="returnIfUnfound">Allows us to finish faster for equals and proper superset
         /// because unfoundCount must be 0.</param>
         /// <returns></returns>
-        private unsafe ElementCount CheckUniqueAndUnfoundElements(IEnumerable<T> other, bool returnIfUnfound)
+        private ElementCount CheckUniqueAndUnfoundElements(IEnumerable<T> other, bool returnIfUnfound)
         {
             ElementCount result;
 
@@ -2401,7 +2401,7 @@ namespace Collections.Pooled
         /// <param name="returnIfUnfound">Allows us to finish faster for equals and proper superset
         /// because unfoundCount must be 0.</param>
         /// <returns></returns>
-        private unsafe ElementCount CheckUniqueAndUnfoundElements(ReadOnlySpan<T> other, bool returnIfUnfound)
+        private ElementCount CheckUniqueAndUnfoundElements(ReadOnlySpan<T> other, bool returnIfUnfound)
         {
             ElementCount result;
 
