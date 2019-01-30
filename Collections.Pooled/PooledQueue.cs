@@ -92,11 +92,12 @@ namespace Collections.Pooled
                     break;
 
                 default:
-                    _array = Array.Empty<T>();
-                    using (var en = enumerable.GetEnumerator())
+                    using (var list = new PooledList<T>(enumerable))
                     {
-                        while (en.MoveNext())
-                            Enqueue(en.Current);
+                        _array = s_pool.Rent(list.Count);
+                        list.Span.CopyTo(_array);
+                        _size = list.Count;
+                        if (_size != _array.Length) _tail = _size;
                     }
                     break;
             }

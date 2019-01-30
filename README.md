@@ -14,9 +14,9 @@ optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmark
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 26379. Passed: 26379. Failed: 0. Skipped: 0.
+Total tests: 27379. Passed: 27379. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 11.5340 Seconds
+Test execution time: 13.8143 Seconds
 ```
 
 ## Installation
@@ -89,25 +89,6 @@ There are some API changes worth noting:
 Adding to dictionaries is where using ArrayPool really has an impact:
 ![Dictionary Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Dict_Add.svg) 
 
-## `PooledStack<T>`
-
-`PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
-modified to use ArrayPool for internal storage allocation.
-
-  * Other than the ability to pass Spans into the constructor, the only other API change from
-    `Stack<T>` is the addition of the RemoveWhere method: because sometimes you just need to remove
-    something from a stack.
-  * Significantly reduced memory allocations when pushing many items.
-  * **PooledStack implements IDisposable.** Disposing the stack returns the internal array to the ArrayPool.
-    If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
-    of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
-  * A selection of `ToPooledStack()` extension methods are provided.
-
-#### Performance
-
-Once again, pushing to a stack shows off some of the advantages of using ArrayPool:
-![Stack Push Benchmarks](./docs/benchmarks/netcoreapp2.2/Stack_Push.svg) 
-
 ## `PooledSet<T>`
 
 `PooledSet<T>` is based on the corefx source code for `System.Generic.Collections.HashSet<T>`,
@@ -128,3 +109,33 @@ modified to use ArrayPool for internal storage allocation, and to support `ReadO
 Here's what pooling does for us when adding to a PooledSet. 
 
 ![Set Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Set_Add.svg) 
+
+## `PooledStack<T>`
+
+`PooledStack<T>` is based on the corefx source code for `System.Generic.Collections.Stack<T>`, 
+modified to use ArrayPool for internal storage allocation.
+
+  * Other than the ability to pass Spans into the constructor, the only other API change from
+    `Stack<T>` is the addition of the RemoveWhere method: because sometimes you just need to remove
+    something from a stack.
+  * Significantly reduced memory allocations when pushing many items.
+  * **PooledStack implements IDisposable.** Disposing the stack returns the internal array to the ArrayPool.
+    If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
+  * A selection of `ToPooledStack()` extension methods are provided.
+
+#### Performance
+
+Once again, pushing to a stack shows off some of the advantages of using ArrayPool:
+![Stack Push Benchmarks](./docs/benchmarks/netcoreapp2.2/Stack_Push.svg) 
+
+## `PooledQueue<T>`
+
+`PooledQueue<T>` is based on the corefx source code for `System.Generic.Collections.Queue<T>`, 
+modified to use ArrayPool for internal storage allocation.
+
+  * Significantly reduced memory allocations when enqueueing many items.
+  * **PooledQueue implements IDisposable.** Disposing the queue returns the internal array to the ArrayPool.
+    If you forget to dispose the queue, nothing will break, but memory allocations and GC pauses will be closer to those
+    of `Queue<T>` (you will still benefit from pooling of intermediate arrays as the PooledQueue is resized).
+  * A selection of `ToPooledQueue()` extension methods are provided.
