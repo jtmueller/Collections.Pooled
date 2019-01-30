@@ -11,6 +11,7 @@
 =============================================================================*/
 
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -28,8 +29,10 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(QueueDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class PooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>
+    public class PooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable
     {
+        private static readonly ArrayPool<T> s_pool = ArrayPool<T>.Shared;
+
         private T[] _array;
         private int _head;       // The index from which to dequeue if the queue isn't empty.
         private int _tail;       // The index at which to enqueue if the queue isn't full.
@@ -41,7 +44,7 @@ namespace Collections.Pooled
         private const int GrowFactor = 200;  // double each time
 
         /// <summary>
-        /// Creates a queue with room for capacity objects. The default initial
+        /// Creates a queue. The default initial
         /// capacity and grow factor are used.
         /// </summary>
         public PooledQueue()
@@ -60,23 +63,44 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
                     ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
-            _array = new T[capacity];
+            _array = s_pool.Rent(capacity);
         }
 
         /// <summary>
         /// Fills a Queue with the elements of an IEnumerable.  Uses the enumerator
         /// to get each of the elements.
         /// </summary>
-        public PooledQueue(IEnumerable<T> collection)
+        public PooledQueue(IEnumerable<T> enumerable)
         {
-            if (collection == null)
-                throw new ArgumentNullException(nameof(collection));
+            switch (enumerable)
+            {
+                case null:
+                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+                    break;
 
-            // TODO: next two lines temporary
-            _array = System.Linq.Enumerable.ToArray(collection);
-            _size = _array.Length;
+                case ICollection<T> collection:
+                    if (collection.Count == 0)
+                    {
+                        _array = Array.Empty<T>();
+                    }
+                    else
+                    {
+                        _array = s_pool.Rent(collection.Count);
+                        collection.CopyTo(_array, 0);
+                        _size = collection.Count;
+                        if (_size != _array.Length) _tail = _size;
+                    }
+                    break;
 
-            if (_size != _array.Length) _tail = _size;
+                default:
+                    _array = Array.Empty<T>();
+                    using (var en = enumerable.GetEnumerator())
+                    {
+                        while (en.MoveNext())
+                            Enqueue(en.Current);
+                    }
+                    break;
+            }
         }
 
         public int Count => _size;
@@ -144,7 +168,7 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if (arrayIndex < 0 || arrayIndex > array.Length)
+            if ((uint)arrayIndex >= (uint)array.Length)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex, 
                     ExceptionResource.ArgumentOutOfRange_Index);
@@ -188,7 +212,7 @@ namespace Collections.Pooled
             }
 
             int arrayLen = array.Length;
-            if (index < 0 || index > arrayLen)
+            if ((uint)index >= (uint)arrayLen)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, 
                     ExceptionResource.ArgumentOutOfRange_Index);
@@ -395,7 +419,7 @@ namespace Collections.Pooled
         // must be >= _size.
         private void SetCapacity(int capacity)
         {
-            T[] newarray = new T[capacity];
+            T[] newarray = s_pool.Rent(capacity);
             if (_size > 0)
             {
                 if (_head < _tail)
@@ -409,9 +433,9 @@ namespace Collections.Pooled
                 }
             }
 
-            _array = newarray;
+            ReturnArray(replaceWith: newarray);
             _head = 0;
-            _tail = (_size == capacity) ? 0 : _size;
+            _tail = (_size == newarray.Length) ? 0 : _size;
             _version++;
         }
 
@@ -442,6 +466,26 @@ namespace Collections.Pooled
             {
                 SetCapacity(_size);
             }
+        }
+
+        private void ReturnArray(T[] replaceWith)
+        {
+            if (_array.Length > 0)
+            {
+#if NETCOREAPP2_1
+                s_pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+                s_pool.Return(_array, clearArray: true);
+#endif
+            }
+            _array = replaceWith;
+        }
+
+        public void Dispose()
+        {
+            ReturnArray(replaceWith: Array.Empty<T>());
+            _head = _tail = _size = 0;
+            _version++;
         }
 
         // Implements an enumerator for a Queue.  The enumerator uses the
@@ -529,10 +573,7 @@ namespace Collections.Pooled
                     ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumEnded();
             }
 
-            object IEnumerator.Current
-            {
-                get { return Current; }
-            }
+            object IEnumerator.Current => Current;
 
             void IEnumerator.Reset()
             {
