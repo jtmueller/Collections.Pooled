@@ -39,6 +39,8 @@ namespace Collections.Pooled
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector, IEqualityComparer<TKey> comparer = null)
         {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
             var dict = new PooledDictionary<TKey, TValue>((source as ICollection<TSource>)?.Count ?? 0, comparer);
             foreach (var item in source)
             {
@@ -99,6 +101,8 @@ namespace Collections.Pooled
         public static PooledDictionary<TKey, TSource> ToPooledDictionary<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer = null)
         {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
             var dict = new PooledDictionary<TKey, TSource>((source as ICollection<TSource>)?.Count ?? 0, comparer);
             foreach (var item in source)
             {
@@ -164,6 +168,22 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
         /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
+            var dict = new PooledDictionary<TKey, TValue>((source as ICollection<Tuple<TKey, TValue>>)?.Count ?? 0, comparer);
+            foreach (var pair in source)
+            {
+                dict.Add(pair.Item1, pair.Item2);
+            }
+            return dict;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a span of key/value tuples.
+        /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this ReadOnlySpan<(TKey, TValue)> source,
             IEqualityComparer<TKey> comparer = null)
         {
@@ -171,7 +191,7 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a span of key/value tuples.
         /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this Span<(TKey, TValue)> source,
             IEqualityComparer<TKey> comparer = null)

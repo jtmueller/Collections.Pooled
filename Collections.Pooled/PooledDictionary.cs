@@ -127,7 +127,7 @@ namespace Collections.Pooled
                 {
                     if (entries[i].hashCode >= 0)
                     {
-                        Add(entries[i].key, entries[i].value);
+                        TryInsert(entries[i].key, entries[i].value, InsertionBehavior.ThrowOnExisting);
                     }
                 }
                 return;
@@ -135,7 +135,7 @@ namespace Collections.Pooled
 
             foreach (var pair in dictionary)
             {
-                Add(pair.Key, pair.Value);
+                TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Collections.Pooled
 
             foreach (var pair in collection)
             {
-                Add(pair.Key, pair.Value);
+                TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
@@ -163,13 +163,13 @@ namespace Collections.Pooled
 
             foreach (var (key, value) in collection)
             {
-                Add(key, value);
+                TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
         public PooledDictionary((TKey key, TValue value)[] array, IEqualityComparer<TKey> comparer) : this(array.AsSpan(), comparer) { }
 
-        public PooledDictionary((TKey key, TValue value)[] array) : this(array.AsSpan()) { }
+        public PooledDictionary((TKey key, TValue value)[] array) : this(array.AsSpan(), null) { }
 
         public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span) : this(span, null) { }
 
@@ -178,7 +178,7 @@ namespace Collections.Pooled
         {
             foreach (var (key, value) in span)
             {
-                Add(key, value);
+                TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
