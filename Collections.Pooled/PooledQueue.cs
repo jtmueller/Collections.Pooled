@@ -44,8 +44,7 @@ namespace Collections.Pooled
         private const int GrowFactor = 200;  // double each time
 
         /// <summary>
-        /// Creates a queue. The default initial
-        /// capacity and grow factor are used.
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
         public PooledQueue()
         {
@@ -53,9 +52,9 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Creates a queue with room for capacity objects. The default grow factor
-        /// is used.
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
         /// </summary>
+        /// <param name="capacity"></param>
         public PooledQueue(int capacity)
         {
             if (capacity < 0)
@@ -67,8 +66,8 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Fills a Queue with the elements of an IEnumerable.  Uses the enumerator
-        /// to get each of the elements.
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// collection and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
         public PooledQueue(IEnumerable<T> enumerable)
         {
@@ -103,6 +102,27 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// array and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(T[] array) : this(array.AsSpan()) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// span and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(ReadOnlySpan<T> span)
+        {
+            _array = s_pool.Rent(span.Length);
+            span.CopyTo(_array);
+            _size = span.Length;
+            if (_size != _array.Length) _tail = _size;
+        }
+
+        /// <summary>
+        /// The number of items in the queue.
+        /// </summary>
         public int Count => _size;
 
         bool ICollection.IsSynchronized => false;
@@ -159,8 +179,10 @@ namespace Collections.Pooled
             _version++;
         }
 
-        // CopyTo copies a collection into an Array, starting at a particular
-        // index into the array.
+        /// <summary>
+        /// CopyTo copies a collection into an Array, starting at a particular
+        /// index into the array.
+        /// </summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
             if (array == null)
@@ -168,9 +190,9 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if ((uint)arrayIndex >= (uint)array.Length)
+            if ((uint)arrayIndex > (uint)array.Length)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex, 
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex,
                     ExceptionResource.ArgumentOutOfRange_Index);
             }
 
@@ -201,20 +223,20 @@ namespace Collections.Pooled
 
             if (array.Rank != 1)
             {
-                ThrowHelper.ThrowArgumentException(ExceptionResource.Rank_MultiDimNotSupported, 
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Rank_MultiDimNotSupported,
                     ExceptionArgument.array);
             }
 
             if (array.GetLowerBound(0) != 0)
             {
-                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound, 
+                ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound,
                     ExceptionArgument.array);
             }
 
             int arrayLen = array.Length;
-            if ((uint)index >= (uint)arrayLen)
+            if ((uint)index > (uint)arrayLen)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, 
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index,
                     ExceptionResource.ArgumentOutOfRange_Index);
             }
 
@@ -287,7 +309,7 @@ namespace Collections.Pooled
         {
             int head = _head;
             T[] array = _array;
-            
+
             if (_size == 0)
             {
                 ThrowForEmptyQueue();
@@ -315,8 +337,8 @@ namespace Collections.Pooled
 
             if (_size == 0)
             {
-            	result = default;
-            	return false;
+                result = default;
+                return false;
             }
 
             result = array[head];
@@ -345,7 +367,7 @@ namespace Collections.Pooled
             {
                 ThrowForEmptyQueue();
             }
-            
+
             return _array[_head];
         }
 
@@ -353,8 +375,8 @@ namespace Collections.Pooled
         {
             if (_size == 0)
             {
-            	result = default;
-            	return false;
+                result = default;
+                return false;
             }
 
             result = _array[_head];
@@ -549,7 +571,7 @@ namespace Collections.Pooled
 
                     arrayIndex -= capacity; // wrap around if needed
                 }
-                
+
                 _currentElement = array[arrayIndex];
                 return true;
             }
