@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Linq;
+using Xunit;
 
 namespace Collections.Pooled.Tests.PooledQueue
 {
@@ -24,6 +26,18 @@ namespace Collections.Pooled.Tests.PooledQueue
         {
             Random rand = new Random(seed);
             return rand.Next();
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void RemoveWhere_Removes_Evens(int count)
+        {
+            var queue = GenericQueueFactory(count);
+            var evenCount = queue.Count(x => x % 2 == 0);
+            queue.RemoveWhere(x => x % 2 == 0);
+            Assert.Equal(count - evenCount, queue.Count);
+            while (queue.Count > 0)
+                Assert.True(queue.Dequeue() % 2 != 0, "Even value should not have been present!");
         }
     }
 }

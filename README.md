@@ -14,9 +14,9 @@ optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmark
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 27379. Passed: 27379. Failed: 0. Skipped: 0.
+Total tests: 27383. Passed: 27383. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 12.8808 Seconds
+Test execution time: 17.7429 Seconds
 ```
 
 ## Installation
@@ -134,6 +134,9 @@ Once again, pushing to a stack shows off some of the advantages of using ArrayPo
 `PooledQueue<T>` is based on the corefx source code for `System.Generic.Collections.Queue<T>`, 
 modified to use ArrayPool for internal storage allocation.
 
+  * Other than the ability to pass Spans into the constructor, the only other API change from
+    `Queue<T>` is the addition of the RemoveWhere method: because sometimes you just need to remove
+    something from a queue.
   * Significantly reduced memory allocations when enqueueing many items.
   * **PooledQueue implements IDisposable.** Disposing the queue returns the internal array to the ArrayPool.
     If you forget to dispose the queue, nothing will break, but memory allocations and GC pauses will be closer to those

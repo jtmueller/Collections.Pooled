@@ -408,7 +408,59 @@ namespace Collections.Pooled
                 Array.IndexOf(_array, item, 0, _tail) >= 0;
         }
 
-        // TODO: Add a RemoveWhere method.
+        /// <summary>
+        /// This method removes all items from the queue which match the predicate.
+        /// </summary>
+        public int RemoveWhere(Func<T, bool> match)
+        {
+            if (match == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+
+            if (_size == 0)
+                return 0;
+
+            T[] newArray = s_pool.Rent(_size);
+            int removeCount = 0;
+
+            if (_head < _tail)
+            {
+                int copyIdx = 0;
+                for (int i = _head; i < _size; i++)
+                {
+                    if (match(_array[i]))
+                        removeCount++;
+                    else
+                        newArray[copyIdx++] = _array[i];
+                }
+            }
+            else
+            {
+                int copyIdx = 0;
+                for (int i = _head; i < _array.Length - _head; i++)
+                {
+                    if (match(_array[i]))
+                        removeCount++;
+                    else
+                        newArray[copyIdx++] = _array[i];
+                }
+
+                for (int i = 0; i < _tail; i++)
+                {
+                    if (match(_array[i]))
+                        removeCount++;
+                    else
+                        newArray[copyIdx++] = _array[i];
+                }
+            }
+
+            ReturnArray(replaceWith: newArray);
+            _size -= removeCount;
+            _head = _tail = 0;
+            if (_size != _array.Length) _tail = _size;
+            _version++;
+
+            return removeCount;
+        }
 
         /// <summary>
         /// Iterates over the objects in the queue, returning an array of the
