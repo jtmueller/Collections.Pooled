@@ -16,7 +16,7 @@ been ported from [corefx](https://github.com/dotnet/corefx).
 ```
 Total tests: 27379. Passed: 27379. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 13.8143 Seconds
+Test execution time: 12.8808 Seconds
 ```
 
 ## Installation

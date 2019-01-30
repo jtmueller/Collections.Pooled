@@ -10,10 +10,10 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
     [ClrJob]
 #endif
     [MemoryDiagnoser]
-    public class Queue_Pop : QueueBase
+    public class Queue_Dequeue : QueueBase
     {
         [Benchmark(Baseline = true)]
-        public void QueuePop()
+        public void QueueDequeue()
         {
             if (Type == QueueType.Int)
             {
@@ -34,7 +34,7 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         }
 
         [Benchmark]
-        public void PooledPop()
+        public void PooledDequeue()
         {
             if (Type == QueueType.Int)
             {
