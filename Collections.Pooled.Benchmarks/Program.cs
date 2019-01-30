@@ -5,6 +5,7 @@ Get-ChildItem | Rename-Item -NewName {$_.name -replace 'Collections.Pooled.Bench
 Get-ChildItem | Rename-Item -NewName {$_.name -replace 'Collections.Pooled.Benchmarks.PooledDictionary.','' }
 Get-ChildItem | Rename-Item -NewName {$_.name -replace 'Collections.Pooled.Benchmarks.PooledStack.','' }
 Get-ChildItem | Rename-Item -NewName {$_.name -replace 'Collections.Pooled.Benchmarks.PooledSet.','' }
+Get-ChildItem | Rename-Item -NewName {$_.name -replace 'Collections.Pooled.Benchmarks.PooledQueue.','' }
 */
 
 namespace Collections.Pooled.Benchmarks
