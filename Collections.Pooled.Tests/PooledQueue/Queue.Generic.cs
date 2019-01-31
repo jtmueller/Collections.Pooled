@@ -36,8 +36,13 @@ namespace Collections.Pooled.Tests.PooledQueue
             var evenCount = queue.Count(x => x % 2 == 0);
             queue.RemoveWhere(x => x % 2 == 0);
             Assert.Equal(count - evenCount, queue.Count);
+            int dequeueCount = 0;
             while (queue.Count > 0)
+            {
                 Assert.True(queue.Dequeue() % 2 != 0, "Even value should not have been present!");
+                dequeueCount++;
+            }
+            Assert.Equal(count - evenCount, dequeueCount);
         }
     }
 }

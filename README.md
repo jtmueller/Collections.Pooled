@@ -142,3 +142,7 @@ modified to use ArrayPool for internal storage allocation.
     If you forget to dispose the queue, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Queue<T>` (you will still benefit from pooling of intermediate arrays as the PooledQueue is resized).
   * A selection of `ToPooledQueue()` extension methods are provided.
+
+#### Performance
+
+![Queue Enqueue Benchmarks](./docs/benchmarks/netcoreapp2.2/Queue_Enqueue.svg)
