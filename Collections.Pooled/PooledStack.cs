@@ -52,7 +52,8 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, 
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
             _array = s_pool.Rent(capacity);
         }
@@ -83,11 +84,11 @@ namespace Collections.Pooled
                     break;
 
                 default:
-                    _array = Array.Empty<T>();
-                    using (var en = enumerable.GetEnumerator())
+                    using (var list = new PooledList<T>(enumerable))
                     {
-                        while (en.MoveNext())
-                            Push(en.Current);
+                        _array = s_pool.Rent(list.Count);
+                        list.Span.CopyTo(_array);
+                        _size = list.Count;
                     }
                     break;
             }

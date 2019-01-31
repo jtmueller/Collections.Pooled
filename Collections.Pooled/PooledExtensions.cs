@@ -39,6 +39,8 @@ namespace Collections.Pooled
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector, IEqualityComparer<TKey> comparer = null)
         {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
             var dict = new PooledDictionary<TKey, TValue>((source as ICollection<TSource>)?.Count ?? 0, comparer);
             foreach (var item in source)
             {
@@ -99,6 +101,8 @@ namespace Collections.Pooled
         public static PooledDictionary<TKey, TSource> ToPooledDictionary<TSource, TKey>(this IEnumerable<TSource> source,
             Func<TSource, TKey> keySelector, IEqualityComparer<TKey> comparer = null)
         {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
             var dict = new PooledDictionary<TKey, TSource>((source as ICollection<TSource>)?.Count ?? 0, comparer);
             foreach (var item in source)
             {
@@ -164,6 +168,22 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
         /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            if (source == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.source);
+            var dict = new PooledDictionary<TKey, TValue>((source as ICollection<Tuple<TKey, TValue>>)?.Count ?? 0, comparer);
+            foreach (var pair in source)
+            {
+                dict.Add(pair.Item1, pair.Item2);
+            }
+            return dict;
+        }
+
+        /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a span of key/value tuples.
+        /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this ReadOnlySpan<(TKey, TValue)> source,
             IEqualityComparer<TKey> comparer = null)
         {
@@ -171,35 +191,13 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a span of key/value tuples.
         /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this Span<(TKey, TValue)> source,
             IEqualityComparer<TKey> comparer = null)
         {
             return new PooledDictionary<TKey, TValue>(source, comparer);
         }
-
-        #endregion
-
-        #region PooledStack
-
-        public static PooledStack<T> ToPooledStack<T>(this IEnumerable<T> items)
-            => new PooledStack<T>(items);
-
-        public static PooledStack<T> ToPooledStack<T>(this T[] array)
-            => new PooledStack<T>(array.AsSpan());
-
-        public static PooledStack<T> ToPooledStack<T>(this ReadOnlySpan<T> span)
-            => new PooledStack<T>(span);
-
-        public static PooledStack<T> ToPooledStack<T>(this Span<T> span)
-            => new PooledStack<T>(span);
-
-        public static PooledStack<T> ToPooledStack<T>(this ReadOnlyMemory<T> memory)
-            => new PooledStack<T>(memory.Span);
-
-        public static PooledStack<T> ToPooledStack<T>(this Memory<T> memory)
-            => new PooledStack<T>(memory.Span);
 
         #endregion
 
@@ -219,6 +217,87 @@ namespace Collections.Pooled
 
         public static PooledSet<T> ToPooledSet<T>(this ReadOnlyMemory<T> source, IEqualityComparer<T> comparer = null)
             => new PooledSet<T>(source.Span, comparer);
+
+        #endregion
+
+        #region PooledStack
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this IEnumerable<T> items)
+            => new PooledStack<T>(items);
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this T[] array)
+            => new PooledStack<T>(array.AsSpan());
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this ReadOnlySpan<T> span)
+            => new PooledStack<T>(span);
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this Span<T> span)
+            => new PooledStack<T>(span);
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this ReadOnlyMemory<T> memory)
+            => new PooledStack<T>(memory.Span);
+
+        /// <summary>
+        /// Creates an instance of PooledStack from the given items.
+        /// </summary>
+        public static PooledStack<T> ToPooledStack<T>(this Memory<T> memory)
+            => new PooledStack<T>(memory.Span);
+
+        #endregion
+
+        #region PooledQueue
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this IEnumerable<T> items)
+            => new PooledQueue<T>(items);
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this ReadOnlySpan<T> span)
+            => new PooledQueue<T>(span);
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this Span<T> span)
+            => new PooledQueue<T>(span);
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this ReadOnlyMemory<T> memory)
+            => new PooledQueue<T>(memory.Span);
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this Memory<T> memory)
+            => new PooledQueue<T>(memory.Span);
+
+        /// <summary>
+        /// Creates an instance of PooledQueue from the given items.
+        /// </summary>
+        public static PooledQueue<T> ToPooledQueue<T>(this T[] array)
+            => new PooledQueue<T>(array.AsSpan());
+
 
         #endregion
     }
