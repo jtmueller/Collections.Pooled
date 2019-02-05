@@ -230,19 +230,30 @@ namespace Collections.Pooled
             }
         }
 
+#if NETCOREAPP3_0
+        public T this[Index index]
+        {
+            get => Span[index];
+            set
+            {
+                Span[index] = value;
+                _version++;
+            }
+        }
+
+        public Span<T> this[Range range] => Span[range];
+#endif
+
         private static bool IsCompatibleObject(object value)
         {
             // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-            return ((value is T) || (value == null && default(T) == null));
+            return (value is T) || (value == null && default(T) == null);
         }
 
         object? IList.this[int index]
         {
-            get
-            {
-                return this[index];
-            }
+            get => this[index];
             set
             {
                 ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(value, ExceptionArgument.value);
