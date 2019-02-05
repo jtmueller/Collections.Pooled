@@ -147,7 +147,7 @@ namespace Collections.Pooled
         {
             if (_size != 0)
             {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                 if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
                 {
                     if (_head < _tail)
@@ -317,7 +317,7 @@ namespace Collections.Pooled
             }
 
             T removed = array[head];
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 array[head] = default;
@@ -343,7 +343,7 @@ namespace Collections.Pooled
             }
 
             result = array[head];
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 array[head] = default;
@@ -547,7 +547,7 @@ namespace Collections.Pooled
         {
             if (_array.Length > 0)
             {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                 s_pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
                 s_pool.Return(_array, clearArray: true);

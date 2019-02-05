@@ -392,7 +392,7 @@ namespace Collections.Pooled
                             slots[last].next = slots[i].next;
                         }
                         slots[i].hashCode = -1;
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
                         {
                             slots[i].value = default;
@@ -1719,7 +1719,7 @@ namespace Collections.Pooled
         {
             if (_slots?.Length > 0)
             {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                 s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
                 s_slotPool.Return(_slots, clearArray: true);

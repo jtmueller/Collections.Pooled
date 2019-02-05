@@ -70,8 +70,6 @@ namespace Collections.Pooled
         // It's important that the number of buckets be prime, and these arrays could exceed
         // that size as they come from ArrayPool. Be careful not to index past _size or bad
         // things will happen.
-        // Alternatively, use the private properties Buckets and Entries, which slice the
-        // arrays down to the correct length.
         private int[] _buckets;
         private Entry[] _entries;
         private int _size;
@@ -80,10 +78,10 @@ namespace Collections.Pooled
         private int _freeList;
         private int _freeCount;
         private int _version;
-        private IEqualityComparer<TKey> _comparer;
-        private KeyCollection _keys;
-        private ValueCollection _values;
-        private object _syncRoot;
+        private IEqualityComparer<TKey>? _comparer;
+        private KeyCollection? _keys;
+        private ValueCollection? _values;
+        private object? _syncRoot;
 
         public PooledDictionary() : this(0, null) { }
 
@@ -91,7 +89,7 @@ namespace Collections.Pooled
 
         public PooledDictionary(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
 
-        public PooledDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        public PooledDictionary(int capacity, IEqualityComparer<TKey>? comparer)
         {
             if (capacity < 0) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             if (capacity > 0) Initialize(capacity);
@@ -105,11 +103,14 @@ namespace Collections.Pooled
                 // To start, move off default comparer for string which is randomised
                 _comparer = (IEqualityComparer<TKey>)NonRandomizedStringEqualityComparer.Default;
             }
+
+            _buckets = Array.Empty<int>();
+            _entries = Array.Empty<Entry>();
         }
 
         public PooledDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
 
-        public PooledDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
+        public PooledDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey>? comparer) :
             this(dictionary?.Count ?? 0, comparer)
         {
             if (dictionary == null)
@@ -141,7 +142,7 @@ namespace Collections.Pooled
 
         public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
 
-        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
+        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey>? comparer) :
             this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, comparer)
         {
             if (collection == null)
@@ -155,7 +156,7 @@ namespace Collections.Pooled
 
         public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection) : this(collection, null) { }
 
-        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, IEqualityComparer<TKey> comparer) :
+        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, IEqualityComparer<TKey>? comparer) :
             this((collection as ICollection<(TKey, TValue)>)?.Count ?? 0, comparer)
         {
             if (collection == null)
@@ -173,7 +174,7 @@ namespace Collections.Pooled
 
         public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span) : this(span, null) { }
 
-        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, IEqualityComparer<TKey> comparer) :
+        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, IEqualityComparer<TKey>? comparer) :
             this(span.Length, comparer)
         {
             foreach (var (key, value) in span)
@@ -188,15 +189,13 @@ namespace Collections.Pooled
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
             // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
             HashHelpers.SerializationInfoTable.Add(this, info);
+            _buckets = Array.Empty<int>();
+            _entries = Array.Empty<Entry>();
         }
 
-        public IEqualityComparer<TKey> Comparer
-        {
-            get
-            {
-                return (_comparer == null || _comparer is NonRandomizedStringEqualityComparer) ? EqualityComparer<TKey>.Default : _comparer;
-            }
-        }
+        public IEqualityComparer<TKey> Comparer =>
+            _comparer is null || _comparer is NonRandomizedStringEqualityComparer
+                ? EqualityComparer<TKey>.Default : _comparer;
 
         public int Count => _count - _freeCount;
 
@@ -261,7 +260,7 @@ namespace Collections.Pooled
                 int i = FindEntry(key);
                 if (i >= 0) return _entries[i].value;
                 ThrowHelper.ThrowKeyNotFoundException(key);
-                return default;
+                return default!;
             }
             set
             {
@@ -284,7 +283,7 @@ namespace Collections.Pooled
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var pair in enumerable)
+            foreach (var pair in enumerable!)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
@@ -298,7 +297,7 @@ namespace Collections.Pooled
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var (key, value) in enumerable)
+            foreach (var (key, value) in enumerable!)
             {
                 TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
@@ -490,11 +489,11 @@ namespace Collections.Pooled
             var buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
-            IEqualityComparer<TKey> comparer = _comparer;
+            var comparer = _comparer;
 
             if (comparer == null)
             {
-                int hashCode = key.GetHashCode() & Lower31BitMask;
+                int hashCode = key!.GetHashCode() & Lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
                 if (default(TKey) != null)
@@ -592,7 +591,7 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
 
-            if (_buckets == null || _size == 0)
+            if (_buckets.Length == 0 || _size == 0)
             {
                 Initialize(0);
             }
@@ -601,7 +600,7 @@ namespace Collections.Pooled
             var comparer = _comparer;
             var size = _size;
 
-            int hashCode = ((comparer == null) ? key.GetHashCode() : comparer.GetHashCode(key)) & Lower31BitMask;
+            int hashCode = ((comparer == null) ? key!.GetHashCode() : comparer.GetHashCode(key)) & Lower31BitMask;
 
             int collisionCount = 0;
             ref int bucket = ref _buckets[hashCode % size];
@@ -765,8 +764,6 @@ namespace Collections.Pooled
             entry.next = bucket - 1;
             entry.key = key;
             entry.value = value;
-            // Value in _buckets is 1-based
-            bucket = index + 1;
             _version++;
 
             // Value types never rehash
@@ -819,7 +816,7 @@ namespace Collections.Pooled
             }
             else
             {
-                _buckets = null;
+                _buckets = Array.Empty<int>();
             }
 
             _version = realVersion;
@@ -867,7 +864,7 @@ namespace Collections.Pooled
                     if (entries[i].hashCode >= 0)
                     {
                         Debug.Assert(_comparer == null);
-                        entries[i].hashCode = (entries[i].key.GetHashCode() & Lower31BitMask);
+                        entries[i].hashCode = entries[i].key!.GetHashCode() & Lower31BitMask;
                     }
                 }
             }
@@ -908,7 +905,7 @@ namespace Collections.Pooled
             int collisionCount = 0;
             if (_size > 0)
             {
-                int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & Lower31BitMask;
+                int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & Lower31BitMask;
                 int bucket = hashCode % _size;
                 int last = -1;
                 // Value in buckets is 1-based
@@ -931,14 +928,14 @@ namespace Collections.Pooled
                         entry.hashCode = -1;
                         entry.next = _freeList;
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
                         {
-                            entry.key = default;
+                            entry.key = default!;
                         }
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
                         {
-                            entry.value = default;
+                            entry.value = default!;
                         }
 #else
                         entry.key = default;
@@ -977,7 +974,7 @@ namespace Collections.Pooled
             var buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
-            int hashCode = (_comparer?.GetHashCode(key) ?? key.GetHashCode()) & Lower31BitMask;
+            int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & Lower31BitMask;
             int bucket = hashCode % _size;
             int last = -1;
             // Value in buckets is 1-based
@@ -1003,14 +1000,14 @@ namespace Collections.Pooled
                     entry.hashCode = -1;
                     entry.next = _freeList;
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
                         {
-                            entry.key = default;
+                            entry.key = default!;
                         }
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
                         {
-                            entry.value = default;
+                            entry.value = default!;
                         }
 #else
                     entry.key = default;
@@ -1031,7 +1028,7 @@ namespace Collections.Pooled
                 }
                 collisionCount++;
             }
-            value = default;
+            value = default!;
             return false;
         }
 
@@ -1043,7 +1040,7 @@ namespace Collections.Pooled
                 value = _entries[i].value;
                 return true;
             }
-            value = default;
+            value = default!;
             return false;
         }
 
@@ -1141,7 +1138,7 @@ namespace Collections.Pooled
             if (currentCapacity >= capacity)
                 return currentCapacity;
             _version++;
-            if (_buckets == null || _size == 0)
+            if (_buckets.Length == 0 || _size == 0)
                 return Initialize(capacity);
             int newSize = HashHelpers.GetPrime(capacity);
             Resize(newSize, forceNewHashCodes: false);
@@ -1205,7 +1202,7 @@ namespace Collections.Pooled
             _size = newSize;
             _freeCount = 0;
             s_bucketPool.Return(oldBuckets);
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             s_entryPool.Return(entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else
             s_entryPool.Return(entries, clearArray: true);
@@ -1220,9 +1217,9 @@ namespace Collections.Pooled
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
                 }
-                return _syncRoot;
+                return _syncRoot!;
             }
         }
 
@@ -1234,7 +1231,7 @@ namespace Collections.Pooled
 
         ICollection IDictionary.Values => Values;
 
-        object IDictionary.this[object key]
+        object? IDictionary.this[object key]
         {
             get
             {
@@ -1261,7 +1258,7 @@ namespace Collections.Pooled
                     TKey tempKey = (TKey)key;
                     try
                     {
-                        this[tempKey] = (TValue)value;
+                        this[tempKey] = (TValue)value!;
                     }
                     catch (InvalidCastException)
                     {
@@ -1277,22 +1274,22 @@ namespace Collections.Pooled
 
         private void ReturnArrays()
         {
-            if (_entries?.Length > 0)
+            if (_entries.Length > 0)
             {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                 s_entryPool.Return(_entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else
                 s_entryPool.Return(_entries, clearArray: true);
 #endif
             }
 
-            if (_buckets?.Length > 0)
+            if (_buckets.Length > 0)
             {
                 s_bucketPool.Return(_buckets);
             }
 
-            _entries = null;
-            _buckets = null;
+            _entries = Array.Empty<Entry>();
+            _buckets = Array.Empty<int>();
         }
 
         private static bool IsCompatibleKey(object key)
@@ -1457,7 +1454,7 @@ namespace Collections.Pooled
                 }
             }
 
-            object IDictionaryEnumerator.Key
+            object? IDictionaryEnumerator.Key
             {
                 get
                 {
@@ -1470,7 +1467,7 @@ namespace Collections.Pooled
                 }
             }
 
-            object IDictionaryEnumerator.Value
+            object? IDictionaryEnumerator.Value
             {
                 get
                 {
@@ -1559,27 +1556,25 @@ namespace Collections.Pooled
                 {
                     CopyTo(keys, index);
                 }
-                else
+                else if (array is object[] objects)
                 {
-                    object[] objects = array as object[];
-                    if (objects == null)
-                    {
-                        ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
-                    }
-
                     int count = _dictionary._count;
                     var entries = _dictionary._entries;
                     try
                     {
                         for (int i = 0; i < count; i++)
                         {
-                            if (entries[i].hashCode >= 0) objects[index++] = entries[i].key;
+                            if (entries[i].hashCode >= 0) objects![index++] = entries[i].key!;
                         }
                     }
                     catch (ArrayTypeMismatchException)
                     {
                         ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                     }
+                }
+                else
+                {
+                    ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                 }
             }
 
@@ -1599,7 +1594,7 @@ namespace Collections.Pooled
                     _dictionary = dictionary;
                     _version = dictionary._version;
                     _index = 0;
-                    _currentKey = default;
+                    _currentKey = default!;
                 }
 
                 public void Dispose()
@@ -1625,13 +1620,13 @@ namespace Collections.Pooled
                     }
 
                     _index = _dictionary._count + 1;
-                    _currentKey = default;
+                    _currentKey = default!;
                     return false;
                 }
 
                 public TKey Current => _currentKey;
 
-                object IEnumerator.Current
+                object? IEnumerator.Current
                 {
                     get
                     {
@@ -1652,7 +1647,7 @@ namespace Collections.Pooled
                     }
 
                     _index = 0;
-                    _currentKey = default;
+                    _currentKey = default!;
                 }
             }
         }
@@ -1744,7 +1739,7 @@ namespace Collections.Pooled
                     {
                         for (int i = 0; i < count; i++)
                         {
-                            if (entries[i].hashCode >= 0) objects[index++] = entries[i].value;
+                            if (entries[i].hashCode >= 0) objects[index++] = entries[i].value!;
                         }
                     }
                     catch (ArrayTypeMismatchException)
@@ -1774,7 +1769,7 @@ namespace Collections.Pooled
                     _dictionary = dictionary;
                     _version = dictionary._version;
                     _index = 0;
-                    _currentValue = default;
+                    _currentValue = default!;
                 }
 
                 public void Dispose()
@@ -1799,13 +1794,13 @@ namespace Collections.Pooled
                         }
                     }
                     _index = _dictionary._count + 1;
-                    _currentValue = default;
+                    _currentValue = default!;
                     return false;
                 }
 
                 public TValue Current => _currentValue;
 
-                object IEnumerator.Current
+                object? IEnumerator.Current
                 {
                     get
                     {
@@ -1825,7 +1820,7 @@ namespace Collections.Pooled
                         ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                     }
                     _index = 0;
-                    _currentValue = default;
+                    _currentValue = default!;
                 }
             }
         }

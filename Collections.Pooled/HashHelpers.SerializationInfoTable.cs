@@ -13,7 +13,7 @@ namespace Collections.Pooled
 {
     internal static partial class HashHelpers
     {        
-        private static ConditionalWeakTable<object, SerializationInfo> s_serializationInfoTable;
+        private static ConditionalWeakTable<object, SerializationInfo>? s_serializationInfoTable;
 
         public static ConditionalWeakTable<object, SerializationInfo> SerializationInfoTable
         {
@@ -22,7 +22,7 @@ namespace Collections.Pooled
                 if (s_serializationInfoTable == null)
                     Interlocked.CompareExchange(ref s_serializationInfoTable, new ConditionalWeakTable<object, SerializationInfo>(), null);
 
-                return s_serializationInfoTable;
+                return s_serializationInfoTable!;
             }
         }
     }

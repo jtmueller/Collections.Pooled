@@ -124,7 +124,7 @@ namespace Collections.Pooled
         /// </summary>
         public void Clear()
         {
-#if NETCOREAPP2_1 
+#if NETCOREAPP2_1 || NETCOREAPP3_0 
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 Array.Clear(_array, 0, _size); // Don't need to doc this but we clear the elements so that the gc can reclaim the references.
@@ -180,7 +180,7 @@ namespace Collections.Pooled
                 }
             }
 
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 // Clear the removed elements so that the gc can reclaim the references.
@@ -371,7 +371,7 @@ namespace Collections.Pooled
             _version++;
             _size = size;
             T item = array[size];
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 array[size] = default;     // Free memory quicker.
@@ -396,7 +396,7 @@ namespace Collections.Pooled
             _version++;
             _size = size;
             result = array[size];
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 array[size] = default;     // Free memory quicker.
@@ -467,7 +467,7 @@ namespace Collections.Pooled
         {
             if (_array?.Length > 0)
             {
-#if NETCOREAPP2_1
+#if NETCOREAPP2_1 || NETCOREAPP3_0
                 s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
                 s_pool.Return(_array, true);
