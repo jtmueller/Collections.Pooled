@@ -39,7 +39,7 @@ namespace Collections.Pooled
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
         [NonSerialized]
-        private object _syncRoot;
+        private object? _syncRoot;
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -102,6 +102,7 @@ namespace Collections.Pooled
             {
                 case null:
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                    _items = s_emptyArray;
                     break;
 
                 case ICollection<T> c:
@@ -197,9 +198,9 @@ namespace Collections.Pooled
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
                 }
-                return _syncRoot;
+                return _syncRoot!;
             }
         }
 
@@ -236,7 +237,7 @@ namespace Collections.Pooled
             return ((value is T) || (value == null && default(T) == null));
         }
 
-        object IList.this[int index]
+        object? IList.this[int index]
         {
             get
             {
@@ -248,7 +249,7 @@ namespace Collections.Pooled
 
                 try
                 {
-                    this[index] = (T)value;
+                    this[index] = (T)value!;
                 }
                 catch (InvalidCastException)
                 {
@@ -365,7 +366,7 @@ namespace Collections.Pooled
         /// the search value should be inserted into the list in order for the list
         /// to remain sorted.
         /// </para></remarks>
-        public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
+        public int BinarySearch(int index, int count, T item, IComparer<T>? comparer)
         {
             if (index < 0)
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
@@ -535,7 +536,7 @@ namespace Collections.Pooled
                 }
             }
 
-            result = default;
+            result = default!;
             return false;
         }
 
@@ -575,7 +576,7 @@ namespace Collections.Pooled
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
             {
-                if (match(_items[i])) return i;
+                if (match!(_items[i])) return i;
             }
             return -1;
         }
@@ -589,14 +590,14 @@ namespace Collections.Pooled
 
             for (int i = _size - 1; i >= 0; i--)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                 {
                     result = _items[i];
                     return true;
                 }
             }
 
-            result = default;
+            result = default!;
             return false;
         }
 
@@ -1061,10 +1062,10 @@ namespace Collections.Pooled
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
                 // Clear the removed element so that the gc can reclaim the reference.
-                _items[_size] = default;
+                _items[_size] = default!;
             }
 #else
-            _items[_size] = default;
+            _items[_size] = default!;
 #endif
         }
 
@@ -1158,7 +1159,7 @@ namespace Collections.Pooled
         /// 
         /// This method uses the Array.Sort method to sort the elements.
         /// </summary>
-        public void Sort(int index, int count, IComparer<T> comparer)
+        public void Sort(int index, int count, IComparer<T>? comparer)
         {
             if (index < 0)
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
@@ -1277,7 +1278,7 @@ namespace Collections.Pooled
                 _list = list;
                 _index = 0;
                 _version = list._version;
-                _current = default;
+                _current = default!;
             }
 
             public void Dispose()
@@ -1305,13 +1306,13 @@ namespace Collections.Pooled
                 }
 
                 _index = _list._size + 1;
-                _current = default;
+                _current = default!;
                 return false;
             }
 
             public T Current => _current;
 
-            object IEnumerator.Current
+            object? IEnumerator.Current
             {
                 get
                 {
@@ -1331,7 +1332,7 @@ namespace Collections.Pooled
                 }
 
                 _index = 0;
-                _current = default;
+                _current = default!;
             }
         }
 
