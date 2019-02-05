@@ -110,16 +110,16 @@ namespace Collections.Pooled
         internal static void ThrowWrongKeyTypeArgumentException<T>(T key, Type targetType)
         {
             // Generic key to move the boxing to the right hand side of throw
-            throw GetWrongKeyTypeArgumentException((object)key, targetType);
+            throw GetWrongKeyTypeArgumentException(key, targetType);
         }
 
         internal static void ThrowWrongValueTypeArgumentException<T>(T value, Type targetType)
         {
             // Generic key to move the boxing to the right hand side of throw
-            throw GetWrongValueTypeArgumentException((object)value, targetType);
+            throw GetWrongValueTypeArgumentException(value, targetType);
         }
 
-        private static ArgumentException GetAddingDuplicateWithKeyArgumentException(object key)
+        private static ArgumentException GetAddingDuplicateWithKeyArgumentException(object? key)
         {
             return new ArgumentException($"Error adding duplicate with key: {key}.");
         }
@@ -127,13 +127,13 @@ namespace Collections.Pooled
         internal static void ThrowAddingDuplicateWithKeyArgumentException<T>(T key)
         {
             // Generic key to move the boxing to the right hand side of throw
-            throw GetAddingDuplicateWithKeyArgumentException((object)key);
+            throw GetAddingDuplicateWithKeyArgumentException(key);
         }
 
         internal static void ThrowKeyNotFoundException<T>(T key)
         {
             // Generic key to move the boxing to the right hand side of throw
-            throw GetKeyNotFoundException((object)key);
+            throw GetKeyNotFoundException(key);
         }
 
         internal static void ThrowArgumentException(ExceptionResource resource)
@@ -301,17 +301,17 @@ namespace Collections.Pooled
             return new InvalidOperationException(GetResourceString(resource));
         }
 
-        private static ArgumentException GetWrongKeyTypeArgumentException(object key, Type targetType)
+        private static ArgumentException GetWrongKeyTypeArgumentException(object? key, Type targetType)
         {
             return new ArgumentException($"Wrong key type. Expected {targetType}, got: '{key}'.", nameof(key));
         }
 
-        private static ArgumentException GetWrongValueTypeArgumentException(object value, Type targetType)
+        private static ArgumentException GetWrongValueTypeArgumentException(object? value, Type targetType)
         {
             return new ArgumentException($"Wrong value type. Expected {targetType}, got: '{value}'.", nameof(value));
         }
 
-        private static KeyNotFoundException GetKeyNotFoundException(object key)
+        private static KeyNotFoundException GetKeyNotFoundException(object? key)
         {
             return new KeyNotFoundException($"Key not found: {key}");
         }

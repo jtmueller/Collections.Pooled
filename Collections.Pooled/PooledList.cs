@@ -718,6 +718,13 @@ namespace Collections.Pooled
             return Span.Slice(index, count);
         }
 
+#if NETCOREAPP3_0
+        /// <summary>
+        /// Equivalent to PooledList[range]
+        /// </summary>
+        public Span<T> GetRange(Range range) => Span[range];
+#endif
+
         /// <summary>
         /// Returns the index of the first occurrence of a given value in
         /// this list. The list is searched forwards from beginning to end.
@@ -879,7 +886,7 @@ namespace Collections.Pooled
         public void InsertRange(int index, T[] array)
         {
             if (array is null)
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             InsertRange(index, array.AsSpan());
         }
 

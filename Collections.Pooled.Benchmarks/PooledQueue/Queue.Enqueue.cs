@@ -38,21 +38,19 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         {
             if (Type == QueueType.Int)
             {
-                var queue = new PooledQueue<int>();
+                using var queue = new PooledQueue<int>();
                 for (int i = 0; i < N; i++)
                 {
                     queue.Enqueue(intArray[i]);
                 }
-                queue.Dispose();
             }
             else
             {
-                var queue = new PooledQueue<string>();
+                using var queue = new PooledQueue<string>();
                 for (int i = 0; i < N; i++)
                 {
                     queue.Enqueue(stringArray[i]);
                 }
-                queue.Dispose();
             }
         }
 

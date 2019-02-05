@@ -38,7 +38,7 @@ namespace Collections.Pooled
         private int _tail;       // The index at which to enqueue if the queue isn't full.
         private int _size;       // Number of elements.
         private int _version;
-        private object _syncRoot;
+        private object? _syncRoot;
 
         private const int MinimumGrow = 4;
         private const int GrowFactor = 200;  // double each time
@@ -75,6 +75,7 @@ namespace Collections.Pooled
             {
                 case null:
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+                    _array = Array.Empty<T>();
                     break;
 
                 case ICollection<T> collection:
@@ -134,9 +135,9 @@ namespace Collections.Pooled
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
                 }
-                return _syncRoot;
+                return _syncRoot!;
             }
         }
 
@@ -320,7 +321,7 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                array[head] = default;
+                array[head] = default!;
             }
 #else
             array[head] = default;
@@ -338,7 +339,7 @@ namespace Collections.Pooled
 
             if (_size == 0)
             {
-                result = default;
+                result = default!;
                 return false;
             }
 
@@ -346,7 +347,7 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                array[head] = default;
+                array[head] = default!;
             }
 #else
             array[head] = default;
@@ -376,7 +377,7 @@ namespace Collections.Pooled
         {
             if (_size == 0)
             {
-                result = default;
+                result = default!;
                 return false;
             }
 
@@ -579,13 +580,13 @@ namespace Collections.Pooled
                 _q = q;
                 _version = q._version;
                 _index = -1;
-                _currentElement = default;
+                _currentElement = default!;
             }
 
             public void Dispose()
             {
                 _index = -2;
-                _currentElement = default;
+                _currentElement = default!;
             }
 
             public bool MoveNext()
@@ -602,7 +603,7 @@ namespace Collections.Pooled
                 {
                     // We've run past the last element
                     _index = -2;
-                    _currentElement = default;
+                    _currentElement = default!;
                     return false;
                 }
 
@@ -648,14 +649,14 @@ namespace Collections.Pooled
                     ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumEnded();
             }
 
-            object IEnumerator.Current => Current;
+            object? IEnumerator.Current => Current;
 
             void IEnumerator.Reset()
             {
                 if (_version != _q._version)
                     ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 _index = -1;
-                _currentElement = default;
+                _currentElement = default!;
             }
         }
     }

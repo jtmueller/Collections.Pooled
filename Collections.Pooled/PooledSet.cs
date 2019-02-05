@@ -84,8 +84,8 @@ namespace Collections.Pooled
         // things will happen.
         // Alternatively, use the private properties Buckets and Slots, which slice the
         // arrays down to the correct length.
-        private int[] _buckets;
-        private Slot[] _slots;
+        private int[]? _buckets;
+        private Slot[]? _slots;
         private int _size;
 
         private int _count;
@@ -94,7 +94,7 @@ namespace Collections.Pooled
         private IEqualityComparer<T> _comparer;
         private int _version;
 
-        private SerializationInfo _siInfo; // temporary variable needed during deserialization
+        private SerializationInfo? _siInfo; // temporary variable needed during deserialization
 
         #region Constructors
 
@@ -108,14 +108,9 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(IEqualityComparer<T> comparer)
+        public PooledSet(IEqualityComparer<T>? comparer)
         {
-            if (comparer == null)
-            {
-                comparer = EqualityComparer<T>.Default;
-            }
-
-            _comparer = comparer;
+            _comparer = comparer ?? EqualityComparer<T>.Default;
             _lastIndex = 0;
             _count = 0;
             _freeList = -1;
@@ -144,7 +139,7 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="comparer"></param>
-        public PooledSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
+        public PooledSet(IEnumerable<T> collection, IEqualityComparer<T>? comparer)
             : this(comparer)
         {
             if (collection == null)
@@ -197,7 +192,7 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(ReadOnlySpan<T> span, IEqualityComparer<T> comparer)
+        public PooledSet(ReadOnlySpan<T> span, IEqualityComparer<T>? comparer)
             : this(comparer)
         {
             // to avoid excess resizes, first set size based on collection's count. Collection
@@ -255,7 +250,7 @@ namespace Collections.Pooled
             else
             {
                 int lastIndex = source._lastIndex;
-                Slot[] slots = source._slots;
+                Slot[] slots = source._slots!;
                 Initialize(count);
                 int index = 0;
                 for (int i = 0; i < lastIndex; ++i)
@@ -334,7 +329,7 @@ namespace Collections.Pooled
             {
                 int collisionCount = 0;
                 int hashCode = InternalGetHashCode(item);
-                Slot[] slots = _slots;
+                Slot[] slots = _slots!;
                 // see note at "HashSet" level describing why "- 1" appears in for loop
                 for (int i = _buckets[hashCode % _size] - 1; i >= 0; i = slots[i].next)
                 {
@@ -376,7 +371,7 @@ namespace Collections.Pooled
                 int bucket = hashCode % _size;
                 int last = -1;
                 int collisionCount = 0;
-                Slot[] slots = _slots;
+                Slot[] slots = _slots!;
                 for (int i = _buckets[bucket] - 1; i >= 0; last = i, i = slots[i].next)
                 {
                     if (slots[i].hashCode == hashCode && _comparer.Equals(slots[i].value, item))
@@ -395,10 +390,10 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
                         if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
                         {
-                            slots[i].value = default;
+                            slots[i].value = default!;
                         }
 #else
-                        slots[i].value = default;
+                        slots[i].value = default!;
 #endif
                         slots[i].next = _freeList;
 
@@ -559,11 +554,11 @@ namespace Collections.Pooled
                 int i = InternalIndexOf(equalValue);
                 if (i >= 0)
                 {
-                    actualValue = _slots[i].value;
+                    actualValue = _slots![i].value;
                     return true;
                 }
             }
-            actualValue = default;
+            actualValue = default!;
             return false;
         }
 
@@ -1422,6 +1417,9 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex, int count)
         {
+            if (_slots == null || _count == 0)
+                return;
+
             if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
@@ -1468,6 +1466,9 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(Span<T> span, int count)
         {
+            if (_slots is null || _count == 0)
+                return;
+
             if (span.Length < _count || span.Length < count)
             {
                 ThrowHelper.ThrowArgumentException_DestinationTooShort();
@@ -1491,6 +1492,9 @@ namespace Collections.Pooled
         /// <returns></returns>
         public int RemoveWhere(Func<T, bool> match)
         {
+            if (_slots == null || _count == 0)
+                return 0;
+
             if (match == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
@@ -1555,7 +1559,7 @@ namespace Collections.Pooled
         {
             Debug.Assert(_count >= 0, "_count is negative");
 
-            if (_count == 0)
+            if (_count == 0 || _slots is null)
             {
                 // if count is zero, clear references
                 ReturnArrays();
@@ -1682,7 +1686,7 @@ namespace Collections.Pooled
                 Array.Clear(_buckets, 0, _buckets.Length);
                 Array.Clear(_slots, _size, newSize - _size);
                 newBuckets = _buckets;
-                newSlots = _slots;
+                newSlots = _slots!;
                 replaceArrays = false;
             }
             else
@@ -1734,6 +1738,8 @@ namespace Collections.Pooled
             _slots = null;
             _buckets = null;
         }
+
+#nullable disable
 
         /// <summary>
         /// Adds value to HashSet if not contained already
@@ -1815,6 +1821,8 @@ namespace Collections.Pooled
             _slots[index].next = _buckets[bucket] - 1;
             _buckets[bucket] = index + 1;
         }
+
+#nullable enable
 
         /// <summary>
         /// Checks if this contains of other's elements. Iterates over other's elements and 
@@ -1903,6 +1911,8 @@ namespace Collections.Pooled
             }
             return true;
         }
+
+#nullable disable
 
         /// <summary>
         /// If other is a hashset that uses same equality comparer, intersect is much faster 
@@ -2059,6 +2069,8 @@ namespace Collections.Pooled
             return -1;
         }
 
+#nullable enable
+
         /// <summary>
         /// if other is a set, we can assume it doesn't have duplicate elements, so use this
         /// technique: if can't remove, then it wasn't present in this set, so add.
@@ -2096,6 +2108,8 @@ namespace Collections.Pooled
                 }
             }
         }
+
+#nullable disable
 
         /// <summary>
         /// Implementation notes:
@@ -2455,6 +2469,8 @@ namespace Collections.Pooled
             return result;
         }
 
+#nullable enable
+
         /// <summary>
         /// Internal method used for HashSetEqualityComparer. Compares set1 and set2 according 
         /// to specified comparer.
@@ -2600,7 +2616,7 @@ namespace Collections.Pooled
                 _set = set;
                 _index = 0;
                 _version = set._version;
-                _current = default;
+                _current = default!;
             }
 
             void IDisposable.Dispose()
@@ -2619,7 +2635,7 @@ namespace Collections.Pooled
 
                 while (_index < _set._lastIndex)
                 {
-                    if (_set._slots[_index].hashCode >= 0)
+                    if (_set._slots![_index].hashCode >= 0)
                     {
                         _current = _set._slots[_index].value;
                         _index++;
@@ -2628,7 +2644,7 @@ namespace Collections.Pooled
                     _index++;
                 }
                 _index = _set._lastIndex + 1;
-                _current = default;
+                _current = default!;
                 return false;
             }
 
@@ -2637,7 +2653,7 @@ namespace Collections.Pooled
             /// </summary>
             public T Current => _current;
 
-            object IEnumerator.Current
+            object? IEnumerator.Current
             {
                 get
                 {
@@ -2657,7 +2673,7 @@ namespace Collections.Pooled
                 }
 
                 _index = 0;
-                _current = default;
+                _current = default!;
             }
         }
     }

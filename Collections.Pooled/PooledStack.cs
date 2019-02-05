@@ -35,7 +35,7 @@ namespace Collections.Pooled
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
         private int _size; // Number of items in the stack. Do not rename (binary serialization)
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
-        private object _syncRoot;
+        private object? _syncRoot;
 
         private const int DefaultCapacity = 4;
 
@@ -68,6 +68,7 @@ namespace Collections.Pooled
             {
                 case null:
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+                    _array = Array.Empty<T>();
                     break;
 
                 case ICollection<T> collection:
@@ -113,9 +114,9 @@ namespace Collections.Pooled
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
                 }
-                return _syncRoot;
+                return _syncRoot!;
             }
         }
 
@@ -344,7 +345,7 @@ namespace Collections.Pooled
 
             if ((uint)size >= (uint)array.Length)
             {
-                result = default;
+                result = default!;
                 return false;
             }
             result = array[size];
@@ -374,10 +375,10 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                array[size] = default;     // Free memory quicker.
+                array[size] = default!;     // Free memory quicker.
             }
 #else
-            array[size] = default;
+            array[size] = default!;
 #endif
             return item;
         }
@@ -389,7 +390,7 @@ namespace Collections.Pooled
 
             if ((uint)size >= (uint)array.Length)
             {
-                result = default;
+                result = default!;
                 return false;
             }
 
@@ -399,7 +400,7 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
             {
-                array[size] = default;     // Free memory quicker.
+                array[size] = default!;     // Free memory quicker.
             }
 #else
             array[size] = default;
@@ -447,14 +448,14 @@ namespace Collections.Pooled
             if (_size == 0)
                 return Array.Empty<T>();
 
-            T[] objArray = new T[_size];
+            T[] outArray = new T[_size];
             int i = 0;
             while (i < _size)
             {
-                objArray[i] = _array[_size - i - 1];
+                outArray[i] = _array[_size - i - 1];
                 i++;
             }
-            return objArray;
+            return outArray;
         }
 
         private void ThrowForEmptyStack()
@@ -463,9 +464,9 @@ namespace Collections.Pooled
             throw new InvalidOperationException("Stack was empty.");
         }
 
-        private void ReturnArray(T[] replaceWith = null)
+        private void ReturnArray(T[] replaceWith)
         {
-            if (_array?.Length > 0)
+            if (_array.Length > 0)
             {
 #if NETCOREAPP2_1 || NETCOREAPP3_0
                 s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
@@ -474,10 +475,7 @@ namespace Collections.Pooled
 #endif
             }
 
-            if (!(replaceWith is null))
-            {
-                _array = replaceWith;
-            }
+            _array = replaceWith;
         }
 
         public void Dispose()
@@ -500,7 +498,7 @@ namespace Collections.Pooled
                 _stack = stack;
                 _version = stack._version;
                 _index = -2;
-                _currentElement = default;
+                _currentElement = default!;
             }
 
             public void Dispose()
@@ -529,7 +527,7 @@ namespace Collections.Pooled
                 if (retval)
                     _currentElement = _stack._array[_index];
                 else
-                    _currentElement = default;
+                    _currentElement = default!;
                 return retval;
             }
 
@@ -549,7 +547,7 @@ namespace Collections.Pooled
                 throw new InvalidOperationException(_index == -2 ? "Enumeration was not started." : "Enumeration has ended.");
             }
 
-            object IEnumerator.Current
+            object? IEnumerator.Current
             {
                 get { return Current; }
             }
@@ -558,7 +556,7 @@ namespace Collections.Pooled
             {
                 if (_version != _stack._version) throw new InvalidOperationException("Collection was modified during enumeration.");
                 _index = -2;
-                _currentElement = default;
+                _currentElement = default!;
             }
         }
     }
