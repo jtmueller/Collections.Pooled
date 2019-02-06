@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Collections.Pooled
@@ -29,25 +30,33 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(QueueDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class PooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable
+    public class PooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable, IDeserializationCallback
     {
-        private static readonly ArrayPool<T> s_pool = ArrayPool<T>.Shared;
+        private const int MinimumGrow = 4;
+        private const int GrowFactor = 200;  // double each time
+
+        [NonSerialized]
+        private ArrayPool<T> _pool;
+        [NonSerialized]
+        private object _syncRoot;
 
         private T[] _array;
         private int _head;       // The index from which to dequeue if the queue isn't empty.
         private int _tail;       // The index at which to enqueue if the queue isn't full.
         private int _size;       // Number of elements.
         private int _version;
-        private object _syncRoot;
-
-        private const int MinimumGrow = 4;
-        private const int GrowFactor = 200;  // double each time
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
-        public PooledQueue()
+        public PooledQueue() : this(ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
+        /// </summary>
+        public PooledQueue(ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
         }
 
@@ -55,22 +64,37 @@ namespace Collections.Pooled
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
         /// </summary>
         /// <param name="capacity"></param>
-        public PooledQueue(int capacity)
+        public PooledQueue(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
+        /// </summary>
+        /// <param name="capacity"></param>
+        public PooledQueue(int capacity, ArrayPool<T> customPool)
         {
             if (capacity < 0)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
                     ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
-            _array = s_pool.Rent(capacity);
+            _pool = customPool ?? ArrayPool<T>.Shared;
+            _array = _pool.Rent(capacity);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// collection and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(IEnumerable<T> enumerable)
+        public PooledQueue(IEnumerable<T> enumerable) : this(enumerable, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// collection and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(IEnumerable<T> enumerable, ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
+
             switch (enumerable)
             {
                 case null:
@@ -84,7 +108,7 @@ namespace Collections.Pooled
                     }
                     else
                     {
-                        _array = s_pool.Rent(collection.Count);
+                        _array = _pool.Rent(collection.Count);
                         collection.CopyTo(_array, 0);
                         _size = collection.Count;
                         if (_size != _array.Length) _tail = _size;
@@ -94,7 +118,7 @@ namespace Collections.Pooled
                 default:
                     using (var list = new PooledList<T>(enumerable))
                     {
-                        _array = s_pool.Rent(list.Count);
+                        _array = _pool.Rent(list.Count);
                         list.Span.CopyTo(_array);
                         _size = list.Count;
                         if (_size != _array.Length) _tail = _size;
@@ -107,15 +131,28 @@ namespace Collections.Pooled
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// array and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(T[] array) : this(array.AsSpan()) { }
+        public PooledQueue(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// array and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// span and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(ReadOnlySpan<T> span)
+        public PooledQueue(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// span and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(ReadOnlySpan<T> span, ArrayPool<T> customPool)
         {
-            _array = s_pool.Rent(span.Length);
+            _pool = customPool ?? ArrayPool<T>.Shared;
+            _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
             if (_size != _array.Length) _tail = _size;
@@ -419,7 +456,7 @@ namespace Collections.Pooled
             if (_size == 0)
                 return 0;
 
-            T[] newArray = s_pool.Rent(_size);
+            T[] newArray = _pool.Rent(_size);
             int removeCount = 0;
 
             if (_head < _tail)
@@ -494,7 +531,7 @@ namespace Collections.Pooled
         // must be >= _size.
         private void SetCapacity(int capacity)
         {
-            T[] newarray = s_pool.Rent(capacity);
+            T[] newarray = _pool.Rent(capacity);
             if (_size > 0)
             {
                 if (_head < _tail)
@@ -550,9 +587,9 @@ namespace Collections.Pooled
                 try
                 {
 #if NETCOREAPP2_1
-                    s_pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                    _pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                    s_pool.Return(_array, clearArray: true);
+                    _pool.Return(_array, clearArray: true);
 #endif
                 }
                 catch (ArgumentException)
@@ -568,6 +605,14 @@ namespace Collections.Pooled
             ReturnArray(replaceWith: Array.Empty<T>());
             _head = _tail = _size = 0;
             _version++;
+        }
+
+        void IDeserializationCallback.OnDeserialization(object sender)
+        {
+            // We can't serialize array pools, so deserialized PooledLists will
+            // have to use the shared pool, even if they were using a custom pool
+            // before serialization.
+            _pool = ArrayPool<T>.Shared;
         }
 
         // Implements an enumerator for a Queue.  The enumerator uses the
