@@ -1838,7 +1838,7 @@ namespace Collections.Pooled
             _buckets[bucket] = index + 1;
         }
 
-#nullable enable
+#nullable restore
 
         /// <summary>
         /// Checks if this contains of other's elements. Iterates over other's elements and 
@@ -2085,7 +2085,7 @@ namespace Collections.Pooled
             return -1;
         }
 
-#nullable enable
+#nullable restore
 
         /// <summary>
         /// if other is a set, we can assume it doesn't have duplicate elements, so use this
@@ -2485,7 +2485,7 @@ namespace Collections.Pooled
             return result;
         }
 
-#nullable enable
+#nullable restore
 
         /// <summary>
         /// Internal method used for HashSetEqualityComparer. Compares set1 and set2 according 
