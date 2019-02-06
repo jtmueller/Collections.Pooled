@@ -16,7 +16,7 @@ been ported from [corefx](https://github.com/dotnet/corefx).
 ```
 Total tests: 27451. Passed: 27451. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 10.0579 Seconds
+Test execution time: 9.8372 Seconds
 ```
 
 ## Installation
@@ -62,6 +62,8 @@ There are some API changes worth noting:
     If you forget to dispose the list, nothing will break, but memory allocations and GC pauses will be closer to those
     of `List<T>` (you will still benefit from pooling of intermediate arrays as the PooledList is resized).
   * A selection of `ToPooledList()` extension methods are provided.
+  * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
+    default `ArrayPool<T>.Shared` pool.
 
 #### Performance
 
@@ -123,6 +125,8 @@ modified to use ArrayPool for internal storage allocation.
     If you forget to dispose the stack, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Stack<T>` (you will still benefit from pooling of intermediate arrays as the PooledStack is resized).
   * A selection of `ToPooledStack()` extension methods are provided.
+  * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
+    default `ArrayPool<T>.Shared` pool.
 
 #### Performance
 
@@ -142,6 +146,8 @@ modified to use ArrayPool for internal storage allocation.
     If you forget to dispose the queue, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Queue<T>` (you will still benefit from pooling of intermediate arrays as the PooledQueue is resized).
   * A selection of `ToPooledQueue()` extension methods are provided.
+  * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
+    default `ArrayPool<T>.Shared` pool.
 
 #### Performance
 

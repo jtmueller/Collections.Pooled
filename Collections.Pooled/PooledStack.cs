@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Collections.Pooled
@@ -28,22 +29,32 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(StackDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    public class PooledStack<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable
+    public class PooledStack<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable, IDeserializationCallback
     {
-        private static readonly ArrayPool<T> s_pool = ArrayPool<T>.Shared;
+        [NonSerialized]
+        private ArrayPool<T> _pool;
+#pragma warning disable IDE0044
+        [NonSerialized]
+        private object _syncRoot;
+#pragma warning restore IDE0044
 
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
         private int _size; // Number of items in the stack. Do not rename (binary serialization)
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
-#pragma warning disable IDE0044
-        [NonSerialized]
-        private object? _syncRoot;
-#pragma warning restore IDE0044
 
         private const int DefaultCapacity = 4;
 
-        public PooledStack()
+        /// <summary>
+        /// Create a stack with the default initial capacity. 
+        /// </summary>
+        public PooledStack() : this(ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Create a stack with the default initial capacity and a custom ArrayPool.
+        /// </summary>
+        public PooledStack(ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
         }
 
@@ -51,22 +62,37 @@ namespace Collections.Pooled
         /// Create a stack with a specific initial capacity.  The initial capacity
         /// must be a non-negative number.
         /// </summary>
-        public PooledStack(int capacity)
+        public PooledStack(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Create a stack with a specific initial capacity.  The initial capacity
+        /// must be a non-negative number.
+        /// </summary>
+        public PooledStack(int capacity, ArrayPool<T> customPool)
         {
             if (capacity < 0)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, 
                     ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
-            _array = s_pool.Rent(capacity);
+            _pool = customPool ?? ArrayPool<T>.Shared;
+            _array = _pool.Rent(capacity);
         }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(IEnumerable<T> enumerable)
+        public PooledStack(IEnumerable<T> enumerable) : this(enumerable, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(IEnumerable<T> enumerable, ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
+
             switch (enumerable)
             {
                 case null:
@@ -81,7 +107,7 @@ namespace Collections.Pooled
                     }
                     else
                     {
-                        _array = s_pool.Rent(collection.Count);
+                        _array = _pool.Rent(collection.Count);
                         collection.CopyTo(_array, 0);
                         _size = collection.Count;
                     }
@@ -90,7 +116,7 @@ namespace Collections.Pooled
                 default:
                     using (var list = new PooledList<T>(enumerable))
                     {
-                        _array = s_pool.Rent(list.Count);
+                        _array = _pool.Rent(list.Count);
                         list.Span.CopyTo(_array);
                         _size = list.Count;
                     }
@@ -98,15 +124,39 @@ namespace Collections.Pooled
             }
         }
 
-        public PooledStack(T[] array) : this(array.AsSpan()) { }
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
 
-        public PooledStack(ReadOnlySpan<T> span)
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span, ArrayPool<T> customPool)
         {
-            _array = s_pool.Rent(span.Length);
+            _pool = customPool ?? ArrayPool<T>.Shared;
+            _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
         }
 
+        /// <summary>
+        /// The number of items in the stack.
+        /// </summary>
         public int Count => _size;
 
         bool ICollection.IsSynchronized => false;
@@ -306,7 +356,7 @@ namespace Collections.Pooled
             int threshold = (int)(_array.Length * 0.9);
             if (_size < threshold)
             {
-                var newArray = s_pool.Rent(_size);
+                var newArray = _pool.Rent(_size);
                 if (newArray.Length < _array.Length)
                 {
                     Array.Copy(_array, newArray, _size);
@@ -319,7 +369,7 @@ namespace Collections.Pooled
                     // (we can only control minimum size) so return it and do nothing.
                     // If we create an exact-sized array not from the pool, we'll
                     // get an exception when returning it to the pool.
-                    s_pool.Return(newArray);
+                    _pool.Return(newArray);
                 }
             }
         }
@@ -435,7 +485,7 @@ namespace Collections.Pooled
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void PushWithResize(T item)
         {
-            var newArray = s_pool.Rent((_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
+            var newArray = _pool.Rent((_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
             Array.Copy(_array, newArray, _size);
             ReturnArray(replaceWith: newArray);
             _array[_size] = item;
@@ -476,7 +526,7 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1 || NETCOREAPP3_0
                     s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                    s_pool.Return(_array, true);
+                    _pool.Return(_array, true);
 #endif
                 }
                 catch (ArgumentException)
@@ -493,6 +543,14 @@ namespace Collections.Pooled
             ReturnArray(replaceWith: Array.Empty<T>());
             _size = 0;
             _version++;
+        }
+
+        void IDeserializationCallback.OnDeserialization(object sender)
+        {
+            // We can't serialize array pools, so deserialized PooledStacks will
+            // have to use the shared pool, even if they were using a custom pool
+            // before serialization.
+            _pool = ArrayPool<T>.Shared;
         }
 
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
