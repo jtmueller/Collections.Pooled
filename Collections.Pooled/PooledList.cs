@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Collections.Pooled
@@ -27,19 +28,21 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
-    public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable
+    public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
     {
         // internal constant copied from Array.MaxArrayLength
         private const int MaxArrayLength = 0x7FEFFFFF;
         private const int DefaultCapacity = 4;
-        private static readonly ArrayPool<T> s_pool = ArrayPool<T>.Shared;
         private static readonly T[] s_emptyArray = Array.Empty<T>();
+
+        [NonSerialized]
+        private ArrayPool<T> _pool;
+        [NonSerialized]
+        private object _syncRoot;
 
         private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
-        [NonSerialized]
-        private object _syncRoot;
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -47,9 +50,18 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList()
+        public PooledList() : this(ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList. The list is initially empty and has a capacity
+        /// of zero. Upon adding the first element to the list the capacity is
+        /// increased to DefaultCapacity, and then increased in multiples of two
+        /// as required.
+        /// </summary>
+        public PooledList(ArrayPool<T> customPool)
         {
             _items = s_emptyArray;
+            _pool = customPool ?? ArrayPool<T>.Shared;
         }
 
         /// <summary>
@@ -57,10 +69,19 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity)
+        public PooledList(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        public PooledList(int capacity, ArrayPool<T> customPool)
         {
             if (capacity < 0)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+
+            _pool = customPool ?? ArrayPool<T>.Shared;
 
             if (capacity == 0)
             {
@@ -68,16 +89,40 @@ namespace Collections.Pooled
             }
             else
             {
-                _items = s_pool.Rent(capacity);
+                _items = _pool.Rent(capacity);
             }
         }
 
-        public PooledList(T[] array) : this(array.AsSpan())
-        {
-        }
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
 
-        public PooledList(ReadOnlySpan<T> span)
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span, ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
+
             int count = span.Length;
             if (count == 0)
             {
@@ -85,19 +130,28 @@ namespace Collections.Pooled
             }
             else
             {
-                _items = s_pool.Rent(count);
+                _items = _pool.Rent(count);
                 span.CopyTo(_items);
                 _size = count;
             }
         }
 
         /// <summary>
-        /// Constructs a List, copying the contents of the given collection. The
+        /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection)
+        public PooledList(IEnumerable<T> collection) : this(collection, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(IEnumerable<T> collection, ArrayPool<T> customPool)
         {
+            _pool = customPool ?? ArrayPool<T>.Shared;
+
             switch (collection)
             {
                 case null:
@@ -112,7 +166,7 @@ namespace Collections.Pooled
                     }
                     else
                     {
-                        _items = s_pool.Rent(count);
+                        _items = _pool.Rent(count);
                         c.CopyTo(_items, 0);
                         _size = count;
                     }
@@ -158,7 +212,7 @@ namespace Collections.Pooled
                 {
                     if (value > 0)
                     {
-                        var newItems = s_pool.Rent(value);
+                        var newItems = _pool.Rent(value);
                         if (_size > 0)
                         {
                             Array.Copy(_items, newItems, _size);
@@ -1253,9 +1307,9 @@ namespace Collections.Pooled
             {
 #if NETCOREAPP2_1
                 // Clear the elements so that the gc can reclaim the references.
-                s_pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                _pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                s_pool.Return(_items, clearArray: true);
+                _pool.Return(_items, clearArray: true);
 #endif
             }
             catch (ArgumentException)
@@ -1271,6 +1325,14 @@ namespace Collections.Pooled
             ReturnArray();
             _size = 0;
             _version++;
+        }
+
+        void IDeserializationCallback.OnDeserialization(object sender)
+        {
+            // We can't serialize array pools, so deserialized PooledLists will
+            // have to use the shared pool, even if they were using a custom pool
+            // before serialization.
+            _pool = ArrayPool<T>.Shared;
         }
 
         public struct Enumerator : IEnumerator<T>, IEnumerator
