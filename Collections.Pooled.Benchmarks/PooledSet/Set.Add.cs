@@ -8,7 +8,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     // prevents us from running CoreJob with a CLR host, or ClrJob with a Core host.
     // When this is resolved, should change all the tests to run both job types at the same time.
 
-#if NETCOREAPP2_2
+#if NETCOREAPP3_0
     [CoreJob]
 #elif NET472
     [ClrJob]

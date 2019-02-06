@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-#if NETCOREAPP2_2
+#if NETCOREAPP3_0
     [CoreJob]
 #elif NET472
     [ClrJob]
