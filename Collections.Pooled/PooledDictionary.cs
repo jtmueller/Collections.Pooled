@@ -81,8 +81,11 @@ namespace Collections.Pooled
         private int _freeCount;
         private int _version;
         private IEqualityComparer<TKey> _comparer;
+        [NonSerialized]
         private KeyCollection _keys;
+        [NonSerialized]
         private ValueCollection _values;
+        [NonSerialized]
         private object _syncRoot;
 
         public PooledDictionary() : this(0, null) { }
@@ -182,7 +185,9 @@ namespace Collections.Pooled
             }
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         protected PooledDictionary(SerializationInfo info, StreamingContext context)
+#pragma warning restore IDE0060
         {
             // We can't do anything with the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -765,8 +770,6 @@ namespace Collections.Pooled
             entry.next = bucket - 1;
             entry.key = key;
             entry.value = value;
-            // Value in _buckets is 1-based
-            bucket = index + 1;
             _version++;
 
             // Value types never rehash
@@ -1484,8 +1487,8 @@ namespace Collections.Pooled
             }
         }
 
-        [DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
-        [DebuggerDisplay("Count = {Count}")]
+        [DebuggerDisplay("Count = {Count}"), DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
+        [Serializable]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -1657,8 +1660,8 @@ namespace Collections.Pooled
             }
         }
 
-        [DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
-        [DebuggerDisplay("Count = {Count}")]
+        [DebuggerDisplay("Count = {Count}"), DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
+        [Serializable]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
