@@ -20,6 +20,8 @@ namespace Collections.Pooled.Tests.PooledList
 
             Assert.Equal(list.Count, wholeThing.Length);
             Assert.Equal(wholeThing.Length, firstHalf.Length + secondHalf.Length);
+            Assert.Equal(list[0], firstHalf[0]);
+            Assert.NotEqual(list[0], secondHalf[0]);
             Assert.Equal(list[^1], secondHalf[^1]);
             Assert.Equal(list[^1], wholeThing[^1]);
         }

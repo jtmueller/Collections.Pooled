@@ -39,7 +39,7 @@ namespace Collections.Pooled
         private ArrayPool<T> _pool;
 #pragma warning disable IDE0044
         [NonSerialized]
-        private object _syncRoot;
+        private object? _syncRoot;
 #pragma warning restore IDE0044
 
         private T[] _items; // Do not rename (binary serialization)
@@ -250,14 +250,16 @@ namespace Collections.Pooled
         // Synchronization root for this object.
         object ICollection.SyncRoot
         {
+#nullable disable
             get
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
+                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
-                return _syncRoot!;
+                return _syncRoot;
             }
+#nullable restore
         }
 
         /// <summary>

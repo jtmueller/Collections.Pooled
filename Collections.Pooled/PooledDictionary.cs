@@ -1221,14 +1221,16 @@ namespace Collections.Pooled
 
         object ICollection.SyncRoot
         {
+#nullable disable
             get
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
+                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
-                return _syncRoot!;
+                return _syncRoot;
             }
+#nullable restore
         }
 
         bool IDictionary.IsFixedSize => false;

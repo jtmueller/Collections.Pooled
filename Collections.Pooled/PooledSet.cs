@@ -1419,9 +1419,6 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex, int count)
         {
-            if (_slots == null || _count == 0)
-                return;
-
             if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
@@ -1446,6 +1443,9 @@ namespace Collections.Pooled
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
+
+            if (_slots == null || _count == 0)
+                return;
 
             int numCopied = 0;
             for (int i = 0; i < _lastIndex && numCopied < count; i++)
@@ -1494,13 +1494,13 @@ namespace Collections.Pooled
         /// <returns></returns>
         public int RemoveWhere(Func<T, bool> match)
         {
-            if (_slots == null || _count == 0)
-                return 0;
-
             if (match == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
+
+            if (_slots == null || _count == 0)
+                return 0;
 
             int numRemoved = 0;
             for (int i = 0; i < _lastIndex; i++)

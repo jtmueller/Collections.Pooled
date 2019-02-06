@@ -35,7 +35,7 @@ namespace Collections.Pooled
         private ArrayPool<T> _pool;
 #pragma warning disable IDE0044
         [NonSerialized]
-        private object _syncRoot;
+        private object? _syncRoot;
 #pragma warning restore IDE0044
 
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
@@ -163,14 +163,16 @@ namespace Collections.Pooled
 
         object ICollection.SyncRoot
         {
+#nullable disable
             get
             {
                 if (_syncRoot == null)
                 {
-                    Interlocked.CompareExchange<object>(ref _syncRoot!, new object(), null!);
+                    Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
-                return _syncRoot!;
+                return _syncRoot;
             }
+#nullable restore
         }
 
         /// <summary>
@@ -524,7 +526,7 @@ namespace Collections.Pooled
                 try
                 {
 #if NETCOREAPP2_1 || NETCOREAPP3_0
-                    s_pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                    _pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
                     _pool.Return(_array, true);
 #endif
