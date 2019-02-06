@@ -16,7 +16,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>
-    <PackageReleaseNotes>Support for custom ArrayPools in PooledList</PackageReleaseNotes>
+    <PackageReleaseNotes>Support for custom ArrayPools in PooledList, PooledStack, PooledQueue</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
