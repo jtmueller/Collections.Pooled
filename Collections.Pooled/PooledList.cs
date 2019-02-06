@@ -38,8 +38,10 @@ namespace Collections.Pooled
         private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
+#pragma warning disable IDE0044
         [NonSerialized]
         private object? _syncRoot;
+#pragma warning restore IDE0044
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity

@@ -82,8 +82,6 @@ namespace Collections.Pooled
         // It's important that the number of buckets be prime, and these arrays could exceed
         // that size as they come from ArrayPool. Be careful not to index past _size or bad
         // things will happen.
-        // Alternatively, use the private properties Buckets and Slots, which slice the
-        // arrays down to the correct length.
         private int[]? _buckets;
         private Slot[]? _slots;
         private int _size;
@@ -211,13 +209,17 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
+#pragma warning disable IDE0060 // Remove unused parameter
+
         protected PooledSet(SerializationInfo info, StreamingContext context)
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             // We can't do anything with the keys and values until the entire graph has been 
             // deserialized and we have a reasonable estimate that GetHashCode is not going to 
             // fail.  For the time being, we'll just cache this.  The graph is not valid until 
             // OnDeserialization has been called.
             _siInfo = info;
+            _comparer = EqualityComparer<T>.Default;
         }
 
         // Initializes the HashSet from another HashSet with the same element type and

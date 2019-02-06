@@ -35,7 +35,10 @@ namespace Collections.Pooled
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
         private int _size; // Number of items in the stack. Do not rename (binary serialization)
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
+#pragma warning disable IDE0044
+        [NonSerialized]
         private object? _syncRoot;
+#pragma warning restore IDE0044
 
         private const int DefaultCapacity = 4;
 
@@ -403,7 +406,7 @@ namespace Collections.Pooled
                 array[size] = default!;     // Free memory quicker.
             }
 #else
-            array[size] = default;
+            array[size] = default!;
 #endif
             return true;
         }

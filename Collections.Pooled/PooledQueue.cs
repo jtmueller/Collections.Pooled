@@ -38,7 +38,10 @@ namespace Collections.Pooled
         private int _tail;       // The index at which to enqueue if the queue isn't full.
         private int _size;       // Number of elements.
         private int _version;
+#pragma warning disable IDE0044
+        [NonSerialized]
         private object? _syncRoot;
+#pragma warning restore IDE0044
 
         private const int MinimumGrow = 4;
         private const int GrowFactor = 200;  // double each time
@@ -324,7 +327,7 @@ namespace Collections.Pooled
                 array[head] = default!;
             }
 #else
-            array[head] = default;
+            array[head] = default!;
 #endif
             MoveNext(ref _head);
             _size--;
@@ -350,7 +353,7 @@ namespace Collections.Pooled
                 array[head] = default!;
             }
 #else
-            array[head] = default;
+            array[head] = default!;
 #endif
             MoveNext(ref _head);
             _size--;

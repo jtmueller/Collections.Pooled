@@ -81,7 +81,9 @@ namespace Collections.Pooled
         private IEqualityComparer<TKey>? _comparer;
         private KeyCollection? _keys;
         private ValueCollection? _values;
+#pragma warning disable IDE0044
         private object? _syncRoot;
+#pragma warning restore IDE0044
 
         public PooledDictionary() : this(0, null) { }
 
@@ -183,7 +185,9 @@ namespace Collections.Pooled
             }
         }
 
+#pragma warning disable IDE0060 // Remove unused parameter
         protected PooledDictionary(SerializationInfo info, StreamingContext context)
+#pragma warning restore IDE0060
         {
             // We can't do anything with the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -938,8 +942,8 @@ namespace Collections.Pooled
                             entry.value = default!;
                         }
 #else
-                        entry.key = default;
-                        entry.value = default;
+                        entry.key = default!;
+                        entry.value = default!;
 #endif
                         _freeList = i;
                         _freeCount++;
@@ -1010,8 +1014,8 @@ namespace Collections.Pooled
                             entry.value = default!;
                         }
 #else
-                    entry.key = default;
-                    entry.value = default;
+                    entry.key = default!;
+                    entry.value = default!;
 #endif
                     _freeList = i;
                     _freeCount++;
