@@ -768,6 +768,10 @@ namespace Collections.Pooled
             entry.next = bucket - 1;
             entry.key = key;
             entry.value = value;
+            // Value in _buckets is 1-based
+#pragma warning disable IDE0059 // Value assigned to symbol is never used
+            bucket = index + 1;
+#pragma warning restore IDE0059
             _version++;
 
             // Value types never rehash
@@ -1280,16 +1284,32 @@ namespace Collections.Pooled
         {
             if (_entries.Length > 0)
             {
+                try
+                {
 #if NETCOREAPP2_1 || NETCOREAPP3_0
-                s_entryPool.Return(_entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
+                    s_entryPool.Return(_entries, 
+                        RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || 
+                        RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else
-                s_entryPool.Return(_entries, clearArray: true);
+                    s_entryPool.Return(_entries, clearArray: true);
 #endif
+                }
+                catch (ArgumentException)
+                {
+                    // oh well, the array pool didn't like our array
+                }
             }
 
             if (_buckets.Length > 0)
             {
-                s_bucketPool.Return(_buckets);
+                try
+                {
+                    s_bucketPool.Return(_buckets);
+                }
+                catch (ArgumentException)
+                {
+                    // shucks
+                }
             }
 
             _entries = Array.Empty<Entry>();
@@ -1312,7 +1332,6 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
             ThrowHelper.IfNullAndNullsAreIllegalThenThrow<TValue>(value, ExceptionArgument.value);
-
 
             try
             {

@@ -17,7 +17,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>
-    <PackageReleaseNotes>Adding PooledQueue class, unit tests, benchmarks.</PackageReleaseNotes>
+    <PackageReleaseNotes>Serialization tests, ensuring no exceptions are thown when returning to the pool.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

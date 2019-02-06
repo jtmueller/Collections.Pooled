@@ -1270,12 +1270,20 @@ namespace Collections.Pooled
             if (_items.Length == 0)
                 return;
 
+            try
+            {
 #if NETCOREAPP2_1 || NETCOREAPP3_0
-            // Clear the elements so that the gc can reclaim the references.
-            s_pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                // Clear the elements so that the gc can reclaim the references.
+                s_pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-            s_pool.Return(_items, clearArray: true);
+                s_pool.Return(_items, clearArray: true);
 #endif
+            }
+            catch (ArgumentException)
+            {
+                // oh well, the array pool didn't like our array
+            }
+
             _items = s_emptyArray;
         }
 
