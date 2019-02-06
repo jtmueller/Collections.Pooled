@@ -18,6 +18,8 @@ namespace Collections.Pooled.Tests
     /// </summary>
     public abstract partial class IEnumerable_Generic_Tests<T> : TestBase<T>
     {
+        protected virtual bool SupportsSerialization => true;
+
         #region IEnumerable<T> Helper Methods
 
         /// <summary>
@@ -905,6 +907,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Serialize_Deserialize(int count)
         {
+            if (!SupportsSerialization) return;
+
             IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())

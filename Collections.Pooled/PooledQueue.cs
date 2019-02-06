@@ -547,11 +547,18 @@ namespace Collections.Pooled
         {
             if (_array.Length > 0)
             {
+                try
+                {
 #if NETCOREAPP2_1
-                s_pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                    s_pool.Return(_array, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                s_pool.Return(_array, clearArray: true);
+                    s_pool.Return(_array, clearArray: true);
 #endif
+                }
+                catch (ArgumentException)
+                {
+                    // oh well, the array pool didn't like our array
+                }
             }
             _array = replaceWith;
         }

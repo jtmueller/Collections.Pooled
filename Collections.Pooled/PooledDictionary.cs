@@ -81,11 +81,8 @@ namespace Collections.Pooled
         private int _freeCount;
         private int _version;
         private IEqualityComparer<TKey> _comparer;
-        [NonSerialized]
         private KeyCollection _keys;
-        [NonSerialized]
         private ValueCollection _values;
-        [NonSerialized]
         private object _syncRoot;
 
         public PooledDictionary() : this(0, null) { }
@@ -199,7 +196,8 @@ namespace Collections.Pooled
         {
             get
             {
-                return (_comparer == null || _comparer is NonRandomizedStringEqualityComparer) ? EqualityComparer<TKey>.Default : _comparer;
+                return (_comparer == null || _comparer is NonRandomizedStringEqualityComparer) 
+                    ? EqualityComparer<TKey>.Default : _comparer;
             }
         }
 
@@ -770,6 +768,10 @@ namespace Collections.Pooled
             entry.next = bucket - 1;
             entry.key = key;
             entry.value = value;
+            // Value in _buckets is 1-based
+#pragma warning disable IDE0059 // Value assigned to symbol is never used
+            bucket = index + 1;
+#pragma warning restore IDE0059
             _version++;
 
             // Value types never rehash
@@ -1282,16 +1284,32 @@ namespace Collections.Pooled
         {
             if (_entries?.Length > 0)
             {
+                try
+                {
 #if NETCOREAPP2_1
-                s_entryPool.Return(_entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
+                    s_entryPool.Return(_entries, 
+                        RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || 
+                        RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else
-                s_entryPool.Return(_entries, clearArray: true);
+                    s_entryPool.Return(_entries, clearArray: true);
 #endif
+                }
+                catch (ArgumentException)
+                {
+                    // oh well, the array pool didn't like our array
+                }
             }
 
             if (_buckets?.Length > 0)
             {
-                s_bucketPool.Return(_buckets);
+                try
+                {
+                    s_bucketPool.Return(_buckets);
+                }
+                catch (ArgumentException)
+                {
+                    // shucks
+                }
             }
 
             _entries = null;
@@ -1314,7 +1332,6 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
             ThrowHelper.IfNullAndNullsAreIllegalThenThrow<TValue>(value, ExceptionArgument.value);
-
 
             try
             {
@@ -1487,8 +1504,8 @@ namespace Collections.Pooled
             }
         }
 
-        [DebuggerDisplay("Count = {Count}"), DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
-        [Serializable]
+        [DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
+        [DebuggerDisplay("Count = {Count}")]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -1660,8 +1677,8 @@ namespace Collections.Pooled
             }
         }
 
-        [DebuggerDisplay("Count = {Count}"), DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
-        [Serializable]
+        [DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
+        [DebuggerDisplay("Count = {Count}")]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
