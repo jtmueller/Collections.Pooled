@@ -609,7 +609,7 @@ namespace Collections.Pooled
 
         void IDeserializationCallback.OnDeserialization(object sender)
         {
-            // We can't serialize array pools, so deserialized PooledLists will
+            // We can't serialize array pools, so deserialized PooledQueue will
             // have to use the shared pool, even if they were using a custom pool
             // before serialization.
             _pool = ArrayPool<T>.Shared;
