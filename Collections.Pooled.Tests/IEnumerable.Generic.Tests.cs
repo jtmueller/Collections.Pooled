@@ -5,7 +5,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 
 namespace Collections.Pooled.Tests
@@ -16,6 +18,8 @@ namespace Collections.Pooled.Tests
     /// </summary>
     public abstract partial class IEnumerable_Generic_Tests<T> : TestBase<T>
     {
+        protected virtual bool SupportsSerialization => true;
+
         #region IEnumerable<T> Helper Methods
 
         /// <summary>
@@ -892,6 +896,43 @@ namespace Collections.Pooled.Tests
                         }
                     },
                     5);
+            }
+        }
+
+        #endregion
+
+        #region Serialize
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void IEnumerable_Generic_Serialize_Deserialize(int count)
+        {
+            if (!SupportsSerialization) return;
+
+            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            var formatter = new BinaryFormatter();
+            using (var stream = new MemoryStream())
+            {
+                formatter.Serialize(stream, enumerable);
+                stream.Position = 0L;
+
+                var copy = (IEnumerable<T>)formatter.Deserialize(stream);
+
+                Assert.NotSame(enumerable, copy);
+                Assert.Equal(enumerable.Count(), copy.Count());
+
+                // We can't compare contents, because Dictionary/Set might not 
+                // return items in the same order. Use a PooledSet to compare content
+                // without regard to order:
+                using (var set = new PooledSet<T>(enumerable))
+                {
+                    Assert.True(set.SetEquals(copy), "Deserialized content differs!");
+                }
+
+                if (copy is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
             }
         }
 

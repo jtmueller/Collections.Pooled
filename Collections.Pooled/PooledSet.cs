@@ -1719,16 +1719,30 @@ namespace Collections.Pooled
         {
             if (_slots?.Length > 0)
             {
+                try
+                {
 #if NETCOREAPP2_1
-                s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+                    s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                s_slotPool.Return(_slots, clearArray: true);
+                    s_slotPool.Return(_slots, clearArray: true);
 #endif
+                }
+                catch (ArgumentException)
+                {
+                    // oh well, the array pool didn't like our array
+                }
             }
 
             if (_buckets?.Length > 0)
             {
-                s_bucketPool.Return(_buckets);
+                try
+                {
+                    s_bucketPool.Return(_buckets);
+                }
+                catch (ArgumentException)
+                {
+                    // shucks
+                }
             }
 
             _slots = null;

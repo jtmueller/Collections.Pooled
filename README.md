@@ -14,9 +14,9 @@ optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmark
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 27383. Passed: 27383. Failed: 0. Skipped: 0.
+Total tests: 27451. Passed: 27451. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 14.3180 Seconds
+Test execution time: 10.0579 Seconds
 ```
 
 ## Installation
