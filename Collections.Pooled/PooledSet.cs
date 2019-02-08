@@ -216,7 +216,9 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
+#pragma warning disable IDE0060 // Remove unused parameter
         protected PooledSet(SerializationInfo info, StreamingContext context)
+#pragma warning restore IDE0060
         {
             // We can't do anything with the keys and values until the entire graph has been 
             // deserialized and we have a reasonable estimate that GetHashCode is not going to 
