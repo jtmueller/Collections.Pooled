@@ -1991,11 +1991,10 @@ namespace Collections.Pooled
                 }
             }
 
-            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a 
-            // FindFirstUnmarked method.
-            for (int i = 0; i < originalLastIndex; i++)
+            // if anything unmarked, remove it. 
+            for (int i = bitHelper.FindFirstUnmarked(); (uint)i < (uint)originalLastIndex; i = bitHelper.FindFirstUnmarked(i + 1))
             {
-                if (_slots[i].hashCode >= 0 && !bitHelper.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2033,11 +2032,10 @@ namespace Collections.Pooled
                 }
             }
 
-            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a 
-            // FindFirstUnmarked method.
-            for (int i = 0; i < originalLastIndex; i++)
+            // if anything unmarked, remove it. 
+            for (int i = bitHelper.FindFirstUnmarked(); (uint)i < (uint)originalLastIndex; i = bitHelper.FindFirstUnmarked(i + 1))
             {
-                if (_slots[i].hashCode >= 0 && !bitHelper.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2171,9 +2169,9 @@ namespace Collections.Pooled
             }
 
             // if anything marked, remove it
-            for (int i = 0; i < originalLastIndex; i++)
+            for (int i = itemsToRemove.FindFirstMarked(); (uint)i < (uint)originalLastIndex; i = itemsToRemove.FindFirstMarked(i + 1))
             {
-                if (itemsToRemove.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2238,9 +2236,9 @@ namespace Collections.Pooled
             }
 
             // if anything marked, remove it
-            for (int i = 0; i < originalLastIndex; i++)
+            for (int i = itemsToRemove.FindFirstMarked(); (uint)i < (uint)originalLastIndex; i = itemsToRemove.FindFirstMarked(i + 1))
             {
-                if (itemsToRemove.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2395,7 +2393,7 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Determines counts that can be used to determine equality, subset, and superset. This
-        /// is only used when other is an IEnumerable and not a HashSet. If other is a HashSet
+        /// is only used when other is a Span and not a HashSet. If other is a HashSet
         /// these properties can be checked faster without use of marking because we can assume 
         /// other has no duplicates.
         /// 

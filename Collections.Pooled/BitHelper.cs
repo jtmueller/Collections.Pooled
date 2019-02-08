@@ -51,6 +51,17 @@ namespace Collections.Pooled
             return -1;
         }
 
+        internal int FindFirstMarked(int startPosition = 0)
+        {
+            int i = startPosition;
+            for (int bi = i / IntSize; (uint)bi < (uint)_span.Length; bi = ++i / IntSize)
+            {
+                if ((_span[bi] & (1 << (i % IntSize))) != 0)
+                    return i;
+            }
+            return -1;
+        }
+
         /// <summary>How many ints must be allocated to represent n bits. Returns (n+31)/32, but avoids overflow.</summary>
         internal static int ToIntArrayLength(int n) => n > 0 ? ((n - 1) / IntSize + 1) : 0;
     }
