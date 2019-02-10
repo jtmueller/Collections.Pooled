@@ -234,6 +234,12 @@ namespace Collections.Pooled
         /// </summary>
         public int Count => _size;
 
+        /// <summary>
+        /// Controls what PooledList does with the data in its internal arrays when returning them
+        /// to the ArrayPool.
+        /// </summary>
+        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+
         bool IList.IsFixedSize => false;
 
         bool ICollection<T>.IsReadOnly => false;
@@ -921,7 +927,7 @@ namespace Collections.Pooled
         public void InsertRange(int index, T[] array)
         {
             if (array is null)
-                throw new ArgumentNullException(nameof(array));
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             InsertRange(index, array.AsSpan());
         }
 
@@ -1305,12 +1311,8 @@ namespace Collections.Pooled
 
             try
             {
-#if NETCOREAPP2_1
                 // Clear the elements so that the gc can reclaim the references.
-                _pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                _pool.Return(_items, clearArray: true);
-#endif
+                _pool.Return(_items, clearArray: ShouldClear());
             }
             catch (ArgumentException)
             {
@@ -1320,6 +1322,29 @@ namespace Collections.Pooled
             _items = s_emptyArray;
         }
 
+        private bool ShouldClear()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+#else
+                    return true;
+#endif
+            }
+        }
+
+        /// <summary>
+        /// Returns the internal buffers to the ArrayPool.
+        /// </summary>
         public void Dispose()
         {
             ReturnArray();
