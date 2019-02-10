@@ -442,6 +442,12 @@ namespace Collections.Pooled
 
         #endregion
 
+        /// <summary>
+        /// Controls what PooledList does with the data in its internal arrays when returning them
+        /// to the ArrayPool.
+        /// </summary>
+        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+
         #region IEnumerable methods
 
         /// <summary>
@@ -1723,11 +1729,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-#if NETCOREAPP2_1
-                    s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                    s_slotPool.Return(_slots, clearArray: true);
-#endif
+                    s_slotPool.Return(_slots, clearArray: ShouldClear());
                 }
                 catch (ArgumentException)
                 {
@@ -1749,6 +1751,26 @@ namespace Collections.Pooled
 
             _slots = null;
             _buckets = null;
+        }
+
+        private bool ShouldClear()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+#else
+                    return true;
+#endif
+            }
         }
 
         /// <summary>

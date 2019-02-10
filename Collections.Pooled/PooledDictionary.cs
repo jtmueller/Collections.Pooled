@@ -203,6 +203,12 @@ namespace Collections.Pooled
 
         public int Count => _count - _freeCount;
 
+        /// <summary>
+        /// Controls what PooledList does with the data in its internal arrays when returning them
+        /// to the ArrayPool.
+        /// </summary>
+        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+
         public KeyCollection Keys
         {
             get
@@ -1210,11 +1216,7 @@ namespace Collections.Pooled
             _size = newSize;
             _freeCount = 0;
             s_bucketPool.Return(oldBuckets);
-#if NETCOREAPP2_1
-            s_entryPool.Return(entries, RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
-#else
-            s_entryPool.Return(entries, clearArray: true);
-#endif
+            s_entryPool.Return(entries, clearArray: ShouldClear());
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1286,13 +1288,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-#if NETCOREAPP2_1
-                    s_entryPool.Return(_entries, 
-                        RuntimeHelpers.IsReferenceOrContainsReferences<TKey>() || 
-                        RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
-#else
-                    s_entryPool.Return(_entries, clearArray: true);
-#endif
+                    s_entryPool.Return(_entries, clearArray: ShouldClear());
                 }
                 catch (ArgumentException)
                 {
@@ -1314,6 +1310,27 @@ namespace Collections.Pooled
 
             _entries = null;
             _buckets = null;
+        }
+
+        private bool ShouldClear()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()
+                        || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>();
+#else
+                    return true;
+#endif
+            }
         }
 
         private static bool IsCompatibleKey(object key)

@@ -156,6 +156,12 @@ namespace Collections.Pooled
         /// </summary>
         public int Count => _size;
 
+        /// <summary>
+        /// Controls what PooledList does with the data in its internal arrays when returning them
+        /// to the ArrayPool.
+        /// </summary>
+        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+
         bool ICollection.IsSynchronized => false;
 
         object ICollection.SyncRoot
@@ -520,11 +526,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-#if NETCOREAPP2_1
-                    _pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                    _pool.Return(_array, true);
-#endif
+                    _pool.Return(_array, clearArray: ShouldClear());
                 }
                 catch (ArgumentException)
                 {
@@ -535,6 +537,26 @@ namespace Collections.Pooled
             if (!(replaceWith is null))
             {
                 _array = replaceWith;
+            }
+        }
+
+        private bool ShouldClear()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+#else
+                    return true;
+#endif
             }
         }
 
