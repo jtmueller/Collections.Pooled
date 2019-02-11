@@ -223,10 +223,10 @@ namespace Collections.Pooled
         public int Count => _size;
 
         /// <summary>
-        /// Controls what PooledList does with the data in its internal arrays when returning them
-        /// to the ArrayPool.
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
         /// </summary>
-        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
 
         bool ICollection.IsSynchronized => false;
 

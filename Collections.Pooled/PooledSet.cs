@@ -465,9 +465,15 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Number of elements in this hashset
+        /// Number of elements in this set
         /// </summary>
         public int Count => _count;
+
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
 
         /// <summary>
         /// Whether this is readonly
@@ -475,12 +481,6 @@ namespace Collections.Pooled
         bool ICollection<T>.IsReadOnly => false;
 
         #endregion
-
-        /// <summary>
-        /// Controls what PooledList does with the data in its internal arrays when returning them
-        /// to the ArrayPool.
-        /// </summary>
-        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
 
         #region IEnumerable methods
 

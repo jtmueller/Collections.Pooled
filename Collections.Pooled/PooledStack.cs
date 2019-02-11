@@ -219,6 +219,12 @@ namespace Collections.Pooled
         /// </summary>
         public int Count => _size;
 
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
+
         bool ICollection.IsSynchronized => false;
 
         object ICollection.SyncRoot
