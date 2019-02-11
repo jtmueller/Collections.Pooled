@@ -45,32 +45,52 @@ namespace Collections.Pooled
         private int _tail;       // The index at which to enqueue if the queue isn't full.
         private int _size;       // Number of elements.
         private int _version;
+        private readonly bool _clearOnFree;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
-        public PooledQueue() : this(ArrayPool<T>.Shared) { }
+        public PooledQueue() : this(ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
-        public PooledQueue(ArrayPool<T> customPool)
+        public PooledQueue(ClearMode clearMode) : this(clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
+        /// </summary>
+        public PooledQueue(ArrayPool<T> customPool) : this(ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
+        /// </summary>
+        public PooledQueue(ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
         /// </summary>
-        /// <param name="capacity"></param>
-        public PooledQueue(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+        public PooledQueue(int capacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
         /// </summary>
-        /// <param name="capacity"></param>
-        public PooledQueue(int capacity, ArrayPool<T> customPool)
+        public PooledQueue(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
+        /// </summary>
+        public PooledQueue(int capacity, ArrayPool<T> customPool) : this(capacity, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the specified initial capacity.
+        /// </summary>
+        public PooledQueue(int capacity, ClearMode clearMode, ArrayPool<T> customPool)
         {
             if (capacity < 0)
             {
@@ -79,21 +99,35 @@ namespace Collections.Pooled
             }
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = _pool.Rent(capacity);
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// collection and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(IEnumerable<T> enumerable) : this(enumerable, ArrayPool<T>.Shared) { }
+        public PooledQueue(IEnumerable<T> enumerable) : this(enumerable, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// collection and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(IEnumerable<T> enumerable, ArrayPool<T> customPool)
+        public PooledQueue(IEnumerable<T> enumerable, ClearMode clearMode) : this(enumerable, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// collection and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(IEnumerable<T> enumerable, ArrayPool<T> customPool) : this(enumerable, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// collection and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(IEnumerable<T> enumerable, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
 
             switch (enumerable)
             {
@@ -131,27 +165,52 @@ namespace Collections.Pooled
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// array and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
+        public PooledQueue(T[] array) : this(array.AsSpan(), ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// array and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
+        public PooledQueue(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// array and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// array and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(T[] array, ClearMode clearMode, ArrayPool<T> customPool) : this(array.AsSpan(), clearMode, customPool) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// span and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+        public PooledQueue(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
         /// span and has sufficient capacity to accommodate the number of elements copied.
         /// </summary>
-        public PooledQueue(ReadOnlySpan<T> span, ArrayPool<T> customPool)
+        public PooledQueue(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// span and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(ReadOnlySpan<T> span, ArrayPool<T> customPool) : this(span, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that contains elements copied from the specified 
+        /// span and has sufficient capacity to accommodate the number of elements copied.
+        /// </summary>
+        public PooledQueue(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
             _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
@@ -190,7 +249,7 @@ namespace Collections.Pooled
         {
             if (_size != 0)
             {
-                if (ShouldClear())
+                if (_clearOnFree)
                 {
                     if (_head < _tail)
                     {
@@ -347,7 +406,7 @@ namespace Collections.Pooled
             }
 
             T removed = array[head];
-            if (ShouldClear())
+            if (_clearOnFree)
             {
                 array[head] = default;
             }
@@ -369,7 +428,7 @@ namespace Collections.Pooled
             }
 
             result = array[head];
-            if (ShouldClear())
+            if (_clearOnFree)
             {
                 array[head] = default;
             }
@@ -571,7 +630,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-                    _pool.Return(_array, clearArray: ShouldClear());
+                    _pool.Return(_array, clearArray: _clearOnFree);
                 }
                 catch (ArgumentException)
                 {
@@ -581,24 +640,14 @@ namespace Collections.Pooled
             _array = replaceWith;
         }
 
-        private bool ShouldClear()
+        private static bool ShouldClear(ClearMode mode)
         {
-            switch (ClearMode)
-            {
-                case ClearMode.Always:
-                    return true;
-
-                case ClearMode.Never:
-                    return false;
-
-                case ClearMode.Auto:
-                default:
 #if NETCOREAPP2_1
-                    return RuntimeHelpers.IsReferenceOrContainsReferences<T>();
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
-                    return true;
+            return mode != ClearMode.Never;
 #endif
-            }
         }
 
         public void Dispose()
