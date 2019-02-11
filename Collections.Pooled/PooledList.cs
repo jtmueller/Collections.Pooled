@@ -45,6 +45,8 @@ namespace Collections.Pooled
         private int _version; // Do not rename (binary serialization)
         private readonly bool _clearOnFree;
 
+        #region Constructors
+
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
         /// of zero. Upon adding the first element to the list the capacity is
@@ -260,6 +262,8 @@ namespace Collections.Pooled
                     break;
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.

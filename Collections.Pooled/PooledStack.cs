@@ -43,6 +43,8 @@ namespace Collections.Pooled
 
         private const int DefaultCapacity = 4;
 
+        #region Constructors
+
         /// <summary>
         /// Create a stack with the default initial capacity. 
         /// </summary>
@@ -213,6 +215,8 @@ namespace Collections.Pooled
             span.CopyTo(_array);
             _size = span.Length;
         }
+
+        #endregion
 
         /// <summary>
         /// The number of items in the stack.

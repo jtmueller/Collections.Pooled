@@ -33,7 +33,7 @@ namespace Collections.Pooled
         public sealed override int GetHashCode(string str) 
             => str is null ? 0 : str.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(str);
 
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
             info.SetType(typeof(NonRandomizedStringEqualityComparer));
         }

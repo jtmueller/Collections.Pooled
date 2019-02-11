@@ -47,6 +47,8 @@ namespace Collections.Pooled
         private int _version;
         private readonly bool _clearOnFree;
 
+        #region Constructors
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PooledQueue{T}"/> class that is empty and has the default initial capacity.
         /// </summary>
@@ -216,6 +218,8 @@ namespace Collections.Pooled
             _size = span.Length;
             if (_size != _array.Length) _tail = _size;
         }
+
+        #endregion
 
         /// <summary>
         /// The number of items in the queue.

@@ -62,6 +62,8 @@ namespace Collections.Pooled
         private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
         private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
         private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
+        private const string ClearKeyName = "CK"; // Do not rename (binary serialization)
+        private const string ClearValueName = "CV"; // Do not rename (binary serialization)
 
         private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
         private static readonly ArrayPool<Entry> s_entryPool = ArrayPool<Entry>.Shared;
@@ -70,8 +72,6 @@ namespace Collections.Pooled
         // It's important that the number of buckets be prime, and these arrays could exceed
         // that size as they come from ArrayPool. Be careful not to index past _size or bad
         // things will happen.
-        // Alternatively, use the private properties Buckets and Entries, which slice the
-        // arrays down to the correct length.
         private int[] _buckets;
         private Entry[] _entries;
         private int _size;
@@ -84,14 +84,50 @@ namespace Collections.Pooled
         private KeyCollection _keys;
         private ValueCollection _values;
         private object _syncRoot;
+        private readonly bool _clearKeyOnFree;
+        private readonly bool _clearValueOnFree;
 
-        public PooledDictionary() : this(0, null) { }
+        #region Constructors
 
-        public PooledDictionary(int capacity) : this(capacity, null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary() : this(0, ClearMode.Auto, null) { }
 
-        public PooledDictionary(IEqualityComparer<TKey> comparer) : this(0, comparer) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ClearMode clearMode) : this(0, clearMode, null) { }
 
-        public PooledDictionary(int capacity, IEqualityComparer<TKey> comparer)
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(int capacity) : this(capacity, ClearMode.Auto, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(int capacity, ClearMode clearMode) : this(capacity, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEqualityComparer<TKey> comparer) : this(0, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(int capacity, IEqualityComparer<TKey> comparer) : this(capacity, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ClearMode clearMode, IEqualityComparer<TKey> comparer) : this(0, clearMode, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(int capacity, ClearMode clearMode, IEqualityComparer<TKey> comparer)
         {
             if (capacity < 0) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
             if (capacity > 0) Initialize(capacity);
@@ -100,6 +136,9 @@ namespace Collections.Pooled
                 _comparer = comparer;
             }
 
+            _clearKeyOnFree = ShouldClearKey(clearMode);
+            _clearValueOnFree = ShouldClearValue(clearMode);
+
             if (typeof(TKey) == typeof(string) && _comparer == null)
             {
                 // To start, move off default comparer for string which is randomised
@@ -107,10 +146,26 @@ namespace Collections.Pooled
             }
         }
 
-        public PooledDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IDictionary<TKey, TValue> dictionary) : this(dictionary, ClearMode.Auto, null) { }
 
-        public PooledDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) :
-            this(dictionary?.Count ?? 0, comparer)
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IDictionary<TKey, TValue> dictionary, ClearMode clearMode) : this(dictionary, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) : this(dictionary, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IDictionary<TKey, TValue> dictionary, ClearMode clearMode, IEqualityComparer<TKey> comparer) :
+            this(dictionary?.Count ?? 0, clearMode, comparer)
         {
             if (dictionary == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
@@ -139,10 +194,29 @@ namespace Collections.Pooled
             }
         }
 
-        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) : this(collection, null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) 
+            : this(collection, ClearMode.Auto, null) { }
 
-        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) :
-            this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, comparer)
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, ClearMode clearMode) 
+            : this(collection, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) 
+            : this(collection, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, ClearMode clearMode, IEqualityComparer<TKey> comparer) :
+            this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, clearMode, comparer)
         {
             if (collection == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -153,10 +227,29 @@ namespace Collections.Pooled
             }
         }
 
-        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection) : this(collection, null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection) 
+            : this(collection, ClearMode.Auto, null) { }
 
-        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, IEqualityComparer<TKey> comparer) :
-            this((collection as ICollection<(TKey, TValue)>)?.Count ?? 0, comparer)
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, ClearMode clearMode) 
+            : this(collection, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, IEqualityComparer<TKey> comparer) 
+            : this(collection, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, ClearMode clearMode, IEqualityComparer<TKey> comparer) 
+            : this((collection as ICollection<(TKey, TValue)>)?.Count ?? 0, clearMode, comparer)
         {
             if (collection == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -167,14 +260,53 @@ namespace Collections.Pooled
             }
         }
 
-        public PooledDictionary((TKey key, TValue value)[] array, IEqualityComparer<TKey> comparer) : this(array.AsSpan(), comparer) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary((TKey key, TValue value)[] array) 
+            : this(array.AsSpan(), ClearMode.Auto, null) { }
 
-        public PooledDictionary((TKey key, TValue value)[] array) : this(array.AsSpan(), null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary((TKey key, TValue value)[] array, ClearMode clearMode) 
+            : this(array.AsSpan(), clearMode, null) { }
 
-        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span) : this(span, null) { }
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary((TKey key, TValue value)[] array, IEqualityComparer<TKey> comparer) 
+            : this(array.AsSpan(), ClearMode.Auto, comparer) { }
 
-        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, IEqualityComparer<TKey> comparer) :
-            this(span.Length, comparer)
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary((TKey key, TValue value)[] array, ClearMode clearMode, IEqualityComparer<TKey> comparer) 
+            : this(array.AsSpan(), clearMode, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span) 
+            : this(span, ClearMode.Auto, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, ClearMode clearMode) 
+            : this(span, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, IEqualityComparer<TKey> comparer) 
+            : this(span, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
+        public PooledDictionary(ReadOnlySpan<(TKey key, TValue value)> span, ClearMode clearMode, IEqualityComparer<TKey> comparer) 
+            : this(span.Length, clearMode, comparer)
         {
             foreach (var (key, value) in span)
             {
@@ -183,15 +315,26 @@ namespace Collections.Pooled
         }
 
 #pragma warning disable IDE0060 // Remove unused parameter
+        /// <summary>
+        /// Creates a new instance of PooledDictionary.
+        /// </summary>
         protected PooledDictionary(SerializationInfo info, StreamingContext context)
 #pragma warning restore IDE0060
         {
+            _clearKeyOnFree = (bool?)info.GetValue(ClearKeyName, typeof(bool)) ?? ShouldClearKey(ClearMode.Auto);
+            _clearValueOnFree = (bool?)info.GetValue(ClearValueName, typeof(bool)) ?? ShouldClearValue(ClearMode.Auto);
+            
             // We can't do anything with the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
             // we'll just cache this.  The graph is not valid until OnDeserialization has been called.
             HashHelpers.SerializationInfoTable.Add(this, info);
         }
 
+#endregion
+
+        /// <summary>
+        /// The <see cref="IEqualityComparer{TKey}"/> used to compare keys in this dictionary.
+        /// </summary>
         public IEqualityComparer<TKey> Comparer
         {
             get
@@ -201,16 +344,26 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// The number of items in the dictionary.
+        /// </summary>
         public int Count => _count - _freeCount;
 
         /// <summary>
-        /// <para>Controls what PooledList does with the data in its internal arrays when returning them
-        /// to the ArrayPool.</para> BE CAREFUL when using ClearMode.Never: it applies to both keys and values,
-        /// so you should only use this option when you are confident that neither keys nor values are reference
-        /// types or contain reference types.
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
         /// </summary>
-        public ClearMode ClearMode { get; set; } = ClearMode.Auto;
+        public ClearMode KeyClearMode => _clearKeyOnFree ? ClearMode.Always : ClearMode.Never;
 
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ValueClearMode => _clearValueOnFree ? ClearMode.Always : ClearMode.Never;
+
+        /// <summary>
+        /// The keys in this dictionary.
+        /// </summary>
         public KeyCollection Keys
         {
             get
@@ -238,6 +391,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// The values in this dictionary.
+        /// </summary>
         public ValueCollection Values
         {
             get
@@ -265,6 +421,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Gets or sets an item in the dictionary by key.
+        /// </summary>
         public TValue this[TKey key]
         {
             get
@@ -281,6 +440,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Adds a key/value pair to the dictionary.
+        /// </summary>
         public void Add(TKey key, TValue value)
         {
             bool modified = TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
@@ -467,7 +629,15 @@ namespace Collections.Pooled
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
             => new Enumerator(this, Enumerator.KeyValuePair);
 
-        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context) 
+            => GetObjectData(info, context);
+
+        /// <summary>
+        /// Allows child classes to add their own serialization data.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
             if (info == null)
             {
@@ -477,6 +647,8 @@ namespace Collections.Pooled
             info.AddValue(VersionName, _version);
             info.AddValue(ComparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
             info.AddValue(HashSizeName, _size); // This is the length of the bucket array
+            info.AddValue(ClearKeyName, _clearKeyOnFree);
+            info.AddValue(ClearValueName, _clearValueOnFree);
 
             if (_buckets != null)
             {
@@ -944,9 +1116,9 @@ namespace Collections.Pooled
                         entry.hashCode = -1;
                         entry.next = _freeList;
 
-                        if (ShouldClearKey())
+                        if (_clearKeyOnFree)
                             entry.key = default;
-                        if (ShouldClearValue())
+                        if (_clearValueOnFree)
                             entry.value = default;
 
                         _freeList = i;
@@ -1008,9 +1180,9 @@ namespace Collections.Pooled
                     entry.hashCode = -1;
                     entry.next = _freeList;
 
-                    if (ShouldClearKey())
+                    if (_clearKeyOnFree)
                         entry.key = default;
-                    if (ShouldClearValue())
+                    if (_clearValueOnFree)
                         entry.value = default;
 
                     _freeList = i;
@@ -1204,7 +1376,7 @@ namespace Collections.Pooled
             _size = newSize;
             _freeCount = 0;
             s_bucketPool.Return(oldBuckets);
-            s_entryPool.Return(entries, clearArray: ShouldClear());
+            s_entryPool.Return(entries, clearArray: _clearKeyOnFree || _clearValueOnFree);
         }
 
         bool ICollection.IsSynchronized => false;
@@ -1276,7 +1448,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-                    s_entryPool.Return(_entries, clearArray: ShouldClear());
+                    s_entryPool.Return(_entries, clearArray: _clearKeyOnFree || _clearValueOnFree);
                 }
                 catch (ArgumentException)
                 {
@@ -1300,65 +1472,24 @@ namespace Collections.Pooled
             _buckets = null;
         }
 
-        private bool ShouldClear()
+        private static bool ShouldClearKey(ClearMode mode)
         {
-            switch (ClearMode)
-            {
-                case ClearMode.Always:
-                    return true;
-
-                case ClearMode.Never:
-                    return false;
-
-                case ClearMode.Auto:
-                default:
 #if NETCOREAPP2_1
-                    return RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()
-                        || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>();
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TKey>());
 #else
-                    return true;
+            return mode != ClearMode.Never;
 #endif
-            }
         }
 
-        private bool ShouldClearKey()
+        private static bool ShouldClearValue(ClearMode mode)
         {
-            switch (ClearMode)
-            {
-                case ClearMode.Always:
-                    return true;
-
-                case ClearMode.Never:
-                    return false;
-
-                case ClearMode.Auto:
-                default:
 #if NETCOREAPP2_1
-                    return RuntimeHelpers.IsReferenceOrContainsReferences<TKey>();
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else
-                    return true;
+            return mode != ClearMode.Never;
 #endif
-            }
-        }
-
-        private bool ShouldClearValue()
-        {
-            switch (ClearMode)
-            {
-                case ClearMode.Always:
-                    return true;
-
-                case ClearMode.Never:
-                    return false;
-
-                case ClearMode.Auto:
-                default:
-#if NETCOREAPP2_1
-                    return RuntimeHelpers.IsReferenceOrContainsReferences<TValue>();
-#else
-                    return true;
-#endif
-            }
         }
 
         private static bool IsCompatibleKey(object key)

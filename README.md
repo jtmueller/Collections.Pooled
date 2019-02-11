@@ -64,7 +64,7 @@ There are some API changes worth noting:
   * A selection of `ToPooledList()` extension methods are provided.
   * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
     default `ArrayPool<T>.Shared` pool.
-  * The `ClearMode` property gives you control over whether data is cleared before returning
+  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
 #### Performance
@@ -87,7 +87,7 @@ There are some API changes worth noting:
     If you forget to dispose the dictionary, nothing will break, but memory allocations and GC pauses will be closer to those
     of `Dictionary<TKey, TValue>` (you will still benefit from pooling of intermediate arrays as the PooledDictionary is resized).
   * A selection of `ToPooledDictionary()` extension methods are provided.
-  * The `ClearMode` property gives you control over whether data is cleared before returning
+  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
 #### Performance
@@ -109,7 +109,7 @@ modified to use ArrayPool for internal storage allocation, and to support `ReadO
     If you forget to dispose the set, nothing will break, but memory allocations and GC pauses will be closer to those
     of `HashSet<T>` (you will still benefit from pooling of intermediate arrays as the PooledSet is resized).
   * A selection of `ToPooledSet()` extension methods are provided.
-  * The `ClearMode` property gives you control over whether data is cleared before returning
+  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
 #### Performance
@@ -133,7 +133,7 @@ modified to use ArrayPool for internal storage allocation.
   * A selection of `ToPooledStack()` extension methods are provided.
   * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
     default `ArrayPool<T>.Shared` pool.
-  * The `ClearMode` property gives you control over whether data is cleared before returning
+  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
 #### Performance
@@ -156,7 +156,7 @@ modified to use ArrayPool for internal storage allocation.
   * A selection of `ToPooledQueue()` extension methods are provided.
   * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
     default `ArrayPool<T>.Shared` pool.
-  * The `ClearMode` property gives you control over whether data is cleared before returning
+  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
 #### Performance
