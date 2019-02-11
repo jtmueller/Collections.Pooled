@@ -394,14 +394,10 @@ namespace Collections.Pooled
                             slots[last].next = slots[i].next;
                         }
                         slots[i].hashCode = -1;
-#if NETCOREAPP2_1
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                        if (ShouldClear())
                         {
                             slots[i].value = default;
                         }
-#else
-                        slots[i].value = default;
-#endif
                         slots[i].next = _freeList;
 
                         _count--;

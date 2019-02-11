@@ -19,8 +19,8 @@
         /// </summary>
         Auto = 0,
         /// <summary>
-        /// <para><code>Always</code> has the effect of always clearing user types before returning to the pool.
-        /// This is the default behavior on .NET Standard.</para><para>You might want to turn this on even in a .NET Core project
+        /// The <para><code>Always</code> setting has the effect of always clearing user types before returning to the pool.
+        /// This is the default behavior on .NET Standard.</para><para>You might want to turn this on in a .NET Core project
         /// if you were concerned about sensitive data stored in value types leaking to other pars of your application.</para> 
         /// </summary>
         Always = 1,

@@ -190,8 +190,7 @@ namespace Collections.Pooled
         {
             if (_size != 0)
             {
-#if NETCOREAPP2_1
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                if (ShouldClear())
                 {
                     if (_head < _tail)
                     {
@@ -203,18 +202,6 @@ namespace Collections.Pooled
                         Array.Clear(_array, 0, _tail);
                     }
                 }
-#else
-                if (_head < _tail)
-                {
-                    Array.Clear(_array, _head, _size);
-                }
-                else
-                {
-                    Array.Clear(_array, _head, _array.Length - _head);
-                    Array.Clear(_array, 0, _tail);
-                }
-#endif
-
                 _size = 0;
             }
 
@@ -360,14 +347,10 @@ namespace Collections.Pooled
             }
 
             T removed = array[head];
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (ShouldClear())
             {
                 array[head] = default;
             }
-#else
-            array[head] = default;
-#endif
             MoveNext(ref _head);
             _size--;
             _version++;
@@ -386,14 +369,10 @@ namespace Collections.Pooled
             }
 
             result = array[head];
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (ShouldClear())
             {
                 array[head] = default;
             }
-#else
-            array[head] = default;
-#endif
             MoveNext(ref _head);
             _size--;
             _version++;

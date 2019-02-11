@@ -462,22 +462,12 @@ namespace Collections.Pooled
             _version++;
             int size = _size;
             _size = 0;
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            {
-                if (size > 0)
-                {
-                    // Clear the elements so that the gc can reclaim the references.
-                    Array.Clear(_items, 0, _size);
-                }
-            }
-#else
-            if (size > 0)
+
+            if (size > 0 && ShouldClear())
             {
                 // Clear the elements so that the gc can reclaim the references.
                 Array.Clear(_items, 0, _size);
             }
-#endif
         }
 
         /// <summary>
@@ -955,16 +945,9 @@ namespace Collections.Pooled
 
             var output = _items.AsSpan(index, count);
 
-            if (clearOutput)
+            if (clearOutput && ShouldClear())
             {
-#if NETCOREAPP2_1
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                {
-                    output.Clear();
-                }
-#else
                 output.Clear();
-#endif
             }
 
             return output;
@@ -1085,15 +1068,11 @@ namespace Collections.Pooled
                 }
             }
 
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (ShouldClear())
             {
                 // Clear the removed elements so that the gc can reclaim the references.
                 Array.Clear(_items, freeIndex, _size - freeIndex);
             }
-#else
-            Array.Clear(_items, freeIndex, _size - freeIndex);
-#endif
 
             int result = _size - freeIndex;
             _size = freeIndex;
@@ -1117,15 +1096,11 @@ namespace Collections.Pooled
             }
             _version++;
 
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (ShouldClear())
             {
                 // Clear the removed element so that the gc can reclaim the reference.
                 _items[_size] = default;
             }
-#else
-            _items[_size] = default;
-#endif
         }
 
         /// <summary>
@@ -1152,15 +1127,11 @@ namespace Collections.Pooled
 
                 _version++;
 
-#if NETCOREAPP2_1
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                if (ShouldClear())
                 {
                     // Clear the removed elements so that the gc can reclaim the references.
                     Array.Clear(_items, _size, count);
                 }
-#else
-                Array.Clear(_items, _size, count);
-#endif
             }
         }
 

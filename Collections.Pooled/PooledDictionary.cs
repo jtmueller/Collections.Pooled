@@ -204,8 +204,10 @@ namespace Collections.Pooled
         public int Count => _count - _freeCount;
 
         /// <summary>
-        /// Controls what PooledList does with the data in its internal arrays when returning them
-        /// to the ArrayPool.
+        /// <para>Controls what PooledList does with the data in its internal arrays when returning them
+        /// to the ArrayPool.</para> BE CAREFUL when using ClearMode.Never: it applies to both keys and values,
+        /// so you should only use this option when you are confident that neither keys nor values are reference
+        /// types or contain reference types.
         /// </summary>
         public ClearMode ClearMode { get; set; } = ClearMode.Auto;
 
@@ -942,19 +944,11 @@ namespace Collections.Pooled
                         entry.hashCode = -1;
                         entry.next = _freeList;
 
-#if NETCOREAPP2_1
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
-                        {
+                        if (ShouldClearKey())
                             entry.key = default;
-                        }
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
-                        {
+                        if (ShouldClearValue())
                             entry.value = default;
-                        }
-#else
-                        entry.key = default;
-                        entry.value = default;
-#endif
+
                         _freeList = i;
                         _freeCount++;
                         _version++;
@@ -1014,19 +1008,11 @@ namespace Collections.Pooled
                     entry.hashCode = -1;
                     entry.next = _freeList;
 
-#if NETCOREAPP2_1
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<TKey>())
-                        {
-                            entry.key = default;
-                        }
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<TValue>())
-                        {
-                            entry.value = default;
-                        }
-#else
-                    entry.key = default;
-                    entry.value = default;
-#endif
+                    if (ShouldClearKey())
+                        entry.key = default;
+                    if (ShouldClearValue())
+                        entry.value = default;
+
                     _freeList = i;
                     _freeCount++;
                     return true;
@@ -1202,7 +1188,9 @@ namespace Collections.Pooled
                 int hashCode = oldEntries[i].hashCode;
                 if (hashCode >= 0)
                 {
+#pragma warning disable IDE0059 // Value assigned to symbol is never used
                     ref Entry entry = ref entries[count];
+#pragma warning restore IDE0059
                     entry = oldEntries[i];
                     int bucket = hashCode % newSize;
                     // Value in _buckets is 1-based
@@ -1327,6 +1315,46 @@ namespace Collections.Pooled
 #if NETCOREAPP2_1
                     return RuntimeHelpers.IsReferenceOrContainsReferences<TKey>()
                         || RuntimeHelpers.IsReferenceOrContainsReferences<TValue>();
+#else
+                    return true;
+#endif
+            }
+        }
+
+        private bool ShouldClearKey()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<TKey>();
+#else
+                    return true;
+#endif
+            }
+        }
+
+        private bool ShouldClearValue()
+        {
+            switch (ClearMode)
+            {
+                case ClearMode.Always:
+                    return true;
+
+                case ClearMode.Never:
+                    return false;
+
+                case ClearMode.Auto:
+                default:
+#if NETCOREAPP2_1
+                    return RuntimeHelpers.IsReferenceOrContainsReferences<TValue>();
 #else
                     return true;
 #endif
