@@ -10,11 +10,11 @@ Job=Clr  Runtime=Clr
 ```
 |                        Method |      N |          Mean |      Error |     StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |------------------------------ |------- |--------------:|-----------:|-----------:|------:|------------:|------------:|------------:|--------------------:|
-|   **DictContainsValue_Int_False** |   **1000** |      **1.914 ms** |  **0.0066 ms** |  **0.0062 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_Int_False |   1000 |      1.761 ms |  0.0049 ms |  0.0041 ms |  0.92 |           - |           - |           - |                   - |
+|   **DictContainsValue_Int_False** |   **1000** |      **1.915 ms** |  **0.0071 ms** |  **0.0066 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_Int_False |   1000 |      1.760 ms |  0.0044 ms |  0.0041 ms |  0.92 |           - |           - |           - |                   - |
 |                               |        |               |            |            |       |             |             |             |                     |
-|   **DictContainsValue_Int_False** |  **10000** |    **190.144 ms** |  **0.7232 ms** |  **0.6411 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_Int_False |  10000 |    175.526 ms |  0.8211 ms |  0.7681 ms |  0.92 |           - |           - |           - |                   - |
+|   **DictContainsValue_Int_False** |  **10000** |    **190.483 ms** |  **0.7102 ms** |  **0.6643 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_Int_False |  10000 |    175.045 ms |  0.5016 ms |  0.4188 ms |  0.92 |           - |           - |           - |                   - |
 |                               |        |               |            |            |       |             |             |             |                     |
-|   **DictContainsValue_Int_False** | **100000** | **19,021.942 ms** | **56.9384 ms** | **47.5462 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_Int_False | 100000 | 17,521.399 ms | 23.3127 ms | 19.4672 ms |  0.92 |           - |           - |           - |                   - |
+|   **DictContainsValue_Int_False** | **100000** | **18,990.388 ms** | **24.7964 ms** | **21.9813 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_Int_False | 100000 | 17,526.146 ms | 18.5625 ms | 17.3633 ms |  0.92 |           - |           - |           - |                   - |

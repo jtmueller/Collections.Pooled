@@ -10,5 +10,5 @@ Job=Clr  Runtime=Clr
 ```
 |                  Method |     Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |------------------------ |---------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
-|   ListIndexOf_ValueType | 12.06 us | 0.0401 us | 0.0376 us |  1.00 |           - |           - |           - |                   - |
-| PooledIndexOf_ValueType | 12.06 us | 0.0253 us | 0.0236 us |  1.00 |           - |           - |           - |                   - |
+|   ListIndexOf_ValueType | 12.09 us | 0.0415 us | 0.0388 us |  1.00 |           - |           - |           - |                   - |
+| PooledIndexOf_ValueType | 12.07 us | 0.0281 us | 0.0263 us |  1.00 |           - |           - |           - |                   - |

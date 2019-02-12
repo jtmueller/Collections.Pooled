@@ -8,12 +8,12 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                                              Method | LargeSets |       Mean |    Error |   StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|---------------------------------------------------- |---------- |-----------:|---------:|---------:|------:|------------:|------------:|------------:|--------------------:|
-|              **ListAddRange_String_NoCapacityIncrease** |     **False** | **1,928.8 us** | **4.194 us** | **3.923 us** |  **1.00** |    **560.5469** |           **-** |           **-** |           **1768040 B** |
-|      PooledAddRange_String_NoCapacityIncrease_Array |     False | 2,840.4 us | 7.311 us | 6.839 us |  1.47 |           - |           - |           - |                   - |
-| PooledAddRange_String_NoCapacityIncrease_Enumerable |     False | 1,342.5 us | 5.865 us | 5.486 us |  0.70 |           - |           - |           - |                   - |
-|                                                     |           |            |          |          |       |             |             |             |                     |
-|              **ListAddRange_String_NoCapacityIncrease** |      **True** |   **571.8 us** | **2.239 us** | **2.094 us** |  **1.00** |    **424.8047** |           **-** |           **-** |           **1360816 B** |
-|      PooledAddRange_String_NoCapacityIncrease_Array |      True |   701.7 us | 2.476 us | 2.195 us |  1.23 |           - |           - |           - |                   - |
-| PooledAddRange_String_NoCapacityIncrease_Enumerable |      True |   447.9 us | 1.317 us | 1.232 us |  0.78 |           - |           - |           - |                   - |
+|                                              Method | LargeSets |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|---------------------------------------------------- |---------- |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|              **ListAddRange_String_NoCapacityIncrease** |     **False** | **1,918.8 us** | **8.4148 us** | **7.4595 us** |  **1.00** |    **558.5938** |           **-** |           **-** |           **1768040 B** |
+|      PooledAddRange_String_NoCapacityIncrease_Array |     False | 2,880.2 us | 7.4341 us | 6.9538 us |  1.50 |           - |           - |           - |                   - |
+| PooledAddRange_String_NoCapacityIncrease_Enumerable |     False | 1,360.7 us | 3.7886 us | 3.5439 us |  0.71 |           - |           - |           - |                   - |
+|                                                     |           |            |           |           |       |             |             |             |                     |
+|              **ListAddRange_String_NoCapacityIncrease** |      **True** |   **572.9 us** | **1.6473 us** | **1.5409 us** |  **1.00** |    **424.8047** |           **-** |           **-** |           **1360816 B** |
+|      PooledAddRange_String_NoCapacityIncrease_Array |      True |   704.2 us | 1.8959 us | 1.7734 us |  1.23 |           - |           - |           - |                   - |
+| PooledAddRange_String_NoCapacityIncrease_Enumerable |      True |   448.8 us | 0.6006 us | 0.5324 us |  0.78 |           - |           - |           - |                   - |

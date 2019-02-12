@@ -10,9 +10,9 @@ Job=Clr  Runtime=Clr
 ```
 |                    Method |     Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |-------------------------- |---------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
-|           ListIndexer_Int | 66.37 us | 0.2664 us | 0.2361 us |  1.00 |           - |           - |           - |                   - |
-|         PooledIndexer_Int | 19.17 us | 0.0427 us | 0.0399 us |  0.29 |           - |           - |           - |                   - |
-|    PooledIndexer_Span_Int | 13.18 us | 0.0327 us | 0.0306 us |  0.20 |           - |           - |           - |                   - |
-|        ListIndexer_String | 48.68 us | 0.0652 us | 0.0578 us |  0.73 |           - |           - |           - |                   - |
-|      PooledIndexer_String | 28.72 us | 0.0723 us | 0.0676 us |  0.43 |           - |           - |           - |                   - |
-| PooledIndexer_Span_String | 13.19 us | 0.0408 us | 0.0382 us |  0.20 |           - |           - |           - |                   - |
+|           ListIndexer_Int | 66.31 us | 0.1266 us | 0.1184 us |  1.00 |           - |           - |           - |                   - |
+|         PooledIndexer_Int | 19.13 us | 0.0378 us | 0.0335 us |  0.29 |           - |           - |           - |                   - |
+|    PooledIndexer_Span_Int | 13.15 us | 0.0185 us | 0.0164 us |  0.20 |           - |           - |           - |                   - |
+|        ListIndexer_String | 48.78 us | 0.1554 us | 0.1454 us |  0.74 |           - |           - |           - |                   - |
+|      PooledIndexer_String | 28.69 us | 0.0823 us | 0.0643 us |  0.43 |           - |           - |           - |                   - |
+| PooledIndexer_Span_String | 14.37 us | 0.0360 us | 0.0301 us |  0.22 |           - |           - |           - |                   - |

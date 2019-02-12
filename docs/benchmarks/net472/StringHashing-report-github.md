@@ -10,11 +10,11 @@ Job=Clr  Runtime=Clr
 ```
 |                  Method |      N |        Mean |     Error |    StdDev | Ratio |
 |------------------------ |------- |------------:|----------:|----------:|------:|
-|       **DefaultStringHash** |   **1000** |    **12.38 us** | **0.0382 us** | **0.0357 us** |  **1.00** |
-| NonRandomizedStringHash |   1000 |    12.37 us | 0.0383 us | 0.0358 us |  1.00 |
+|       **DefaultStringHash** |   **1000** |    **12.37 us** | **0.0432 us** | **0.0404 us** |  **1.00** |
+| NonRandomizedStringHash |   1000 |    12.37 us | 0.0321 us | 0.0300 us |  1.00 |
 |                         |        |             |           |           |       |
-|       **DefaultStringHash** |  **10000** |   **123.57 us** | **0.5398 us** | **0.5050 us** |  **1.00** |
-| NonRandomizedStringHash |  10000 |   123.36 us | 0.3546 us | 0.3317 us |  1.00 |
+|       **DefaultStringHash** |  **10000** |   **123.98 us** | **0.3166 us** | **0.2961 us** |  **1.00** |
+| NonRandomizedStringHash |  10000 |   123.57 us | 0.4354 us | 0.3860 us |  1.00 |
 |                         |        |             |           |           |       |
-|       **DefaultStringHash** | **100000** | **1,258.13 us** | **4.1402 us** | **3.8727 us** |  **1.00** |
-| NonRandomizedStringHash | 100000 | 1,261.28 us | 4.9357 us | 4.3754 us |  1.00 |
+|       **DefaultStringHash** | **100000** | **1,256.84 us** | **5.4303 us** | **4.5346 us** |  **1.00** |
+| NonRandomizedStringHash | 100000 | 1,258.95 us | 3.0927 us | 2.5825 us |  1.00 |

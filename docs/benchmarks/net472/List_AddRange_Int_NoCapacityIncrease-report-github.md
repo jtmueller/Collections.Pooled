@@ -10,10 +10,10 @@ Job=Clr  Runtime=Clr
 ```
 |                                           Method | LargeSets |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |------------------------------------------------- |---------- |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
-|              **ListAddRange_Int_NoCapacityIncrease** |     **False** | **1,608.8 us** | **4.1458 us** | **3.6751 us** |  **1.00** |    **345.7031** |           **-** |           **-** |           **1088014 B** |
-|      PooledAddRange_Int_NoCapacityIncrease_Array |     False |   700.3 us | 2.4041 us | 2.2488 us |  0.44 |           - |           - |           - |                   - |
-| PooledAddRange_Int_NoCapacityIncrease_Enumerable |     False | 1,034.2 us | 1.9230 us | 1.7047 us |  0.64 |           - |           - |           - |                   - |
+|              **ListAddRange_Int_NoCapacityIncrease** |     **False** | **1,640.8 us** | **3.9986 us** | **3.5446 us** |  **1.00** |    **345.7031** |           **-** |           **-** |           **1088014 B** |
+|      PooledAddRange_Int_NoCapacityIncrease_Array |     False |   701.8 us | 1.6897 us | 1.4979 us |  0.43 |           - |           - |           - |                   - |
+| PooledAddRange_Int_NoCapacityIncrease_Enumerable |     False | 1,070.0 us | 2.5096 us | 2.3475 us |  0.65 |           - |           - |           - |                   - |
 |                                                  |           |            |           |           |       |             |             |             |                     |
-|              **ListAddRange_Int_NoCapacityIncrease** |      **True** |   **208.2 us** | **0.6265 us** | **0.5860 us** |  **1.00** |    **215.0879** |           **-** |           **-** |            **680816 B** |
-|      PooledAddRange_Int_NoCapacityIncrease_Array |      True |   174.1 us | 0.5803 us | 0.5428 us |  0.84 |           - |           - |           - |                   - |
-| PooledAddRange_Int_NoCapacityIncrease_Enumerable |      True |   159.0 us | 0.5034 us | 0.4463 us |  0.76 |           - |           - |           - |                   - |
+|              **ListAddRange_Int_NoCapacityIncrease** |      **True** |   **208.7 us** | **0.5962 us** | **0.5285 us** |  **1.00** |    **215.0879** |           **-** |           **-** |            **680816 B** |
+|      PooledAddRange_Int_NoCapacityIncrease_Array |      True |   174.0 us | 0.3909 us | 0.3465 us |  0.83 |           - |           - |           - |                   - |
+| PooledAddRange_Int_NoCapacityIncrease_Enumerable |      True |   158.3 us | 0.4358 us | 0.3863 us |  0.76 |           - |           - |           - |                   - |
