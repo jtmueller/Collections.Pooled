@@ -10,12 +10,12 @@ Job=Clr  Runtime=Clr
 ```
 |                    Method |     N |         Mean |      Error |     StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |-------------------------- |------ |-------------:|-----------:|-----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|      **ListBinarySearch_Int** |  **1000** |     **56.17 us** |  **0.1047 us** |  **0.0980 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-|    PooledBinarySearch_Int |  1000 |     55.57 us |  0.1550 us |  0.1374 us |  0.99 |    0.00 |           - |           - |           - |                   - |
-|   ListBinarySearch_String |  1000 |    855.24 us |  1.8835 us |  1.6697 us | 15.23 |    0.04 |           - |           - |           - |                   - |
-| PooledBinarySearch_String |  1000 |    913.15 us |  1.4311 us |  1.2686 us | 16.26 |    0.03 |           - |           - |           - |                   - |
+|      **ListBinarySearch_Int** |  **1000** |     **56.20 us** |  **0.1858 us** |  **0.1738 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+|    PooledBinarySearch_Int |  1000 |     55.76 us |  0.1917 us |  0.1793 us |  0.99 |    0.00 |           - |           - |           - |                   - |
+|   ListBinarySearch_String |  1000 |    865.97 us |  2.8651 us |  2.5399 us | 15.40 |    0.05 |           - |           - |           - |                   - |
+| PooledBinarySearch_String |  1000 |    881.94 us |  1.9548 us |  1.8285 us | 15.69 |    0.05 |           - |           - |           - |                   - |
 |                           |       |              |            |            |       |         |             |             |             |                     |
-|      **ListBinarySearch_Int** | **10000** |    **670.70 us** |  **2.1588 us** |  **2.0193 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-|    PooledBinarySearch_Int | 10000 |    669.89 us |  1.6863 us |  1.5773 us |  1.00 |    0.00 |           - |           - |           - |                   - |
-|   ListBinarySearch_String | 10000 | 11,744.00 us | 21.2015 us | 18.7946 us | 17.51 |    0.06 |           - |           - |           - |                   - |
-| PooledBinarySearch_String | 10000 | 11,746.06 us | 40.9369 us | 38.2924 us | 17.51 |    0.06 |           - |           - |           - |                   - |
+|      **ListBinarySearch_Int** | **10000** |    **672.70 us** |  **1.8468 us** |  **1.6371 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+|    PooledBinarySearch_Int | 10000 |    673.29 us |  2.1339 us |  1.9961 us |  1.00 |    0.00 |           - |           - |           - |                   - |
+|   ListBinarySearch_String | 10000 | 12,262.75 us | 47.7396 us | 44.6557 us | 18.22 |    0.07 |           - |           - |           - |                   - |
+| PooledBinarySearch_String | 10000 | 11,849.12 us | 35.8404 us | 33.5251 us | 17.61 |    0.06 |           - |           - |           - |                   - |

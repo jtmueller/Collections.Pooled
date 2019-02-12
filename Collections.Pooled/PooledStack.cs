@@ -39,34 +39,60 @@ namespace Collections.Pooled
         private T[] _array; // Storage for stack elements. Do not rename (binary serialization)
         private int _size; // Number of items in the stack. Do not rename (binary serialization)
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
+        private readonly bool _clearOnFree;
 
         private const int DefaultCapacity = 4;
+
+        #region Constructors
 
         /// <summary>
         /// Create a stack with the default initial capacity. 
         /// </summary>
-        public PooledStack() : this(ArrayPool<T>.Shared) { }
+        public PooledStack() : this(ClearMode.Auto, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Create a stack with the default initial capacity. 
+        /// </summary>
+        public PooledStack(ClearMode clearMode) : this(clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Create a stack with the default initial capacity. 
+        /// </summary>
+        public PooledStack(ArrayPool<T> customPool) : this(ClearMode.Auto, customPool) { }
 
         /// <summary>
         /// Create a stack with the default initial capacity and a custom ArrayPool.
         /// </summary>
-        public PooledStack(ArrayPool<T> customPool)
+        public PooledStack(ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
         /// Create a stack with a specific initial capacity.  The initial capacity
         /// must be a non-negative number.
         /// </summary>
-        public PooledStack(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+        public PooledStack(int capacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Create a stack with a specific initial capacity.  The initial capacity
         /// must be a non-negative number.
         /// </summary>
-        public PooledStack(int capacity, ArrayPool<T> customPool)
+        public PooledStack(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Create a stack with a specific initial capacity.  The initial capacity
+        /// must be a non-negative number.
+        /// </summary>
+        public PooledStack(int capacity, ArrayPool<T> customPool) : this(capacity, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Create a stack with a specific initial capacity.  The initial capacity
+        /// must be a non-negative number.
+        /// </summary>
+        public PooledStack(int capacity, ClearMode clearMode, ArrayPool<T> customPool)
         {
             if (capacity < 0)
             {
@@ -75,21 +101,35 @@ namespace Collections.Pooled
             }
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = _pool.Rent(capacity);
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(IEnumerable<T> enumerable) : this(enumerable, ArrayPool<T>.Shared) { }
+        public PooledStack(IEnumerable<T> enumerable) : this(enumerable, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(IEnumerable<T> enumerable, ArrayPool<T> customPool)
+        public PooledStack(IEnumerable<T> enumerable, ClearMode clearMode) : this(enumerable, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(IEnumerable<T> enumerable, ArrayPool<T> customPool) : this(enumerable, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(IEnumerable<T> enumerable, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
 
             switch (enumerable)
             {
@@ -125,36 +165,69 @@ namespace Collections.Pooled
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
+        public PooledStack(T[] array) : this(array.AsSpan(), ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
+        public PooledStack(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+        public PooledStack(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), ClearMode.Auto, customPool) { }
 
         /// <summary>
         /// Fills a Stack with the contents of a particular collection.  The items are
         /// pushed onto the stack in the same order they are read by the enumerator.
         /// </summary>
-        public PooledStack(ReadOnlySpan<T> span, ArrayPool<T> customPool)
+        public PooledStack(T[] array, ClearMode clearMode, ArrayPool<T> customPool) : this(array.AsSpan(), clearMode, customPool) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span, ArrayPool<T> customPool) : this(span, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Fills a Stack with the contents of a particular collection.  The items are
+        /// pushed onto the stack in the same order they are read by the enumerator.
+        /// </summary>
+        public PooledStack(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
             _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
         }
 
+        #endregion
+
         /// <summary>
         /// The number of items in the stack.
         /// </summary>
         public int Count => _size;
+
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
 
         bool ICollection.IsSynchronized => false;
 
@@ -175,14 +248,10 @@ namespace Collections.Pooled
         /// </summary>
         public void Clear()
         {
-#if NETCOREAPP2_1 
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
-                Array.Clear(_array, 0, _size); // Don't need to doc this but we clear the elements so that the gc can reclaim the references.
+                Array.Clear(_array, 0, _size); // clear the elements so that the gc can reclaim the references.
             }
-#else
-            Array.Clear(_array, 0, _size);
-#endif
             _size = 0;
             _version++;
         }
@@ -231,15 +300,11 @@ namespace Collections.Pooled
                 }
             }
 
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
                 // Clear the removed elements so that the gc can reclaim the references.
                 Array.Clear(_array, freeIndex, _size - freeIndex);
             }
-#else
-            Array.Clear(_array, freeIndex, _size - freeIndex);
-#endif
 
             int result = _size - freeIndex;
             _size = freeIndex;
@@ -422,14 +487,10 @@ namespace Collections.Pooled
             _version++;
             _size = size;
             T item = array[size];
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
                 array[size] = default;     // Free memory quicker.
             }
-#else
-            array[size] = default;
-#endif
             return item;
         }
 
@@ -447,14 +508,10 @@ namespace Collections.Pooled
             _version++;
             _size = size;
             result = array[size];
-#if NETCOREAPP2_1
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
                 array[size] = default;     // Free memory quicker.
             }
-#else
-            array[size] = default;
-#endif
             return true;
         }
 
@@ -520,11 +577,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-#if NETCOREAPP2_1
-                    _pool.Return(_array, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                    _pool.Return(_array, true);
-#endif
+                    _pool.Return(_array, clearArray: _clearOnFree);
                 }
                 catch (ArgumentException)
                 {
@@ -536,6 +589,16 @@ namespace Collections.Pooled
             {
                 _array = replaceWith;
             }
+        }
+
+        private static bool ShouldClear(ClearMode mode)
+        {
+#if NETCOREAPP2_1
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+            return mode != ClearMode.Never;
+#endif
         }
 
         public void Dispose()

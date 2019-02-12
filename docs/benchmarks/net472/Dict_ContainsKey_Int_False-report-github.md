@@ -8,13 +8,13 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                      Method |      N |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|---------------------------- |------- |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
-|   **DictContainsKey_Int_False** |   **1000** |   **5.872 us** | **0.0167 us** | **0.0157 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_False |   1000 |   4.667 us | 0.0109 us | 0.0102 us |  0.79 |           - |           - |           - |                   - |
-|                             |        |            |           |           |       |             |             |             |                     |
-|   **DictContainsKey_Int_False** |  **10000** |  **58.769 us** | **0.1607 us** | **0.1425 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_False |  10000 |  44.180 us | 0.1610 us | 0.1506 us |  0.75 |           - |           - |           - |                   - |
-|                             |        |            |           |           |       |             |             |             |                     |
-|   **DictContainsKey_Int_False** | **100000** | **588.734 us** | **8.5577 us** | **7.1461 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_False | 100000 | 441.095 us | 1.7512 us | 1.4624 us |  0.75 |           - |           - |           - |                   - |
+|                      Method |      N |       Mean |      Error |     StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|---------------------------- |------- |-----------:|-----------:|-----------:|------:|------------:|------------:|------------:|--------------------:|
+|   **DictContainsKey_Int_False** |   **1000** |   **5.877 us** |  **0.0106 us** |  **0.0100 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_False |   1000 |   4.706 us |  0.0166 us |  0.0156 us |  0.80 |           - |           - |           - |                   - |
+|                             |        |            |            |            |       |             |             |             |                     |
+|   **DictContainsKey_Int_False** |  **10000** |  **58.690 us** |  **0.0886 us** |  **0.0785 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_False |  10000 |  47.097 us |  0.1499 us |  0.1402 us |  0.80 |           - |           - |           - |                   - |
+|                             |        |            |            |            |       |             |             |             |                     |
+|   **DictContainsKey_Int_False** | **100000** | **591.143 us** | **11.4010 us** | **10.1067 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_False | 100000 | 470.216 us |  2.1133 us |  1.9768 us |  0.80 |           - |           - |           - |                   - |

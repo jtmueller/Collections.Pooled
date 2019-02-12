@@ -8,13 +8,13 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                         Method |      N |        Mean |      Error |     StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|------------------------------- |------- |------------:|-----------:|-----------:|------:|------------:|------------:|------------:|--------------------:|
-|   **DictContainsKey_String_False** |   **1000** |    **12.02 us** |  **0.0388 us** |  **0.0324 us** |  **1.00** |           **-** |           **-** |           **-** |                **40 B** |
-| PooledContainsKey_String_False |   1000 |    21.69 us |  0.1254 us |  0.1173 us |  1.81 |           - |           - |           - |                40 B |
-|                                |        |             |            |            |       |             |             |             |                     |
-|   **DictContainsKey_String_False** |  **10000** |   **140.22 us** |  **0.7180 us** |  **0.6716 us** |  **1.00** |           **-** |           **-** |           **-** |                **42 B** |
-| PooledContainsKey_String_False |  10000 |   226.20 us |  2.0535 us |  1.9209 us |  1.61 |           - |           - |           - |                42 B |
-|                                |        |             |            |            |       |             |             |             |                     |
-|   **DictContainsKey_String_False** | **100000** | **1,463.59 us** |  **3.3153 us** |  **3.1011 us** |  **1.00** |           **-** |           **-** |           **-** |                **48 B** |
-| PooledContainsKey_String_False | 100000 | 2,284.00 us | 12.2633 us | 11.4711 us |  1.56 |           - |           - |           - |                64 B |
+|                         Method |      N |        Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|------------------------------- |------- |------------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|   **DictContainsKey_String_False** |   **1000** |    **12.30 us** | **0.0411 us** | **0.0343 us** |  **1.00** |           **-** |           **-** |           **-** |                **40 B** |
+| PooledContainsKey_String_False |   1000 |    20.36 us | 0.0666 us | 0.0590 us |  1.66 |           - |           - |           - |                40 B |
+|                                |        |             |           |           |       |             |             |             |                     |
+|   **DictContainsKey_String_False** |  **10000** |   **138.44 us** | **0.4346 us** | **0.3853 us** |  **1.00** |           **-** |           **-** |           **-** |                **42 B** |
+| PooledContainsKey_String_False |  10000 |   205.33 us | 0.4378 us | 0.4095 us |  1.48 |           - |           - |           - |                42 B |
+|                                |        |             |           |           |       |             |             |             |                     |
+|   **DictContainsKey_String_False** | **100000** | **1,457.51 us** | **3.7702 us** | **3.1483 us** |  **1.00** |           **-** |           **-** |           **-** |                **48 B** |
+| PooledContainsKey_String_False | 100000 | 2,049.63 us | 8.6432 us | 7.2175 us |  1.41 |           - |           - |           - |                64 B |

@@ -9,34 +9,34 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Core  Runtime=Core  
 
 ```
-|                       Method |      N |   Type |           Mean |         Error |         StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|----------------------------- |------- |------- |---------------:|--------------:|---------------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|  **StackICollectionConstructor** |   **1000** |    **Int** |       **260.5 us** |     **2.2715 us** |      **2.0136 us** |  **1.00** |    **0.00** |   **1290.0391** |           **-** |           **-** |          **3968.75 KB** |
-| PooledICollectionConstructor |   1000 |    Int |       133.8 us |     0.6078 us |      0.5685 us |  0.51 |    0.00 |     12.6953 |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor |   1000 |    Int |     6,952.4 us |    28.6302 us |     26.7807 us | 26.68 |    0.27 |   2687.5000 |           - |           - |          8273.44 KB |
-| PooledIEnumerableConstructor |   1000 |    Int |     7,308.3 us |    26.6637 us |     23.6367 us | 28.05 |    0.24 |     31.2500 |           - |           - |           117.19 KB |
-|                              |        |        |                |               |                |       |         |             |             |             |                     |
-|  **StackICollectionConstructor** |   **1000** | **String** |       **646.8 us** |     **8.8163 us** |      **7.8154 us** |  **1.00** |    **0.00** |   **2556.6406** |           **-** |           **-** |             **7875 KB** |
-| PooledICollectionConstructor |   1000 | String |       601.4 us |     3.3507 us |      3.1342 us |  0.93 |    0.01 |     12.6953 |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor |   1000 | String |    11,917.4 us |    49.2369 us |     46.0563 us | 18.43 |    0.20 |   5281.2500 |           - |           - |         16265.63 KB |
-| PooledIEnumerableConstructor |   1000 | String |    13,222.6 us |    26.8531 us |     22.4236 us | 20.44 |    0.26 |     31.2500 |           - |           - |              125 KB |
-|                              |        |        |                |               |                |       |         |             |             |             |                     |
-|  **StackICollectionConstructor** |  **10000** |    **Int** |     **2,634.4 us** |    **17.4113 us** |     **15.4346 us** |  **1.00** |    **0.00** |  **12656.2500** |           **-** |           **-** |            **39125 KB** |
-| PooledICollectionConstructor |  10000 |    Int |     1,136.3 us |     3.0355 us |      2.8394 us |  0.43 |    0.00 |     11.7188 |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor |  10000 |    Int |    69,160.9 us |   188.7134 us |    176.5226 us | 26.25 |    0.15 |  41625.0000 |           - |           - |        128367.19 KB |
-| PooledIEnumerableConstructor |  10000 |    Int |    74,347.8 us |   278.5278 us |    260.5351 us | 28.23 |    0.18 |           - |           - |           - |           117.19 KB |
-|                              |        |        |                |               |                |       |         |             |             |             |                     |
-|  **StackICollectionConstructor** |  **10000** | **String** |     **6,323.8 us** |    **32.3181 us** |     **30.2303 us** |  **1.00** |    **0.00** |  **24992.1875** |           **-** |           **-** |          **78187.5 KB** |
-| PooledICollectionConstructor |  10000 | String |     7,967.2 us |    56.2930 us |     52.6565 us |  1.26 |    0.01 |           - |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor |  10000 | String |   170,832.4 us |   680.6058 us |    636.6391 us | 27.01 |    0.18 |  41333.3333 |  41333.3333 |  41333.3333 |        256359.38 KB |
-| PooledIEnumerableConstructor |  10000 | String |   141,983.9 us |   339.7179 us |    283.6799 us | 22.44 |    0.10 |           - |           - |           - |              125 KB |
-|                              |        |        |                |               |                |       |         |             |             |             |                     |
-|  **StackICollectionConstructor** | **100000** |    **Int** |   **158,179.8 us** | **2,262.4338 us** |  **2,116.2820 us** |  **1.00** |    **0.00** |  **37500.0000** |  **37500.0000** |  **37500.0000** |        **390942.51 KB** |
-| PooledICollectionConstructor | 100000 |    Int |    14,141.4 us |    69.2764 us |     57.8489 us |  0.09 |    0.00 |           - |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor | 100000 |    Int | 1,014,694.8 us | 5,969.0409 us |  5,291.3993 us |  6.42 |    0.10 | 221000.0000 | 180000.0000 | 179000.0000 |       1025124.16 KB |
-| PooledIEnumerableConstructor | 100000 |    Int |   736,485.1 us | 2,047.5467 us |  1,709.7942 us |  4.66 |    0.07 |           - |           - |           - |           117.19 KB |
-|                              |        |        |                |               |                |       |         |             |             |             |                     |
-|  **StackICollectionConstructor** | **100000** | **String** |   **379,340.3 us** | **7,449.4310 us** | **13,807.9979 us** |  **1.00** |    **0.00** |  **20000.0000** |  **20000.0000** |  **20000.0000** |        **781429.19 KB** |
-| PooledICollectionConstructor | 100000 | String |    81,412.9 us |   226.8668 us |    212.2113 us |  0.22 |    0.01 |           - |           - |           - |            39.06 KB |
-|  StackIEnumerableConstructor | 100000 | String | 1,854,458.6 us | 4,790.4896 us |  4,246.6443 us |  4.93 |    0.31 | 375000.0000 | 335000.0000 | 332000.0000 |       2049582.38 KB |
-| PooledIEnumerableConstructor | 100000 | String | 1,298,673.2 us | 3,243.6886 us |  3,034.1483 us |  3.45 |    0.21 |           - |           - |           - |              125 KB |
+|                       Method |      N |   Type |           Mean |          Error |         StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|----------------------------- |------- |------- |---------------:|---------------:|---------------:|------:|--------:|------------:|------------:|------------:|--------------------:|
+|  **StackICollectionConstructor** |   **1000** |    **Int** |       **258.5 us** |      **3.7117 us** |      **3.4720 us** |  **1.00** |    **0.00** |   **1290.0391** |           **-** |           **-** |          **3968.75 KB** |
+| PooledICollectionConstructor |   1000 |    Int |       139.8 us |      0.4301 us |      0.3813 us |  0.54 |    0.01 |     17.5781 |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor |   1000 |    Int |     6,951.2 us |     13.1436 us |     12.2945 us | 26.89 |    0.39 |   2687.5000 |           - |           - |          8273.44 KB |
+| PooledIEnumerableConstructor |   1000 |    Int |     7,735.4 us |     19.3705 us |     16.1753 us | 29.95 |    0.43 |     46.8750 |           - |           - |           148.44 KB |
+|                              |        |        |                |                |                |       |         |             |             |             |                     |
+|  **StackICollectionConstructor** |   **1000** | **String** |       **654.8 us** |      **7.7309 us** |      **7.2315 us** |  **1.00** |    **0.00** |   **2556.6406** |           **-** |           **-** |             **7875 KB** |
+| PooledICollectionConstructor |   1000 | String |       594.7 us |      1.6545 us |      1.5476 us |  0.91 |    0.01 |     17.5781 |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor |   1000 | String |    11,681.6 us |     48.8167 us |     45.6631 us | 17.84 |    0.22 |   5281.2500 |           - |           - |         16265.63 KB |
+| PooledIEnumerableConstructor |   1000 | String |    15,276.3 us |     49.5759 us |     46.3734 us | 23.33 |    0.28 |     46.8750 |           - |           - |           156.25 KB |
+|                              |        |        |                |                |                |       |         |             |             |             |                     |
+|  **StackICollectionConstructor** |  **10000** |    **Int** |     **2,660.4 us** |     **16.8240 us** |     **15.7372 us** |  **1.00** |    **0.00** |  **12656.2500** |           **-** |           **-** |            **39125 KB** |
+| PooledICollectionConstructor |  10000 |    Int |       953.8 us |      1.5168 us |      1.4188 us |  0.36 |    0.00 |     17.5781 |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor |  10000 |    Int |    77,602.1 us |    258.4763 us |    215.8394 us | 29.15 |    0.21 |  41571.4286 |           - |           - |        128367.19 KB |
+| PooledIEnumerableConstructor |  10000 |    Int |    71,827.2 us |    337.3414 us |    315.5493 us | 27.00 |    0.21 |           - |           - |           - |           148.44 KB |
+|                              |        |        |                |                |                |       |         |             |             |             |                     |
+|  **StackICollectionConstructor** |  **10000** | **String** |     **6,335.4 us** |     **51.8079 us** |     **48.4612 us** |  **1.00** |    **0.00** |  **24992.1875** |           **-** |           **-** |          **78187.5 KB** |
+| PooledICollectionConstructor |  10000 | String |     7,993.2 us |     76.6324 us |     71.6820 us |  1.26 |    0.02 |     15.6250 |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor |  10000 | String |   179,983.7 us |    360.7171 us |    319.7663 us | 28.44 |    0.19 |  41333.3333 |  41333.3333 |  41333.3333 |        256359.38 KB |
+| PooledIEnumerableConstructor |  10000 | String |   134,909.2 us |    679.7684 us |    635.8558 us | 21.30 |    0.16 |           - |           - |           - |           156.25 KB |
+|                              |        |        |                |                |                |       |         |             |             |             |                     |
+|  **StackICollectionConstructor** | **100000** |    **Int** |   **159,720.1 us** |  **2,214.1085 us** |  **1,962.7495 us** |  **1.00** |    **0.00** |  **34000.0000** |  **34000.0000** |  **34000.0000** |        **390921.95 KB** |
+| PooledICollectionConstructor | 100000 |    Int |    14,309.5 us |    114.9121 us |    107.4889 us |  0.09 |    0.00 |     15.6250 |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor | 100000 |    Int | 1,010,623.2 us |  4,661.2467 us |  4,360.1331 us |  6.33 |    0.09 | 221000.0000 | 182000.0000 | 179000.0000 |       1025047.55 KB |
+| PooledIEnumerableConstructor | 100000 |    Int |   693,664.5 us |  2,485.4295 us |  2,203.2685 us |  4.34 |    0.06 |           - |           - |           - |           148.44 KB |
+|                              |        |        |                |                |                |       |         |             |             |             |                     |
+|  **StackICollectionConstructor** | **100000** | **String** |   **372,246.2 us** |  **7,350.8347 us** | **16,288.9420 us** |  **1.00** |    **0.00** |  **14000.0000** |  **14000.0000** |  **14000.0000** |        **781389.36 KB** |
+| PooledICollectionConstructor | 100000 | String |    81,312.1 us |    284.5307 us |    252.2291 us |  0.21 |    0.00 |           - |           - |           - |            54.69 KB |
+|  StackIEnumerableConstructor | 100000 | String | 1,776,881.1 us | 16,542.0451 us | 15,473.4393 us |  4.70 |    0.12 | 372000.0000 | 331000.0000 | 329000.0000 |       2049157.26 KB |
+| PooledIEnumerableConstructor | 100000 | String | 1,388,079.9 us |  3,030.1880 us |  2,686.1827 us |  3.66 |    0.08 |           - |           - |           - |           156.25 KB |
