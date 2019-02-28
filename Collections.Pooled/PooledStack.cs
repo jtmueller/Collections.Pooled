@@ -642,7 +642,8 @@ namespace Collections.Pooled
             public bool MoveNext()
             {
                 bool retval;
-                if (_version != _stack._version) throw new InvalidOperationException("Collection was modified during enumeration.");
+                if (_version != _stack._version)
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 if (_index == -2)
                 {  // First call to enumerator.
                     _index = _stack._size - 1;
@@ -687,7 +688,8 @@ namespace Collections.Pooled
 
             void IEnumerator.Reset()
             {
-                if (_version != _stack._version) throw new InvalidOperationException("Collection was modified during enumeration.");
+                if (_version != _stack._version)
+                    ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
                 _index = -2;
                 _currentElement = default!;
             }

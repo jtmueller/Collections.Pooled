@@ -2106,7 +2106,6 @@ namespace Collections.Pooled
         /// Contains but returns index in slots array. 
         /// </summary>
         /// <param name="item"></param>
-        /// <returns></returns>
         private int InternalIndexOf(T item)
         {
             Debug.Assert(_buckets != null, "_buckets was null; callers should check first");
@@ -2317,7 +2316,6 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="value"></param>
         /// <param name="location"></param>
-        /// <returns></returns>
         private bool AddOrGetLocation(T value, out int location)
         {
             Debug.Assert(_buckets != null, "_buckets is null, callers should have checked");
@@ -2392,7 +2390,6 @@ namespace Collections.Pooled
         /// <param name="other"></param>
         /// <param name="returnIfUnfound">Allows us to finish faster for equals and proper superset
         /// because unfoundCount must be 0.</param>
-        /// <returns></returns>
         private ElementCount CheckUniqueAndUnfoundElements(IEnumerable<T> other, bool returnIfUnfound)
         {
             ElementCount result;
@@ -2477,7 +2474,6 @@ namespace Collections.Pooled
         /// <param name="other"></param>
         /// <param name="returnIfUnfound">Allows us to finish faster for equals and proper superset
         /// because unfoundCount must be 0.</param>
-        /// <returns></returns>
         private ElementCount CheckUniqueAndUnfoundElements(ReadOnlySpan<T> other, bool returnIfUnfound)
         {
             ElementCount result;
@@ -2544,7 +2540,6 @@ namespace Collections.Pooled
         /// <param name="set1"></param>
         /// <param name="set2"></param>
         /// <param name="comparer"></param>
-        /// <returns></returns>
         internal static bool PooledSetEquals(PooledSet<T> set1, PooledSet<T> set2, IEqualityComparer<T> comparer)
         {
             // handle null cases first

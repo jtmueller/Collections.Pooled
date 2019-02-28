@@ -376,6 +376,9 @@ namespace Collections.Pooled
         }
 
 #if NETCOREAPP3_0
+        /// <summary>
+        /// Gets or sets the element at the given index.
+        /// </summary>
         public T this[Index index]
         {
             get => Span[index];
@@ -386,6 +389,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Gets a span for the given range.
+        /// </summary>
         public Span<T> this[Range range] => Span[range];
 #endif
 
