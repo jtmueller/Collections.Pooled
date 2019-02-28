@@ -25,10 +25,4 @@
     <ProjectReference Include="..\Collections.Pooled\Collections.Pooled.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="System">
-      <HintPath>System</HintPath>
-    </Reference>
-  </ItemGroup>
-
 </Project>
