@@ -595,9 +595,9 @@ namespace Collections.Pooled.Tests.PooledSet
         //    Validate_UnionWith(set, enumerable);
         //}
 
-#endregion
+        #endregion
 
-#region Other misc ISet test Scenarios
+        #region Other misc ISet test Scenarios
 
         [Theory]
         [MemberData(nameof(EnumerableTestData))]
@@ -625,6 +625,6 @@ namespace Collections.Pooled.Tests.PooledSet
             Assert.True(expected.SetEquals(set));
         }
 
-#endregion
+        #endregion
     }
 }

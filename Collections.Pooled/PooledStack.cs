@@ -98,7 +98,7 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, 
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
                     ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
             _pool = customPool ?? ArrayPool<T>.Shared;

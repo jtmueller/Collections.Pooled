@@ -56,7 +56,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
         private IEnumerable<int> IntEnumerable()
         {
-            for (int i=0; i < N; i++)
+            for (int i = 0; i < N; i++)
                 yield return list[i];
         }
 

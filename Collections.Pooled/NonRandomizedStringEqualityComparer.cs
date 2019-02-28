@@ -30,7 +30,7 @@ namespace Collections.Pooled
 
         public sealed override bool Equals(string x, string y) => string.Equals(x, y);
 
-        public sealed override int GetHashCode(string str) 
+        public sealed override int GetHashCode(string str)
             => str is null ? 0 : str.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(str);
 
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)

@@ -41,7 +41,7 @@ namespace Collections.Pooled.Tests.PooledList
 
                     Assert.True(list.Contains(item)); //"Expect it to contain the item."
                     Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
-                                       
+
                     for (int i = 0; i < index; i++)
                     {
                         Assert.Equal(list[i], items[i]); //"Expect to be the same."

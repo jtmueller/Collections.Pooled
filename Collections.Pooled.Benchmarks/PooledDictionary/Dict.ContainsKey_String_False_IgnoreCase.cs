@@ -31,7 +31,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 
         protected override string GetT(int i) => i.ToString();
 
-        protected override IEqualityComparer<string> Comparer 
+        protected override IEqualityComparer<string> Comparer
             => StringComparer.OrdinalIgnoreCase;
     }
 }

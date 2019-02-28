@@ -44,7 +44,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
             list = new List<int>(N);
             pooled = new PooledList<int>(N);
 
-            for (int i=0; i < N; i++)
+            for (int i = 0; i < N; i++)
             {
                 list.Add(i);
                 pooled.Add(i);

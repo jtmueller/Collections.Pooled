@@ -12,7 +12,7 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
     [MemoryDiagnoser]
     public class Queue_Constructors : QueueBase
     {
-        [Benchmark(Baseline=true)]
+        [Benchmark(Baseline = true)]
         public void QueueICollectionConstructor()
         {
             if (Type == QueueType.Int)
@@ -102,7 +102,7 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
 
         private IEnumerable<int> IntEnumerable()
         {
-            for (int i=0; i < N; i++)
+            for (int i = 0; i < N; i++)
                 yield return intArray[i];
         }
 

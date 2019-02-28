@@ -246,7 +246,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IList_Generic_ItemSet_InvalidValue(int count)
         {
-            if (count > 0&& !IsReadOnly)
+            if (count > 0 && !IsReadOnly)
             {
                 Assert.All(InvalidValues, value =>
                 {

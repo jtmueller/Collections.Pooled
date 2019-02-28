@@ -17,7 +17,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         protected override bool DuplicateValuesAllowed => false;
         protected override bool IsReadOnly => true;
         protected override bool SupportsSerialization => false;
-        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations) 
+        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations)
             => new List<ModifyEnumerable>();
 
         protected override ICollection<string> GenericICollectionFactory()

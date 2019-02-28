@@ -12,7 +12,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
     [MemoryDiagnoser]
     public class List_Constructors : ListBase
     {
-        [Benchmark(Baseline=true)]
+        [Benchmark(Baseline = true)]
         public void ListICollectionConstructor()
         {
             if (Type == ListType.Int)

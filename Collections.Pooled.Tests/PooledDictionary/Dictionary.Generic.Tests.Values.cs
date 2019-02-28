@@ -17,7 +17,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         protected override bool DuplicateValuesAllowed => true;
         protected override bool IsReadOnly => true;
         protected override bool SupportsSerialization => false;
-        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations) 
+        protected override IEnumerable<ModifyEnumerable> GetModifyEnumerables(ModifyOperation operations)
             => new List<ModifyEnumerable>();
 
         protected override ICollection<string> GenericICollectionFactory()
@@ -49,7 +49,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
             }
         }
 
-        protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType 
+        protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType
             => typeof(ArgumentOutOfRangeException);
 
         [Fact]

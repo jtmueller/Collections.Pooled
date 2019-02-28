@@ -118,7 +118,7 @@ namespace Collections.Pooled.Tests
         public void ICollection_Generic_IsReadOnly_Validity(int count)
         {
             ICollection<T> collection = GenericICollectionFactory(count);
-            Assert.Equal(IsReadOnly_ValidityValue , collection.IsReadOnly);
+            Assert.Equal(IsReadOnly_ValidityValue, collection.IsReadOnly);
         }
 
         #endregion
@@ -262,7 +262,7 @@ namespace Collections.Pooled.Tests
                     collection.Remove(collection.ElementAt(0));
                 collection.Add(CreateT(254));
                 Assert.Equal(1, collection.Count);
-            }   
+            }
         }
 
         [Theory]

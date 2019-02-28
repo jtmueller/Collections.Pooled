@@ -362,7 +362,7 @@ namespace Collections.Pooled.Tests.PooledSet
         {
             PooledSet<T> set = new PooledSet<T>();
             RegisterForDispose(set);
-            ISet <T> iset = (set as ISet<T>);
+            ISet<T> iset = (set as ISet<T>);
             Assert.NotNull(iset);
         }
 

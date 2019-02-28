@@ -12,7 +12,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
     [MemoryDiagnoser]
     public class Stack_Constructors : StackBase
     {
-        [Benchmark(Baseline=true)]
+        [Benchmark(Baseline = true)]
         public void StackICollectionConstructor()
         {
             if (Type == StackType.Int)
@@ -102,7 +102,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
 
         private IEnumerable<int> IntEnumerable()
         {
-            for (int i=0; i < N; i++)
+            for (int i = 0; i < N; i++)
                 yield return intArray[i];
         }
 

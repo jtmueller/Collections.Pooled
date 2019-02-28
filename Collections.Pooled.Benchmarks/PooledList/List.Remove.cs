@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
     public class List_Remove : ListBase
     {
         [IterationSetup(Target = nameof(ListRemove_Int))]
-        public void SetupListInt() 
+        public void SetupListInt()
             => listInt = new List<int>(intItems);
 
         [Benchmark(Baseline = true)]
@@ -65,7 +65,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [IterationSetup(Target = nameof(ListRemove_String))]
-        public void SetupListString() 
+        public void SetupListString()
             => listString = new List<string>(stringItems);
 
         [Benchmark]

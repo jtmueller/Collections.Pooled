@@ -9,7 +9,7 @@ using Xunit;
 namespace Collections.Pooled.Tests.PooledStack
 {
     public abstract partial class Stack_Generic_Tests<T> : IGenericSharedAPI_Tests<T>
-    {       
+    {
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_TryPop_AllElements(int count)
