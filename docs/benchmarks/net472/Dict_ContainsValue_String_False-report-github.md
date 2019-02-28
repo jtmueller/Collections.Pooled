@@ -8,13 +8,13 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                           Method |      N |          Mean |       Error |     StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|--------------------------------- |------- |--------------:|------------:|-----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|   **DictContainsValue_String_False** |   **1000** |      **5.484 ms** |   **0.0567 ms** |  **0.0531 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_String_False |   1000 |      5.472 ms |   0.0625 ms |  0.0554 ms |  1.00 |    0.02 |           - |           - |           - |                   - |
-|                                  |        |               |             |            |       |         |             |             |             |                     |
-|   **DictContainsValue_String_False** |  **10000** |    **570.583 ms** |   **2.7689 ms** |  **2.5900 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_String_False |  10000 |    545.853 ms |   8.5505 ms |  7.9981 ms |  0.96 |    0.01 |           - |           - |           - |                   - |
-|                                  |        |               |             |            |       |         |             |             |             |                     |
-|   **DictContainsValue_String_False** | **100000** | **54,320.479 ms** | **108.5546 ms** | **96.2309 ms** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsValue_String_False | 100000 | 54,325.972 ms |  46.6305 ms | 38.9386 ms |  1.00 |    0.00 |           - |           - |           - |                   - |
+|                           Method |      N |          Mean |      Error |     StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|--------------------------------- |------- |--------------:|-----------:|-----------:|------:|------------:|------------:|------------:|--------------------:|
+|   **DictContainsValue_String_False** |   **1000** |      **5.491 ms** |  **0.0473 ms** |  **0.0442 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_String_False |   1000 |      5.630 ms |  0.0629 ms |  0.0589 ms |  1.03 |           - |           - |           - |                   - |
+|                                  |        |               |            |            |       |             |             |             |                     |
+|   **DictContainsValue_String_False** |  **10000** |    **543.382 ms** |  **4.2080 ms** |  **3.9362 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_String_False |  10000 |    544.265 ms |  6.4653 ms |  5.7313 ms |  1.00 |           - |           - |           - |                   - |
+|                                  |        |               |            |            |       |             |             |             |                     |
+|   **DictContainsValue_String_False** | **100000** | **54,209.747 ms** | **92.8040 ms** | **86.8089 ms** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsValue_String_False | 100000 | 54,175.560 ms | 86.2791 ms | 80.7055 ms |  1.00 |           - |           - |           - |                   - |

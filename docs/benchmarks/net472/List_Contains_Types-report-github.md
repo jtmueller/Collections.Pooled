@@ -8,9 +8,9 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                Method |      Mean |     Error |    StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|---------------------- |----------:|----------:|----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|      ListContains_Int |  57.50 us | 0.1796 us | 0.1592 us |  1.00 |    0.00 |           - |           - |           - |                   - |
-|    PooledContains_Int |  19.28 us | 0.0498 us | 0.0441 us |  0.34 |    0.00 |           - |           - |           - |                   - |
-|   ListContains_String | 165.89 us | 1.1573 us | 1.0825 us |  2.89 |    0.02 |           - |           - |           - |                   - |
-| PooledContains_String | 105.99 us | 0.1682 us | 0.1574 us |  1.84 |    0.01 |           - |           - |           - |                   - |
+|                Method |      Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|---------------------- |----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|      ListContains_Int |  57.59 us | 0.1645 us | 0.1539 us |  1.00 |           - |           - |           - |                   - |
+|    PooledContains_Int |  19.30 us | 0.0545 us | 0.0510 us |  0.34 |           - |           - |           - |                   - |
+|   ListContains_String | 164.86 us | 0.7650 us | 0.7156 us |  2.86 |           - |           - |           - |                   - |
+| PooledContains_String | 106.21 us | 0.4319 us | 0.4040 us |  1.84 |           - |           - |           - |                   - |

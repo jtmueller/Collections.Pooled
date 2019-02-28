@@ -17,7 +17,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
     <Version>1.0.0</Version>
-    <PackageReleaseNotes>Support for custom ArrayPools in PooledList, PooledStack, PooledQueue</PackageReleaseNotes>
+    <PackageReleaseNotes>Added ClearMode property, allowing control over clearing arrays before returning them to the array pool.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

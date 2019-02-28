@@ -8,13 +8,13 @@ Intel Core i7-6700HQ CPU 2.60GHz (Skylake), 1 CPU, 8 logical and 4 physical core
 Job=Clr  Runtime=Clr  
 
 ```
-|                      Method |     N |       Mean |      Error |     StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|---------------------------- |------ |-----------:|-----------:|-----------:|------:|------------:|------------:|------------:|--------------------:|
-|   **DictIndexer_get_ValueType** |  **1024** |   **250.9 us** |  **0.8727 us** |  **0.7737 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledIndexer_get_ValueType |  1024 |   240.5 us |  0.5331 us |  0.4726 us |  0.96 |           - |           - |           - |                   - |
-|                             |       |            |            |            |       |             |             |             |                     |
-|   **DictIndexer_get_ValueType** |  **8192** | **2,020.0 us** | **10.6821 us** |  **9.9920 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledIndexer_get_ValueType |  8192 | 1,934.9 us |  5.3365 us |  4.9918 us |  0.96 |           - |           - |           - |                   - |
-|                             |       |            |            |            |       |             |             |             |                     |
-|   **DictIndexer_get_ValueType** | **16384** | **4,035.6 us** | **22.2539 us** | **19.7275 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledIndexer_get_ValueType | 16384 | 3,889.5 us |  5.2026 us |  4.8665 us |  0.96 |           - |           - |           - |                   - |
+|                      Method |     N |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|---------------------------- |------ |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
+|   **DictIndexer_get_ValueType** |  **1024** |   **250.5 us** | **0.9257 us** | **0.8659 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledIndexer_get_ValueType |  1024 |   242.4 us | 0.5099 us | 0.4769 us |  0.97 |           - |           - |           - |                   - |
+|                             |       |            |           |           |       |             |             |             |                     |
+|   **DictIndexer_get_ValueType** |  **8192** | **2,017.3 us** | **7.7786 us** | **7.2761 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledIndexer_get_ValueType |  8192 | 1,951.4 us | 3.8996 us | 3.6477 us |  0.97 |           - |           - |           - |                   - |
+|                             |       |            |           |           |       |             |             |             |                     |
+|   **DictIndexer_get_ValueType** | **16384** | **4,021.2 us** | **9.2706 us** | **8.2182 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledIndexer_get_ValueType | 16384 | 3,903.8 us | 9.6881 us | 8.5882 us |  0.97 |           - |           - |           - |                   - |

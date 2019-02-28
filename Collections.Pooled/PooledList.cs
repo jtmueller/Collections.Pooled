@@ -45,6 +45,9 @@ namespace Collections.Pooled
         private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
+        private readonly bool _clearOnFree;
+
+        #region Constructors
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -52,7 +55,7 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList() : this(ArrayPool<T>.Shared) { }
+        public PooledList() : this(ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -60,10 +63,27 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList(ArrayPool<T> customPool)
+        public PooledList(ClearMode clearMode) : this(clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList. The list is initially empty and has a capacity
+        /// of zero. Upon adding the first element to the list the capacity is
+        /// increased to DefaultCapacity, and then increased in multiples of two
+        /// as required.
+        /// </summary>
+        public PooledList(ArrayPool<T> customPool) : this(ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Constructs a PooledList. The list is initially empty and has a capacity
+        /// of zero. Upon adding the first element to the list the capacity is
+        /// increased to DefaultCapacity, and then increased in multiples of two
+        /// as required.
+        /// </summary>
+        public PooledList(ClearMode clearMode, ArrayPool<T> customPool)
         {
             _items = s_emptyArray;
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
@@ -71,19 +91,34 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity) : this(capacity, ArrayPool<T>.Shared) { }
+        public PooledList(int capacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ArrayPool<T> customPool)
+        public PooledList(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        public PooledList(int capacity, ArrayPool<T> customPool) : this(capacity, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool)
         {
             if (capacity < 0)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
 
             if (capacity == 0)
             {
@@ -100,30 +135,59 @@ namespace Collections.Pooled
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array) : this(array.AsSpan(), ArrayPool<T>.Shared) { }
+        public PooledList(T[] array) : this(array.AsSpan(), ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), customPool) { }
+        public PooledList(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(ReadOnlySpan<T> span) : this(span, ArrayPool<T>.Shared) { }
+        public PooledList(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), ClearMode.Auto, customPool) { }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(ReadOnlySpan<T> span, ArrayPool<T> customPool)
+        public PooledList(T[] array, ClearMode clearMode, ArrayPool<T> customPool) : this(array.AsSpan(), clearMode, customPool) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span, ArrayPool<T> customPool) : this(span, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
 
             int count = span.Length;
             if (count == 0)
@@ -143,16 +207,31 @@ namespace Collections.Pooled
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection) : this(collection, ArrayPool<T>.Shared) { }
+        public PooledList(IEnumerable<T> collection) : this(collection, ClearMode.Auto, ArrayPool<T>.Shared) { }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection, ArrayPool<T> customPool)
+        public PooledList(IEnumerable<T> collection, ClearMode clearMode) : this(collection, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(IEnumerable<T> collection, ArrayPool<T> customPool) : this(collection, ClearMode.Auto, customPool) { }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size and capacity of the new list will both be equal to the size of the
+        /// given collection.
+        /// </summary>
+        public PooledList(IEnumerable<T> collection, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
+            _clearOnFree = ShouldClear(clearMode);
 
             switch (collection)
             {
@@ -186,6 +265,8 @@ namespace Collections.Pooled
                     break;
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.
@@ -236,6 +317,12 @@ namespace Collections.Pooled
         /// Read-only property describing how many elements are in the List.
         /// </summary>
         public int Count => _size;
+
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
 
         bool IList.IsFixedSize => false;
 
@@ -472,22 +559,12 @@ namespace Collections.Pooled
             _version++;
             int size = _size;
             _size = 0;
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            {
-                if (size > 0)
-                {
-                    // Clear the elements so that the gc can reclaim the references.
-                    Array.Clear(_items, 0, _size);
-                }
-            }
-#else
-            if (size > 0)
+
+            if (size > 0 && _clearOnFree)
             {
                 // Clear the elements so that the gc can reclaim the references.
                 Array.Clear(_items, 0, _size);
             }
-#endif
         }
 
         /// <summary>
@@ -954,7 +1031,6 @@ namespace Collections.Pooled
         /// the set of items to be added, allowing direct writes to that section
         /// of the collection.
         /// </summary>
-        /// <param name="count">The number of items to add.</param>
         public Span<T> InsertSpan(int index, int count)
             => InsertSpan(index, count, true);
 
@@ -972,16 +1048,9 @@ namespace Collections.Pooled
 
             var output = _items.AsSpan(index, count);
 
-            if (clearOutput)
+            if (clearOutput && _clearOnFree)
             {
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-                {
-                    output.Clear();
-                }
-#else
                 output.Clear();
-#endif
             }
 
             return output;
@@ -1102,15 +1171,11 @@ namespace Collections.Pooled
                 }
             }
 
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
                 // Clear the removed elements so that the gc can reclaim the references.
                 Array.Clear(_items, freeIndex, _size - freeIndex);
             }
-#else
-            Array.Clear(_items, freeIndex, _size - freeIndex);
-#endif
 
             int result = _size - freeIndex;
             _size = freeIndex;
@@ -1134,15 +1199,11 @@ namespace Collections.Pooled
             }
             _version++;
 
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-            if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+            if (_clearOnFree)
             {
                 // Clear the removed element so that the gc can reclaim the reference.
                 _items[_size] = default!;
             }
-#else
-            _items[_size] = default!;
-#endif
         }
 
         /// <summary>
@@ -1169,15 +1230,11 @@ namespace Collections.Pooled
 
                 _version++;
 
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-                if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                if (_clearOnFree)
                 {
                     // Clear the removed elements so that the gc can reclaim the references.
                     Array.Clear(_items, _size, count);
                 }
-#else
-                Array.Clear(_items, _size, count);
-#endif
             }
         }
 
@@ -1328,12 +1385,8 @@ namespace Collections.Pooled
 
             try
             {
-#if NETCOREAPP2_1 || NETCOREAPP3_0
                 // Clear the elements so that the gc can reclaim the references.
-                _pool.Return(_items, clearArray: RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                _pool.Return(_items, clearArray: true);
-#endif
+                _pool.Return(_items, clearArray: _clearOnFree);
             }
             catch (ArgumentException)
             {
@@ -1343,6 +1396,19 @@ namespace Collections.Pooled
             _items = s_emptyArray;
         }
 
+        private static bool ShouldClear(ClearMode mode)
+        {
+#if NETCOREAPP2_1
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+            return mode != ClearMode.Never;
+#endif
+        }
+
+        /// <summary>
+        /// Returns the internal buffers to the ArrayPool.
+        /// </summary>
         public void Dispose()
         {
             ReturnArray();

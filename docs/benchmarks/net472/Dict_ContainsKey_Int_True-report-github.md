@@ -10,11 +10,11 @@ Job=Clr  Runtime=Clr
 ```
 |                     Method |      N |       Mean |     Error |    StdDev | Ratio | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
 |--------------------------- |------- |-----------:|----------:|----------:|------:|------------:|------------:|------------:|--------------------:|
-|   **DictContainsKey_Int_True** |   **1000** |   **8.265 us** | **0.0577 us** | **0.0540 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_True |   1000 |   6.755 us | 0.0208 us | 0.0184 us |  0.82 |           - |           - |           - |                   - |
+|   **DictContainsKey_Int_True** |   **1000** |   **8.237 us** | **0.0211 us** | **0.0187 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_True |   1000 |   6.725 us | 0.0164 us | 0.0146 us |  0.82 |           - |           - |           - |                   - |
 |                            |        |            |           |           |       |             |             |             |                     |
-|   **DictContainsKey_Int_True** |  **10000** |  **82.459 us** | **0.7782 us** | **0.6899 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_True |  10000 |  67.109 us | 0.3839 us | 0.3591 us |  0.81 |           - |           - |           - |                   - |
+|   **DictContainsKey_Int_True** |  **10000** |  **81.931 us** | **0.2345 us** | **0.2193 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_True |  10000 |  66.795 us | 0.1792 us | 0.1589 us |  0.82 |           - |           - |           - |                   - |
 |                            |        |            |           |           |       |             |             |             |                     |
-|   **DictContainsKey_Int_True** | **100000** | **821.935 us** | **1.5723 us** | **1.4707 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledContainsKey_Int_True | 100000 | 670.315 us | 2.8438 us | 2.6601 us |  0.82 |           - |           - |           - |                   - |
+|   **DictContainsKey_Int_True** | **100000** | **818.798 us** | **1.8165 us** | **1.4182 us** |  **1.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledContainsKey_Int_True | 100000 | 669.564 us | 3.2544 us | 2.8850 us |  0.82 |           - |           - |           - |                   - |

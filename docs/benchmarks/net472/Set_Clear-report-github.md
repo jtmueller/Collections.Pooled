@@ -9,7 +9,7 @@ Job=Clr  Runtime=Clr  InvocationCount=1
 UnrollFactor=1  
 
 ```
-|          Method | InitialSetSize |     Mean |    Error |   StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|---------------- |--------------- |---------:|---------:|---------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|   HashSet_Clear |         320000 | 381.2 us | 11.83 us | 15.79 us |  1.00 |    0.00 |           - |           - |           - |                   - |
-| PooledSet_Clear |         320000 | 474.5 us | 11.49 us | 19.82 us |  1.26 |    0.08 |           - |           - |           - |                   - |
+|          Method | InitialSetSize |     Mean |     Error |   StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|---------------- |--------------- |---------:|----------:|---------:|------:|--------:|------------:|------------:|------------:|--------------------:|
+|   HashSet_Clear |         320000 | 370.6 us |  7.351 us | 11.00 us |  1.00 |    0.00 |           - |           - |           - |                   - |
+| PooledSet_Clear |         320000 | 464.5 us | 10.831 us | 21.12 us |  1.27 |    0.06 |           - |           - |           - |                   - |

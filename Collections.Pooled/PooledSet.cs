@@ -91,6 +91,7 @@ namespace Collections.Pooled
         private int _freeList;
         private IEqualityComparer<T> _comparer;
         private int _version;
+        private readonly bool _clearOnFree;
 
         private SerializationInfo? _siInfo; // temporary variable needed during deserialization
 
@@ -99,14 +100,22 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet()
-            : this(EqualityComparer<T>.Default)
-        { }
+        public PooledSet() : this(ClearMode.Auto, EqualityComparer<T>.Default) { }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(IEqualityComparer<T>? comparer)
+        public PooledSet(ClearMode clearMode) : this(clearMode, EqualityComparer<T>.Default) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(IEqualityComparer<T> comparer) : this(ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(ClearMode clearMode, IEqualityComparer<T>? comparer)
         {
             _comparer = comparer ?? EqualityComparer<T>.Default;
             _lastIndex = 0;
@@ -114,20 +123,61 @@ namespace Collections.Pooled
             _freeList = -1;
             _version = 0;
             _size = 0;
+            _clearOnFree = ShouldClear(clearMode);
         }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(int capacity)
-            : this(capacity, EqualityComparer<T>.Default)
-        { }
+        public PooledSet(int capacity) : this(capacity, ClearMode.Auto, EqualityComparer<T>.Default) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(int capacity, ClearMode clearMode) : this(capacity, clearMode, EqualityComparer<T>.Default) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(int capacity, IEqualityComparer<T> comparer) : this(capacity, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(int capacity, ClearMode clearMode, IEqualityComparer<T> comparer) : this(clearMode, comparer)
+        {
+            if (capacity < 0)
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+            }
+
+            if (capacity > 0)
+            {
+                Initialize(capacity);
+            }
+        }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
         public PooledSet(IEnumerable<T> collection)
-            : this(collection, collection is PooledSet<T> ps ? ps.Comparer : EqualityComparer<T>.Default)
+            : this(collection, ClearMode.Auto,
+                   collection is PooledSet<T> ps ? ps.Comparer : collection is HashSet<T> hs ? hs.Comparer : EqualityComparer<T>.Default)
+        { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(IEnumerable<T> collection, ClearMode clearMode)
+            : this(collection, clearMode,
+                   collection is PooledSet<T> ps ? ps.Comparer : collection is HashSet<T> hs ? hs.Comparer : EqualityComparer<T>.Default)
+        { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(IEnumerable<T> collection, IEqualityComparer<T>? comparer)
+            : this(collection, ClearMode.Auto, comparer)
         { }
 
         /// <summary>
@@ -135,10 +185,7 @@ namespace Collections.Pooled
         /// Since resizes are relatively expensive (require rehashing), this attempts to minimize 
         /// the need to resize by setting the initial capacity based on size of collection. 
         /// </summary>
-        /// <param name="collection"></param>
-        /// <param name="comparer"></param>
-        public PooledSet(IEnumerable<T> collection, IEqualityComparer<T>? comparer)
-            : this(comparer)
+        public PooledSet(IEnumerable<T> collection, ClearMode clearMode, IEqualityComparer<T>? comparer) : this(clearMode, comparer)
         {
             if (collection == null)
             {
@@ -169,35 +216,47 @@ namespace Collections.Pooled
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(T[] array)
-            : this(array.AsSpan(), null)
-        { }
+        public PooledSet(T[] array) : this(array.AsSpan(), ClearMode.Auto, null) { }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(T[] array, IEqualityComparer<T> comparer)
-            : this(array.AsSpan(), comparer)
-        { }
+        public PooledSet(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, null) { }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(ReadOnlySpan<T> span)
-            : this(span, null)
-        { }
+        public PooledSet(T[] array, IEqualityComparer<T>? comparer) : this(array.AsSpan(), ClearMode.Auto, comparer) { }
 
         /// <summary>
         /// Creates a new instance of PooledSet.
         /// </summary>
-        public PooledSet(ReadOnlySpan<T> span, IEqualityComparer<T>? comparer)
-            : this(comparer)
+        public PooledSet(T[] array, ClearMode clearMode, IEqualityComparer<T>? comparer) : this(array.AsSpan(), clearMode, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, null) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(ReadOnlySpan<T> span, IEqualityComparer<T>? comparer) : this(span, ClearMode.Auto, comparer) { }
+
+        /// <summary>
+        /// Creates a new instance of PooledSet.
+        /// </summary>
+        public PooledSet(ReadOnlySpan<T> span, ClearMode clearMode, IEqualityComparer<T>? comparer) : this(clearMode, comparer)
         {
             // to avoid excess resizes, first set size based on collection's count. Collection
             // may contain duplicates, so call TrimExcess if resulting hashset is larger than
             // threshold
             Initialize(span.Length);
-
             UnionWith(span);
 
             if (_count > 0 && _size / _count > ShrinkThreshold)
@@ -210,9 +269,8 @@ namespace Collections.Pooled
         /// Creates a new instance of PooledSet.
         /// </summary>
 #pragma warning disable IDE0060 // Remove unused parameter
-
         protected PooledSet(SerializationInfo info, StreamingContext context)
-#pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore IDE0060
         {
             // We can't do anything with the keys and values until the entire graph has been 
             // deserialized and we have a reasonable estimate that GetHashCode is not going to 
@@ -268,23 +326,6 @@ namespace Collections.Pooled
                 _lastIndex = index;
             }
             _count = count;
-        }
-
-        /// <summary>
-        /// Creates a new instance of PooledSet.
-        /// </summary>
-        public PooledSet(int capacity, IEqualityComparer<T> comparer)
-            : this(comparer)
-        {
-            if (capacity < 0)
-            {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-            }
-
-            if (capacity > 0)
-            {
-                Initialize(capacity);
-            }
         }
 
         #endregion
@@ -389,14 +430,10 @@ namespace Collections.Pooled
                             slots[last].next = slots[i].next;
                         }
                         slots[i].hashCode = -1;
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-                        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+                        if (_clearOnFree)
                         {
                             slots[i].value = default!;
                         }
-#else
-                        slots[i].value = default!;
-#endif
                         slots[i].next = _freeList;
 
                         _count--;
@@ -426,9 +463,15 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Number of elements in this hashset
+        /// Number of elements in this set
         /// </summary>
         public int Count => _count;
+
+        /// <summary>
+        /// Returns the ClearMode behavior for the collection, denoting whether values are
+        /// cleared from internal arrays before returning them to the pool.
+        /// </summary>
+        public ClearMode ClearMode => _clearOnFree ? ClearMode.Always : ClearMode.Never;
 
         /// <summary>
         /// Whether this is readonly
@@ -1727,11 +1770,7 @@ namespace Collections.Pooled
             {
                 try
                 {
-#if NETCOREAPP2_1 || NETCOREAPP3_0
-                    s_slotPool.Return(_slots, RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-                    s_slotPool.Return(_slots, clearArray: true);
-#endif
+                    s_slotPool.Return(_slots, clearArray: _clearOnFree);
                 }
                 catch (ArgumentException)
                 {
@@ -1753,6 +1792,16 @@ namespace Collections.Pooled
 
             _slots = null;
             _buckets = null;
+        }
+
+        private static bool ShouldClear(ClearMode mode)
+        {
+#if NETCOREAPP2_1
+            return mode == ClearMode.Always
+                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
+#else
+            return mode != ClearMode.Never;
+#endif
         }
 
 #nullable disable
@@ -2001,11 +2050,10 @@ namespace Collections.Pooled
                 }
             }
 
-            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a 
-            // FindFirstUnmarked method.
-            for (int i = 0; i < originalLastIndex; i++)
+            // if anything unmarked, remove it. 
+            for (int i = bitHelper.FindFirstUnmarked(); (uint)i < (uint)originalLastIndex; i = bitHelper.FindFirstUnmarked(i + 1))
             {
-                if (_slots[i].hashCode >= 0 && !bitHelper.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2043,11 +2091,10 @@ namespace Collections.Pooled
                 }
             }
 
-            // if anything unmarked, remove it. Perf can be optimized here if BitHelper had a 
-            // FindFirstUnmarked method.
-            for (int i = 0; i < originalLastIndex; i++)
+            // if anything unmarked, remove it. 
+            for (int i = bitHelper.FindFirstUnmarked(); (uint)i < (uint)originalLastIndex; i = bitHelper.FindFirstUnmarked(i + 1))
             {
-                if (_slots[i].hashCode >= 0 && !bitHelper.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2185,9 +2232,9 @@ namespace Collections.Pooled
             }
 
             // if anything marked, remove it
-            for (int i = 0; i < originalLastIndex; i++)
+            for (int i = itemsToRemove.FindFirstMarked(); (uint)i < (uint)originalLastIndex; i = itemsToRemove.FindFirstMarked(i + 1))
             {
-                if (itemsToRemove.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2252,9 +2299,9 @@ namespace Collections.Pooled
             }
 
             // if anything marked, remove it
-            for (int i = 0; i < originalLastIndex; i++)
+            for (int i = itemsToRemove.FindFirstMarked(); (uint)i < (uint)originalLastIndex; i = itemsToRemove.FindFirstMarked(i + 1))
             {
-                if (itemsToRemove.IsMarked(i))
+                if (_slots[i].hashCode >= 0)
                 {
                     Remove(_slots[i].value);
                 }
@@ -2409,7 +2456,7 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Determines counts that can be used to determine equality, subset, and superset. This
-        /// is only used when other is an IEnumerable and not a HashSet. If other is a HashSet
+        /// is only used when other is a Span and not a HashSet. If other is a HashSet
         /// these properties can be checked faster without use of marking because we can assume 
         /// other has no duplicates.
         /// 

@@ -9,18 +9,18 @@ Job=Clr  Runtime=Clr  InvocationCount=1
 UnrollFactor=1  
 
 ```
-|                              Method | CountToIntersect | InitialSetSize |        Mean |     Error |    StdDev |      Median | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
-|------------------------------------ |----------------- |--------------- |------------:|----------:|----------:|------------:|------:|--------:|------------:|------------:|------------:|--------------------:|
-|     **HashSet_SymmetricExcept_Hashset** |            **32000** |        **8000000** |  **1,254.5 us** |  **24.66 us** |  **30.29 us** |  **1,262.4 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledSet_SymmetricExcept_PooledSet |            32000 |        8000000 |    837.6 us |  19.53 us |  44.87 us |    809.7 us |  0.68 |    0.05 |           - |           - |           - |                   - |
-|        HashSet_SymmetricExcept_Enum |            32000 |        8000000 |  2,894.7 us |  54.50 us |  42.55 us |  2,872.0 us |  2.33 |    0.08 |           - |           - |           - |             33296 B |
-|      PooledSet_SymmetricExcept_Enum |            32000 |        8000000 |  2,643.5 us |  66.47 us | 193.89 us |  2,544.0 us |  2.10 |    0.20 |           - |           - |           - |             33296 B |
-|       HashSet_SymmetricExcept_Array |            32000 |        8000000 |  3,130.3 us |  88.68 us | 260.07 us |  2,965.6 us |  2.49 |    0.25 |           - |           - |           - |             33296 B |
-|     PooledSet_SymmetricExcept_Array |            32000 |        8000000 |  2,371.6 us |  28.12 us |  21.96 us |  2,360.4 us |  1.91 |    0.05 |           - |           - |           - |             25104 B |
-|                                     |                  |                |             |           |           |             |       |         |             |             |             |                     |
-|     **HashSet_SymmetricExcept_Hashset** |           **320000** |        **8000000** |  **3,222.2 us** |  **78.44 us** | **230.05 us** |  **3,206.7 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
-| PooledSet_SymmetricExcept_PooledSet |           320000 |        8000000 |  2,920.8 us |  69.31 us | 201.07 us |  2,808.8 us |  0.91 |    0.09 |           - |           - |           - |                   - |
-|        HashSet_SymmetricExcept_Enum |           320000 |        8000000 | 15,776.5 us | 346.43 us | 425.45 us | 15,664.7 us |  4.89 |    0.35 |           - |           - |           - |             33296 B |
-|      PooledSet_SymmetricExcept_Enum |           320000 |        8000000 | 15,348.9 us | 263.69 us | 246.66 us | 15,228.0 us |  4.70 |    0.32 |           - |           - |           - |             33296 B |
-|       HashSet_SymmetricExcept_Array |           320000 |        8000000 | 16,591.8 us | 381.40 us | 423.93 us | 16,551.1 us |  5.13 |    0.27 |           - |           - |           - |             33296 B |
-|     PooledSet_SymmetricExcept_Array |           320000 |        8000000 | 14,450.9 us | 285.68 us | 409.71 us | 14,333.7 us |  4.50 |    0.32 |           - |           - |           - |             25104 B |
+|                              Method | CountToIntersect | InitialSetSize |        Mean |      Error |     StdDev | Ratio | RatioSD | Gen 0/1k Op | Gen 1/1k Op | Gen 2/1k Op | Allocated Memory/Op |
+|------------------------------------ |----------------- |--------------- |------------:|-----------:|-----------:|------:|--------:|------------:|------------:|------------:|--------------------:|
+|     **HashSet_SymmetricExcept_Hashset** |            **32000** |        **8000000** |  **1,172.2 us** |  **46.432 us** |  **43.433 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledSet_SymmetricExcept_PooledSet |            32000 |        8000000 |    826.0 us |   1.137 us |   1.008 us |  0.70 |    0.03 |           - |           - |           - |                   - |
+|        HashSet_SymmetricExcept_Enum |            32000 |        8000000 |  2,871.7 us |  55.673 us |  61.881 us |  2.45 |    0.10 |           - |           - |           - |             33296 B |
+|      PooledSet_SymmetricExcept_Enum |            32000 |        8000000 |  2,476.8 us |  70.986 us |  81.747 us |  2.12 |    0.12 |           - |           - |           - |             33296 B |
+|       HashSet_SymmetricExcept_Array |            32000 |        8000000 |  2,890.1 us |  50.304 us |  44.593 us |  2.47 |    0.10 |           - |           - |           - |             33296 B |
+|     PooledSet_SymmetricExcept_Array |            32000 |        8000000 |  2,307.7 us |  25.642 us |  21.412 us |  1.96 |    0.08 |           - |           - |           - |             25104 B |
+|                                     |                  |                |             |            |            |       |         |             |             |             |                     |
+|     **HashSet_SymmetricExcept_Hashset** |           **320000** |        **8000000** |  **3,094.6 us** |  **61.729 us** | **132.878 us** |  **1.00** |    **0.00** |           **-** |           **-** |           **-** |                   **-** |
+| PooledSet_SymmetricExcept_PooledSet |           320000 |        8000000 |  2,799.3 us |  51.415 us |  45.578 us |  0.90 |    0.04 |           - |           - |           - |                   - |
+|        HashSet_SymmetricExcept_Enum |           320000 |        8000000 | 15,023.0 us | 142.461 us | 118.962 us |  4.83 |    0.18 |           - |           - |           - |             33296 B |
+|      PooledSet_SymmetricExcept_Enum |           320000 |        8000000 | 15,091.1 us | 151.192 us | 126.252 us |  4.86 |    0.18 |           - |           - |           - |             33296 B |
+|       HashSet_SymmetricExcept_Array |           320000 |        8000000 | 15,465.5 us | 170.118 us | 150.805 us |  4.99 |    0.21 |           - |           - |           - |             33296 B |
+|     PooledSet_SymmetricExcept_Array |           320000 |        8000000 | 13,915.0 us | 223.650 us | 186.758 us |  4.48 |    0.16 |           - |           - |           - |             25104 B |
