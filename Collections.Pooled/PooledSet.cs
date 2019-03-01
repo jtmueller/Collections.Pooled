@@ -59,21 +59,21 @@ namespace Collections.Pooled
     public class PooledSet<T> : ICollection<T>, ISet<T>, IReadOnlyCollection<T>, ISerializable, IDeserializationCallback, IDisposable
     {
         // store lower 31 bits of hash code
-        private const int Lower31BitMask = 0x7FFFFFFF;
+        private const int s_lower31BitMask = 0x7FFFFFFF;
         // cutoff point, above which we won't do stackallocs. This corresponds to 100 integers.
-        private const int StackAllocThreshold = 100;
+        private const int s_stackAllocThreshold = 100;
         // when constructing a hashset from an existing collection, it may contain duplicates, 
         // so this is used as the max acceptable excess ratio of capacity to count. Note that
         // this is only used on the ctor and not to automatically shrink if the hashset has, e.g,
         // a lot of adds followed by removes. Users must explicitly shrink by calling TrimExcess.
         // This is set to 3 because capacity is acceptable as 2x rounded up to nearest prime.
-        private const int ShrinkThreshold = 3;
+        private const int s_shrinkThreshold = 3;
 
         // constants for serialization
-        private const string CapacityName = "Capacity"; // Do not rename (binary serialization)
-        private const string ElementsName = "Elements"; // Do not rename (binary serialization)
-        private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
-        private const string VersionName = "Version"; // Do not rename (binary serialization)
+        private const string s_capacityName = "Capacity"; // Do not rename (binary serialization)
+        private const string s_elementsName = "Elements"; // Do not rename (binary serialization)
+        private const string s_comparerName = "Comparer"; // Do not rename (binary serialization)
+        private const string s_versionName = "Version"; // Do not rename (binary serialization)
 
         private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
         private static readonly ArrayPool<Slot> s_slotPool = ArrayPool<Slot>.Shared;
@@ -206,7 +206,7 @@ namespace Collections.Pooled
 
                 UnionWith(collection);
 
-                if (_count > 0 && _size / _count > ShrinkThreshold)
+                if (_count > 0 && _size / _count > s_shrinkThreshold)
                 {
                     TrimExcess();
                 }
@@ -259,7 +259,7 @@ namespace Collections.Pooled
             Initialize(span.Length);
             UnionWith(span);
 
-            if (_count > 0 && _size / _count > ShrinkThreshold)
+            if (_count > 0 && _size / _count > s_shrinkThreshold)
             {
                 TrimExcess();
             }
@@ -508,15 +508,15 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
-            info.AddValue(VersionName, _version); // need to serialize version to avoid problems with serializing while enumerating
-            info.AddValue(ComparerName, _comparer, typeof(IEqualityComparer<T>));
-            info.AddValue(CapacityName, _buckets == null ? 0 : _size);
+            info.AddValue(s_versionName, _version); // need to serialize version to avoid problems with serializing while enumerating
+            info.AddValue(s_comparerName, _comparer, typeof(IEqualityComparer<T>));
+            info.AddValue(s_capacityName, _buckets == null ? 0 : _size);
 
             if (_buckets != null)
             {
-                T[] array = new T[_count];
+                var array = new T[_count];
                 CopyTo(array);
-                info.AddValue(ElementsName, array, typeof(T[]));
+                info.AddValue(s_elementsName, array, typeof(T[]));
             }
         }
 
@@ -537,15 +537,15 @@ namespace Collections.Pooled
                 return;
             }
 
-            int capacity = _siInfo.GetInt32(CapacityName);
-            _comparer = (IEqualityComparer<T>)_siInfo.GetValue(ComparerName, typeof(IEqualityComparer<T>));
+            int capacity = _siInfo.GetInt32(s_capacityName);
+            _comparer = (IEqualityComparer<T>)_siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<T>));
             _freeList = -1;
 
             if (capacity != 0)
             {
                 Initialize(capacity);
 
-                T[] array = (T[])_siInfo.GetValue(ElementsName, typeof(T[]));
+                var array = (T[])_siInfo.GetValue(s_elementsName, typeof(T[]));
 
                 if (array == null)
                 {
@@ -563,7 +563,7 @@ namespace Collections.Pooled
                 _buckets = null;
             }
 
-            _version = _siInfo.GetInt32(VersionName);
+            _version = _siInfo.GetInt32(s_versionName);
             _siInfo = null;
         }
 
@@ -2035,8 +2035,8 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> span = stackalloc int[StackAllocThreshold];
-            BitHelper bitHelper = intArrayLength <= StackAllocThreshold
+            Span<int> span = stackalloc int[s_stackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= s_stackAllocThreshold
                 ? new BitHelper(span.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2076,8 +2076,8 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> span = stackalloc int[StackAllocThreshold];
-            BitHelper bitHelper = intArrayLength <= StackAllocThreshold
+            Span<int> span = stackalloc int[s_stackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= s_stackAllocThreshold
                 ? new BitHelper(span.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2195,13 +2195,13 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> itemsToRemoveSpan = stackalloc int[StackAllocThreshold / 2];
-            BitHelper itemsToRemove = intArrayLength <= StackAllocThreshold / 2
+            Span<int> itemsToRemoveSpan = stackalloc int[s_stackAllocThreshold / 2];
+            BitHelper itemsToRemove = intArrayLength <= s_stackAllocThreshold / 2
                 ? new BitHelper(itemsToRemoveSpan.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
-            Span<int> itemsAddedFromOtherSpan = stackalloc int[StackAllocThreshold / 2];
-            BitHelper itemsAddedFromOther = intArrayLength <= StackAllocThreshold / 2
+            Span<int> itemsAddedFromOtherSpan = stackalloc int[s_stackAllocThreshold / 2];
+            BitHelper itemsAddedFromOther = intArrayLength <= s_stackAllocThreshold / 2
                 ? new BitHelper(itemsAddedFromOtherSpan.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2262,13 +2262,13 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> itemsToRemoveSpan = stackalloc int[StackAllocThreshold / 2];
-            BitHelper itemsToRemove = intArrayLength <= StackAllocThreshold / 2
+            Span<int> itemsToRemoveSpan = stackalloc int[s_stackAllocThreshold / 2];
+            BitHelper itemsToRemove = intArrayLength <= s_stackAllocThreshold / 2
                 ? new BitHelper(itemsToRemoveSpan.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
-            Span<int> itemsAddedFromOtherSpan = stackalloc int[StackAllocThreshold / 2];
-            BitHelper itemsAddedFromOther = intArrayLength <= StackAllocThreshold / 2
+            Span<int> itemsAddedFromOtherSpan = stackalloc int[s_stackAllocThreshold / 2];
+            BitHelper itemsAddedFromOther = intArrayLength <= s_stackAllocThreshold / 2
                 ? new BitHelper(itemsAddedFromOtherSpan.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2414,8 +2414,8 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> span = stackalloc int[StackAllocThreshold];
-            BitHelper bitHelper = intArrayLength <= StackAllocThreshold
+            Span<int> span = stackalloc int[s_stackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= s_stackAllocThreshold
                 ? new BitHelper(span.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2491,8 +2491,8 @@ namespace Collections.Pooled
             int originalLastIndex = _lastIndex;
             int intArrayLength = BitHelper.ToIntArrayLength(originalLastIndex);
 
-            Span<int> span = stackalloc int[StackAllocThreshold];
-            BitHelper bitHelper = intArrayLength <= StackAllocThreshold
+            Span<int> span = stackalloc int[s_stackAllocThreshold];
+            BitHelper bitHelper = intArrayLength <= s_stackAllocThreshold
                 ? new BitHelper(span.Slice(0, intArrayLength), clear: true)
                 : new BitHelper(new int[intArrayLength], clear: false);
 
@@ -2600,9 +2600,7 @@ namespace Collections.Pooled
         /// <param name="set1"></param>
         /// <param name="set2"></param>
         private static bool AreEqualityComparersEqual(PooledSet<T> set1, PooledSet<T> set2)
-        {
-            return set1.Comparer.Equals(set2.Comparer);
-        }
+            => set1.Comparer.Equals(set2.Comparer);
 
         /// <summary>
         /// Checks if equality comparers are equal. This is used for algorithms that can
@@ -2612,9 +2610,7 @@ namespace Collections.Pooled
         /// <param name="set1"></param>
         /// <param name="set2"></param>
         private static bool AreEqualityComparersEqual(PooledSet<T> set1, HashSet<T> set2)
-        {
-            return set1.Comparer.Equals(set2.Comparer);
-        }
+            => set1.Comparer.Equals(set2.Comparer);
 
         /// <summary>
         /// Workaround Comparers that throw ArgumentNullException for GetHashCode(null).
@@ -2627,7 +2623,7 @@ namespace Collections.Pooled
             {
                 return 0;
             }
-            return _comparer.GetHashCode(item) & Lower31BitMask;
+            return _comparer.GetHashCode(item) & s_lower31BitMask;
         }
 
         /// <summary>

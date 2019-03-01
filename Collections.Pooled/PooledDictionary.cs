@@ -55,15 +55,15 @@ namespace Collections.Pooled
         }
 
         // store lower 31 bits of hash code
-        private const int Lower31BitMask = 0x7FFFFFFF;
+        private const int s_lower31BitMask = 0x7FFFFFFF;
 
         // constants for serialization
-        private const string VersionName = "Version"; // Do not rename (binary serialization)
-        private const string HashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
-        private const string KeyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
-        private const string ComparerName = "Comparer"; // Do not rename (binary serialization)
-        private const string ClearKeyName = "CK"; // Do not rename (binary serialization)
-        private const string ClearValueName = "CV"; // Do not rename (binary serialization)
+        private const string s_versionName = "Version"; // Do not rename (binary serialization)
+        private const string s_hashSizeName = "HashSize"; // Do not rename (binary serialization). Must save buckets.Length
+        private const string s_keyValuePairsName = "KeyValuePairs"; // Do not rename (binary serialization)
+        private const string s_comparerName = "Comparer"; // Do not rename (binary serialization)
+        private const string s_clearKeyName = "CK"; // Do not rename (binary serialization)
+        private const string s_clearValueName = "CV"; // Do not rename (binary serialization)
 
         private static readonly ArrayPool<int> s_bucketPool = ArrayPool<int>.Shared;
         private static readonly ArrayPool<Entry> s_entryPool = ArrayPool<Entry>.Shared;
@@ -326,8 +326,8 @@ namespace Collections.Pooled
         protected PooledDictionary(SerializationInfo info, StreamingContext context)
 #pragma warning restore IDE0060
         {
-            _clearKeyOnFree = (bool?)info.GetValue(ClearKeyName, typeof(bool)) ?? ShouldClearKey(ClearMode.Auto);
-            _clearValueOnFree = (bool?)info.GetValue(ClearValueName, typeof(bool)) ?? ShouldClearValue(ClearMode.Auto);
+            _clearKeyOnFree = (bool?)info.GetValue(s_clearKeyName, typeof(bool)) ?? ShouldClearKey(ClearMode.Auto);
+            _clearValueOnFree = (bool?)info.GetValue(s_clearValueName, typeof(bool)) ?? ShouldClearValue(ClearMode.Auto);
 
             // We can't do anything with the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -647,10 +647,10 @@ namespace Collections.Pooled
         }
 
         public Enumerator GetEnumerator()
-            => new Enumerator(this, Enumerator.KeyValuePair);
+            => new Enumerator(this, Enumerator.s_keyValuePair);
 
         IEnumerator<KeyValuePair<TKey, TValue>> IEnumerable<KeyValuePair<TKey, TValue>>.GetEnumerator()
-            => new Enumerator(this, Enumerator.KeyValuePair);
+            => new Enumerator(this, Enumerator.s_keyValuePair);
 
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
             => GetObjectData(info, context);
@@ -667,17 +667,17 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
-            info.AddValue(VersionName, _version);
-            info.AddValue(ComparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
-            info.AddValue(HashSizeName, _size); // This is the length of the bucket array
-            info.AddValue(ClearKeyName, _clearKeyOnFree);
-            info.AddValue(ClearValueName, _clearValueOnFree);
+            info.AddValue(s_versionName, _version);
+            info.AddValue(s_comparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
+            info.AddValue(s_hashSizeName, _size); // This is the length of the bucket array
+            info.AddValue(s_clearKeyName, _clearKeyOnFree);
+            info.AddValue(s_clearValueName, _clearValueOnFree);
 
             if (_buckets != null)
             {
                 var array = new KeyValuePair<TKey, TValue>[Count];
                 CopyTo(array, 0);
-                info.AddValue(KeyValuePairsName, array, typeof(KeyValuePair<TKey, TValue>[]));
+                info.AddValue(s_keyValuePairsName, array, typeof(KeyValuePair<TKey, TValue>[]));
             }
         }
 
@@ -700,7 +700,7 @@ namespace Collections.Pooled
 
             if (comparer == null)
             {
-                int hashCode = key!.GetHashCode() & Lower31BitMask;
+                int hashCode = key!.GetHashCode() & s_lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
                 if (default(TKey) != null)
@@ -753,7 +753,7 @@ namespace Collections.Pooled
             }
             else
             {
-                int hashCode = comparer.GetHashCode(key) & Lower31BitMask;
+                int hashCode = comparer.GetHashCode(key) & s_lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
                 do
@@ -807,7 +807,7 @@ namespace Collections.Pooled
             var comparer = _comparer;
             var size = _size;
 
-            int hashCode = ((comparer == null) ? key!.GetHashCode() : comparer.GetHashCode(key)) & Lower31BitMask;
+            int hashCode = ((comparer == null) ? key!.GetHashCode() : comparer.GetHashCode(key)) & s_lower31BitMask;
 
             int collisionCount = 0;
             ref int bucket = ref _buckets[hashCode % size];
@@ -1000,16 +1000,16 @@ namespace Collections.Pooled
                 return;
             }
 
-            int realVersion = siInfo.GetInt32(VersionName);
-            int hashsize = siInfo.GetInt32(HashSizeName);
-            _comparer = (IEqualityComparer<TKey>)siInfo.GetValue(ComparerName, typeof(IEqualityComparer<TKey>));
+            int realVersion = siInfo.GetInt32(s_versionName);
+            int hashsize = siInfo.GetInt32(s_hashSizeName);
+            _comparer = (IEqualityComparer<TKey>)siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<TKey>));
 
             if (hashsize != 0)
             {
                 Initialize(hashsize);
 
                 var array = (KeyValuePair<TKey, TValue>[])
-                    siInfo.GetValue(KeyValuePairsName, typeof(KeyValuePair<TKey, TValue>[]));
+                    siInfo.GetValue(s_keyValuePairsName, typeof(KeyValuePair<TKey, TValue>[]));
 
                 if (array == null)
                 {
@@ -1075,7 +1075,7 @@ namespace Collections.Pooled
                     if (entries[i].hashCode >= 0)
                     {
                         Debug.Assert(_comparer == null);
-                        entries[i].hashCode = entries[i].key!.GetHashCode() & Lower31BitMask;
+                        entries[i].hashCode = entries[i].key!.GetHashCode() & s_lower31BitMask;
                     }
                 }
             }
@@ -1116,7 +1116,7 @@ namespace Collections.Pooled
             int collisionCount = 0;
             if (_size > 0)
             {
-                int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & Lower31BitMask;
+                int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & s_lower31BitMask;
                 int bucket = hashCode % _size;
                 int last = -1;
                 // Value in buckets is 1-based
@@ -1177,7 +1177,7 @@ namespace Collections.Pooled
             var buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
-            int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & Lower31BitMask;
+            int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & s_lower31BitMask;
             int bucket = hashCode % _size;
             int last = -1;
             // Value in buckets is 1-based
@@ -1320,7 +1320,7 @@ namespace Collections.Pooled
         }
 
         IEnumerator IEnumerable.GetEnumerator()
-            => new Enumerator(this, Enumerator.KeyValuePair);
+            => new Enumerator(this, Enumerator.s_keyValuePair);
 
         /// <summary>
         /// Ensures that the dictionary can hold up to 'capacity' entries without any further expansion of its backing storage
@@ -1450,7 +1450,7 @@ namespace Collections.Pooled
 
                 try
                 {
-                    TKey tempKey = (TKey)key;
+                    var tempKey = (TKey)key;
                     try
                     {
                         this[tempKey] = (TValue)value!;
@@ -1536,7 +1536,7 @@ namespace Collections.Pooled
 
             try
             {
-                TKey tempKey = (TKey)key;
+                var tempKey = (TKey)key;
 
                 try
                 {
@@ -1564,7 +1564,7 @@ namespace Collections.Pooled
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
-            => new Enumerator(this, Enumerator.DictEntry);
+            => new Enumerator(this, Enumerator.s_dictEntry);
 
         void IDictionary.Remove(object key)
         {
@@ -1591,8 +1591,8 @@ namespace Collections.Pooled
             private KeyValuePair<TKey, TValue> _current;
             private readonly int _getEnumeratorRetType;  // What should Enumerator.Current return?
 
-            internal const int DictEntry = 1;
-            internal const int KeyValuePair = 2;
+            internal const int s_dictEntry = 1;
+            internal const int s_keyValuePair = 2;
 
             internal Enumerator(PooledDictionary<TKey, TValue> dictionary, int getEnumeratorRetType)
             {
@@ -1643,7 +1643,7 @@ namespace Collections.Pooled
                         ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
 
-                    if (_getEnumeratorRetType == DictEntry)
+                    if (_getEnumeratorRetType == s_dictEntry)
                     {
                         return new DictionaryEntry(_current.Key, _current.Value);
                     }

@@ -43,7 +43,7 @@ namespace Collections.Pooled
         private int _version; // Used to keep enumerator in sync w/ collection. Do not rename (binary serialization)
         private readonly bool _clearOnFree;
 
-        private const int DefaultCapacity = 4;
+        private const int s_defaultCapacity = 4;
 
         #region Constructors
 
@@ -544,7 +544,7 @@ namespace Collections.Pooled
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void PushWithResize(T item)
         {
-            var newArray = _pool.Rent((_array.Length == 0) ? DefaultCapacity : 2 * _array.Length);
+            var newArray = _pool.Rent((_array.Length == 0) ? s_defaultCapacity : 2 * _array.Length);
             Array.Copy(_array, newArray, _size);
             ReturnArray(replaceWith: newArray);
             _array[_size] = item;
@@ -560,7 +560,7 @@ namespace Collections.Pooled
             if (_size == 0)
                 return Array.Empty<T>();
 
-            T[] outArray = new T[_size];
+            var outArray = new T[_size];
             int i = 0;
             while (i < _size)
             {
@@ -634,10 +634,7 @@ namespace Collections.Pooled
                 _currentElement = default!;
             }
 
-            public void Dispose()
-            {
-                _index = -1;
-            }
+            public void Dispose() => _index = -1;
 
             public bool MoveNext()
             {
@@ -681,10 +678,7 @@ namespace Collections.Pooled
                 throw new InvalidOperationException(_index == -2 ? "Enumeration was not started." : "Enumeration has ended.");
             }
 
-            object? IEnumerator.Current
-            {
-                get { return Current; }
-            }
+            object? IEnumerator.Current => Current;
 
             void IEnumerator.Reset()
             {

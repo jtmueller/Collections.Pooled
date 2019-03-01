@@ -31,8 +31,8 @@ namespace Collections.Pooled
     public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
     {
         // internal constant copied from Array.MaxArrayLength
-        private const int MaxArrayLength = 0x7FEFFFFF;
-        private const int DefaultCapacity = 4;
+        private const int s_maxArrayLength = 0x7FEFFFFF;
+        private const int s_defaultCapacity = 4;
         private static readonly T[] s_emptyArray = Array.Empty<T>();
 
         [NonSerialized]
@@ -627,10 +627,7 @@ namespace Collections.Pooled
             Span.CopyTo(span);
         }
 
-        void ICollection<T>.CopyTo(T[] array, int arrayIndex)
-        {
-            Array.Copy(_items, 0, array, arrayIndex, _size);
-        }
+        void ICollection<T>.CopyTo(T[] array, int arrayIndex) => Array.Copy(_items, 0, array, arrayIndex, _size);
 
         // Copies this List into array, which must be of a 
         // compatible array type.  
@@ -662,10 +659,10 @@ namespace Collections.Pooled
         {
             if (_items.Length < min)
             {
-                int newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
+                int newCapacity = _items.Length == 0 ? s_defaultCapacity : _items.Length * 2;
                 // Allow the list to grow to maximum possible capacity (~2G elements) before encountering overflow.
                 // Note that this check works even when _items.Length overflowed thanks to the (uint) cast
-                if ((uint)newCapacity > MaxArrayLength) newCapacity = MaxArrayLength;
+                if ((uint)newCapacity > s_maxArrayLength) newCapacity = s_maxArrayLength;
                 if (newCapacity < min) newCapacity = min;
                 Capacity = newCapacity;
             }
@@ -1504,10 +1501,7 @@ namespace Collections.Pooled
         {
             private readonly Func<T, T, int> _comparison;
 
-            public Comparer(Func<T, T, int> comparison)
-            {
-                _comparison = comparison;
-            }
+            public Comparer(Func<T, T, int> comparison) => _comparison = comparison;
 
             public int Compare(T x, T y) => _comparison(x, y);
         }

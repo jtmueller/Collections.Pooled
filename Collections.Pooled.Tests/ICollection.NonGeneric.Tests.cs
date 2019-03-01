@@ -31,7 +31,7 @@ namespace Collections.Pooled.Tests
         /// <returns>An instance of an ICollection that can be used for testing.</returns>
         protected virtual ICollection NonGenericICollectionFactory(int count)
         {
-            ICollection collection = NonGenericICollectionFactory();
+            var collection = NonGenericICollectionFactory();
             AddToCollection(collection, count);
             return collection;
         }
@@ -113,7 +113,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_Count_Validity(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             Assert.Equal(count, collection.Count);
         }
 
@@ -125,7 +125,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_IsSynchronized(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             Assert.Equal(ExpectedIsSynchronized, collection.IsSynchronized);
         }
 
@@ -137,7 +137,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_SyncRoot(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             if (ICollection_NonGeneric_SupportsSyncRoot)
             {
                 Assert.Equal(ICollection_NonGeneric_HasNullSyncRoot, collection.SyncRoot == null);
@@ -155,8 +155,8 @@ namespace Collections.Pooled.Tests
         {
             if (ICollection_NonGeneric_SupportsSyncRoot && !ICollection_NonGeneric_HasNullSyncRoot)
             {
-                ICollection collection1 = NonGenericICollectionFactory(count);
-                ICollection collection2 = NonGenericICollectionFactory(count);
+                var collection1 = NonGenericICollectionFactory(count);
+                var collection2 = NonGenericICollectionFactory(count);
                 Assert.NotSame(collection1.SyncRoot, collection2.SyncRoot);
             }
         }
@@ -169,7 +169,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_CopyTo_NullArray_ThrowsArgumentNullException(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             Assert.Throws<ArgumentNullException>(() => collection.CopyTo(null, 0));
         }
 
@@ -179,7 +179,7 @@ namespace Collections.Pooled.Tests
         {
             if (count > 0)
             {
-                ICollection collection = NonGenericICollectionFactory(count);
+                var collection = NonGenericICollectionFactory(count);
                 Array arr = new object[count, count];
                 Assert.Equal(2, arr.Rank);
                 Assert.Throws(ICollection_NonGeneric_CopyTo_TwoDimensionArray_ThrowType, () => collection.CopyTo(arr, 0));
@@ -190,8 +190,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void ICollection_NonGeneric_CopyTo_NonZeroLowerBound(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
-            Array arr = Array.CreateInstance(typeof(object), new int[1] { count }, new int[1] { 2 });
+            var collection = NonGenericICollectionFactory(count);
+            var arr = Array.CreateInstance(typeof(object), new int[1] { count }, new int[1] { 2 });
             Assert.Equal(1, arr.Rank);
             Assert.Equal(2, arr.GetLowerBound(0));
             Assert.Throws(ICollection_NonGeneric_CopyTo_NonZeroLowerBound_ThrowType, () => collection.CopyTo(arr, 0));
@@ -203,8 +203,8 @@ namespace Collections.Pooled.Tests
         {
             if (count > 0)
             {
-                ICollection collection = NonGenericICollectionFactory(count);
-                Guid[] array = new Guid[count * 3 / 2];
+                var collection = NonGenericICollectionFactory(count);
+                var array = new Guid[count * 3 / 2];
 
                 Assert.Throws(ICollection_NonGeneric_CopyTo_ArrayOfIncorrectValueType_ThrowType, () => collection.CopyTo(array, 0));
             }
@@ -216,8 +216,8 @@ namespace Collections.Pooled.Tests
         {
             if (count > 0)
             {
-                ICollection collection = NonGenericICollectionFactory(count);
-                StringBuilder[] array = new StringBuilder[count * 3 / 2];
+                var collection = NonGenericICollectionFactory(count);
+                var array = new StringBuilder[count * 3 / 2];
                 Assert.Throws(ICollection_NonGeneric_CopyTo_ArrayOfIncorrectReferenceType_ThrowType, () => collection.CopyTo(array, 0));
             }
         }
@@ -229,10 +229,10 @@ namespace Collections.Pooled.Tests
             if (!NullAllowed)
                 return;
 
-            Array enumArr = Enum.GetValues(typeof(EnumerableType));
+            var enumArr = Enum.GetValues(typeof(EnumerableType));
             if (count > 0 && count < enumArr.Length)
             {
-                ICollection collection = NonGenericICollectionFactory(count);
+                var collection = NonGenericICollectionFactory(count);
                 Assert.Throws(ICollection_NonGeneric_CopyTo_ArrayOfEnumType_ThrowType, () => collection.CopyTo(enumArr, 0));
             }
         }
@@ -241,17 +241,17 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_CopyTo_NegativeIndex_ThrowsArgumentOutOfRangeException(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             object[] array = new object[count];
             Assert.Throws<ArgumentOutOfRangeException>(() => collection.CopyTo(array, -1));
-            Assert.Throws<ArgumentOutOfRangeException>(() => collection.CopyTo(array, int.MinValue));
+            Assert.Throws<ArgumentOutOfRangeException>(() => collection.CopyTo(array, Int32.MinValue));
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void ICollection_NonGeneric_CopyTo_IndexEqualToArrayCount_ThrowsArgumentException(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             object[] array = new object[count];
             if (count > 0)
                 Assert.Throws<ArgumentException>(() => collection.CopyTo(array, count));
@@ -263,7 +263,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void ICollection_NonGeneric_CopyTo_IndexLargerThanArrayCount_ThrowsAnyArgumentException(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
 
             object[] array = new object[count];
             Assert.Throws(ICollection_NonGeneric_CopyTo_IndexLargerThanArrayCount_ThrowType, () => collection.CopyTo(array, count + 1));
@@ -275,7 +275,7 @@ namespace Collections.Pooled.Tests
         {
             if (count > 0) // Want the T array to have at least 1 element
             {
-                ICollection collection = NonGenericICollectionFactory(count);
+                var collection = NonGenericICollectionFactory(count);
                 object[] array = new object[count];
                 Assert.Throws<ArgumentException>(() => collection.CopyTo(array, 1));
             }
@@ -285,7 +285,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_CopyTo_ExactlyEnoughSpaceInArray(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             object[] array = new object[count];
             collection.CopyTo(array, 0);
             int i = 0;
@@ -297,7 +297,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void ICollection_NonGeneric_CopyTo_ArrayIsLargerThanCollection(int count)
         {
-            ICollection collection = NonGenericICollectionFactory(count);
+            var collection = NonGenericICollectionFactory(count);
             object[] array = new object[count * 3 / 2];
             collection.CopyTo(array, 0);
             int i = 0;

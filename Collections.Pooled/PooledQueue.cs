@@ -32,8 +32,8 @@ namespace Collections.Pooled
     [Serializable]
     public class PooledQueue<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable, IDeserializationCallback
     {
-        private const int MinimumGrow = 4;
-        private const int GrowFactor = 200;  // double each time
+        private const int s_minimumGrow = 4;
+        private const int s_growFactor = 200;  // double each time
 
         [NonSerialized]
         private ArrayPool<T> _pool;
@@ -371,10 +371,10 @@ namespace Collections.Pooled
         {
             if (_size == _array.Length)
             {
-                int newcapacity = (int)(_array.Length * (long)GrowFactor / 100);
-                if (newcapacity < _array.Length + MinimumGrow)
+                int newcapacity = (int)(_array.Length * (long)s_growFactor / 100);
+                if (newcapacity < _array.Length + s_minimumGrow)
                 {
-                    newcapacity = _array.Length + MinimumGrow;
+                    newcapacity = _array.Length + s_minimumGrow;
                 }
                 SetCapacity(newcapacity);
             }
@@ -565,7 +565,7 @@ namespace Collections.Pooled
                 return Array.Empty<T>();
             }
 
-            T[] arr = new T[_size];
+            var arr = new T[_size];
 
             if (_head < _tail)
             {
