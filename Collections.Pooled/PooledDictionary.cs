@@ -1499,7 +1499,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClearKey(ClearMode mode)
         {
-#if NETCOREAPP2_1
+#if NETSTANDARD2_1
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TKey>());
 #else
@@ -1509,7 +1509,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClearValue(ClearMode mode)
         {
-#if NETCOREAPP2_1
+#if NETSTANDARD2_1
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else

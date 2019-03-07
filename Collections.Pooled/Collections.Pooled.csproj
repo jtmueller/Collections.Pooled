@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -10,14 +10,15 @@
     <Description>Includes PooledList, PooledDictionary, PooledSet, PooledStack, and PooledQueue: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018, 2019 Joel Mueller, based on code from the .NET Foundation</Copyright>
     <PackageTags>List ArrayPool Span Dictionary Stack Set HashSet</PackageTags>
-    <PackageLicenseUrl>https://github.com/jtmueller/Collections.Pooled/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <Version>1.0.0</Version>
-    <PackageReleaseNotes>Added ClearMode property, allowing control over clearing arrays before returning them to the array pool.</PackageReleaseNotes>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.0</Version>
+    <PackageReleaseNotes>Now targeting .NET Standard 2.0 and 2.1, adding support for Index, Range types in .NET Standard 2.1</PackageReleaseNotes>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -36,6 +37,13 @@
   <ItemGroup>
     <PackageReference Include="System.Buffers" Version="4.5.0" Condition="$(TargetFramework) == 'netstandard2.0'" />
     <PackageReference Include="System.Memory" Version="4.5.2" Condition="$(TargetFramework) == 'netstandard2.0'" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
