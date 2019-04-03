@@ -8,20 +8,20 @@ using Xunit;
 
 namespace Collections.Pooled.Tests.PooledList
 {
-    public abstract partial class List_Generic_Tests_SizeToCapacity
+    public abstract partial class List_Generic_Tests<T> : IList_Generic_Tests<T>
     {
-        private class SingleArrayPool : ArrayPool<int>
+        private class SingleArrayPool : ArrayPool<T>
         {
-            private readonly int[] items;
+            private readonly T[] _items;
 
-            public SingleArrayPool(int[] items)
+            public SingleArrayPool(T[] items)
             {
-                this.items = items;
+                _items = items;
             }
 
-            public override int[] Rent(int minimumLength) => items;
+            public override T[] Rent(int minimumLength) => _items;
 
-            public override void Return(int[] array, bool clearArray = false)
+            public override void Return(T[] array, bool clearArray = false)
             {
             }
         }
@@ -29,50 +29,61 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void SizeToCapacityCapacityCount()
         {
-            var list = new PooledList<int>(13, true);
+            var list = new PooledList<T>(13, true);
             Assert.InRange(list.Capacity, 13, list.Capacity);
             Assert.Equal(13, list.Count);
+            list.Dispose();
         }
 
         [Fact]
         public void SizeToCapacityItemsSet()
         {
-            var list = new PooledList<int>(13, true);
-            list[12] = 42;
-            Assert.Equal(42, list[12]);
+            var list = new PooledList<T>(13, true);
+            var value = CreateT(42);
+            list[12] = value;
+            Assert.Equal(value, list[12]);
+            list.Dispose();
         }
 
         [Fact]
         public void NoSizeToCapacityItemsSet()
         {
-            var list = new PooledList<int>(13, false);
-            Assert.Throws<ArgumentOutOfRangeException>(() => list[12] = 42);
+            var list = new PooledList<T>(13, false);
+            var value = CreateT(42);
+            Assert.Throws<ArgumentOutOfRangeException>(() => list[12] = value);
+            list.Dispose();
         }
 
         [Fact]
         public void SizeToCapacityClearModeNever()
         {
-            var items = new int[13];
-            items[7] = 42;
+            var items = GenericArrayFactory(13);
+            var value = CreateT(42);
+            items[7] = value;
             var pool = new SingleArrayPool(items);
 
-            var list = new PooledList<int>(13, ClearMode.Never, pool, true);
+            var list = new PooledList<T>(13, ClearMode.Never, pool, true);
 
-            Assert.Equal(42, list[7]);
+            Assert.Equal(value, list[7]);
+
+            list.Dispose();
         } 
 
         [Fact]
         public void SizeToCapacityClearModeAlways()
         {
-            var items = new int[13];
-            items[7] = 42;
-            items[items.Length-1] = 42;
+            var items = GenericArrayFactory(13);
+            var value = CreateT(42);
+            items[7] = value;
+            items[items.Length-1] = value;
             var pool = new SingleArrayPool(items);
 
-            var list = new PooledList<int>(13, ClearMode.Always, pool, true);
+            var list = new PooledList<T>(13, ClearMode.Always, pool, true);
 
-            Assert.Equal(0, list[7]);
-            Assert.Equal(0, list[list.Count - 1]);
+            Assert.Equal(default, list[7]);
+            Assert.Equal(default, list[list.Count - 1]);
+
+            list.Dispose();
         }               
     }
 }
