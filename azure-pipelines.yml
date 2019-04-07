@@ -19,7 +19,7 @@ steps:
     
 - script: dotnet build --configuration $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet build $(buildConfiguration)'
-- script: dotnet test <test-project> --logger trx --collect "Code coverage"
+- script: dotnet test Collections.Pooled.Tests/Collections.Pooled.Tests.csproj --logger trx --collect "Code coverage"
 - task: PublishTestResults@2
   condition: succeededOrFailed()
   inputs:
