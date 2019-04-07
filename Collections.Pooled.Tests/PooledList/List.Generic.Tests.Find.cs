@@ -22,7 +22,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindVerifyExceptions(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
 
             //[] Verify Null match Find
             Assert.Throws<ArgumentNullException>(() => list.TryFind(null, out var _)); //"Err_858ahia Expected null match to throw ArgumentNullException"
@@ -35,9 +35,6 @@ namespace Collections.Pooled.Tests.PooledList
 
             //[] Verify Null match FindAll
             Assert.Throws<ArgumentNullException>(() => list.FindAll(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -45,7 +42,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindLastIndexInt_VerifyExceptions(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             var predicate = _alwaysTrueDelegate;
 
 
@@ -72,9 +69,6 @@ namespace Collections.Pooled.Tests.PooledList
 
             //[] Verify index=Int32.MaxValue
             Assert.Throws<ArgumentOutOfRangeException>(() => list.FindLastIndex(Int32.MaxValue, predicate)); //"Err_238ajwisa Expected index=Int32.MaxValue to throw ArgumentOutOfRangeException"
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -82,7 +76,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindIndexIntInt_VerifyExceptions(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             bool predicate(T item) => true;
 
 
@@ -133,9 +127,6 @@ namespace Collections.Pooled.Tests.PooledList
                 //[] Verify index=0 count=list.Length + 1
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.FindIndex(0, count + 1, predicate)); //"Err_6848ajiodxbz Expected index=0 count=list.Length + 1 to throw ArgumentOutOfRangeException"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -143,7 +134,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindLastIndexIntInt_VerifyExceptions(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             var predicate = _alwaysTrueDelegate;
 
             //[] Verify Null match
@@ -196,9 +187,6 @@ namespace Collections.Pooled.Tests.PooledList
                 //[] Verify index=0 count=list.Length + 1
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.FindLastIndex(count - 1, count + 1, predicate)); //"Err_6848ajiodxbz Expected index=0 count=list.Length + 1 to throw ArgumentOutOfRangeException"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -206,7 +194,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindIndexInt_VerifyExceptions(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             bool predicate(T item) => true;
 
             //[] Verify Null match
@@ -226,9 +214,6 @@ namespace Collections.Pooled.Tests.PooledList
 
             //[] Verify index=Int32.MaxValue
             Assert.Throws<ArgumentOutOfRangeException>(() => list.FindIndex(Int32.MaxValue, predicate)); //"Err_238ajwisa Expected index=Int32.MaxValue to throw ArgumentOutOfRangeException"
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #region Find
@@ -238,7 +223,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void Find_VerifyVanilla(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T expectedItem = default;
             T foundItem;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
@@ -265,9 +250,6 @@ namespace Collections.Pooled.Tests.PooledList
             list.TryFind((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
             list.RemoveAt(^1);
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -276,7 +258,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T foundItem;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -304,9 +286,6 @@ namespace Collections.Pooled.Tests.PooledList
                 list.TryFind(equalsDelegate, out foundItem);
                 Assert.Equal(expectedItem, foundItem); //"Err_4489ajodoi Verify with match that matches more then one item FAILED\n"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -318,7 +297,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindLast_VerifyVanilla(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T expectedItem = default;
             T foundItem;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
@@ -349,9 +328,6 @@ namespace Collections.Pooled.Tests.PooledList
             list.TryFindLast((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
             list.RemoveAt(^1);
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -360,7 +336,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T foundItem;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -387,9 +363,6 @@ namespace Collections.Pooled.Tests.PooledList
                 list.TryFindLast((T item) => { return item != null && (item.Equals(beforeList[0]) || item.Equals(beforeList[1])); }, out foundItem);
                 Assert.Equal(beforeList[1], foundItem); //"Err_4489ajodoi Verify with match that matches more then one item FAILED\n"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -402,7 +375,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDefaultDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -425,9 +398,6 @@ namespace Collections.Pooled.Tests.PooledList
             //[] Verify FindIndex returns -1 if the match returns false on every item
             index = list.FindIndex(_alwaysFalseDelegate);
             Assert.Equal(-1, index); //"Err_305981ajodd Verify FindIndex returns -1 if the match returns false on every item"
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -435,7 +405,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindIndex_VerifyDuplicates(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T expectedItem = default;
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
@@ -459,9 +429,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(equalsDelegate);
                 Assert.Equal(1, index); //"Err_29892adewiu Verify second item is duplicated"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -474,7 +441,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -519,9 +486,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(1, equalsDelegate);
                 Assert.Equal(count - 1, index); //"Err_51488ajod Verify POS FindIndex uses the index UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -530,7 +494,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -563,9 +527,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(2, equalsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2 "
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -578,7 +539,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -623,9 +584,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex((Index)1, equalsDelegate);
                 Assert.Equal(count - 1, index); //"Err_51488ajod Verify POS FindIndex uses the index UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -634,7 +592,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -667,9 +625,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex((Index)2, equalsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2 "
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -682,7 +637,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -752,9 +707,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(1, count - 2, equalsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindIndex uses the index and count UPPER "
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -763,7 +715,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -796,9 +748,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(2, list.Count - 2, equalsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -811,7 +760,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -883,9 +832,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(1..^1, equalsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindIndex uses the index and count UPPER "
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -894,7 +840,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -927,9 +873,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindIndex(2.., equalsDelegate);
                 Assert.Equal(count + 1, index); //"Err_1580ahisdf Verify second item is duplicated and index=2"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -942,7 +885,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -963,9 +906,6 @@ namespace Collections.Pooled.Tests.PooledList
             //[] Verify FindLastIndex returns -1 if the match returns false on every item
             index = list.FindLastIndex(_alwaysFalseDelegate);
             Assert.Equal(-1, index); //"Err_305981ajodd Verify FindLastIndex returns -1 if the match returns false on every item"
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -974,7 +914,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -997,9 +937,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(equalsDelegate);
                 Assert.Equal(count + 1, index); //"Err_29892adewiu Verify second item is duplicated."
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -1012,7 +949,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1056,9 +993,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(count - 2, equalsDelegate);
                 Assert.Equal(expected, index); //"Err_51488ajod Verify POS FindLastIndex uses the index UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -1067,7 +1001,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1100,9 +1034,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(list.Count - 3, equalsDelegate);
                 Assert.Equal(1, index); //"Err_1580ahisdf Verify second item is duplicated and index is on less then the index of the last duplicate"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -1115,7 +1046,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1159,9 +1090,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(^2, equalsDelegate);
                 Assert.Equal(expected, index); //"Err_51488ajod Verify POS FindLastIndex uses the index UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -1170,7 +1098,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1203,9 +1131,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(^3, equalsDelegate);
                 Assert.Equal(1, index); //"Err_1580ahisdf Verify second item is duplicated and index is on less then the index of the last duplicate"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -1218,7 +1143,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1291,9 +1216,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(count - 2, count - 2, equalsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindLastIndex uses the index and count UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -1302,7 +1224,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1325,9 +1247,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(list.Count - 1, list.Count, equalsDelegate);
                 Assert.Equal(list.Count - 1, index); //"Err_29892adewiu Verify second item is duplicated"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -1340,7 +1259,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1409,9 +1328,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(1..(count - 2), equalsDelegate);
                 Assert.Equal(count - 2, index); //"Err_66844ahidd Verify POS FindLastIndex uses the index and count UPPER"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -1420,7 +1336,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             T expectedItem = default;
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             int index;
             bool equalsDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
@@ -1443,9 +1359,6 @@ namespace Collections.Pooled.Tests.PooledList
                 index = list.FindLastIndex(list.Count - 1, list.Count, equalsDelegate);
                 Assert.Equal(list.Count - 1, index); //"Err_29892adewiu Verify second item is duplicated"
             }
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion
@@ -1457,7 +1370,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void FindAll_VerifyVanilla(int count)
         {
             var list = GenericListFactory(count);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T expectedItem = default;
             bool equalsDelegate(T value) => expectedItem == null ? value == null : expectedItem.Equals(value);
 
@@ -1474,9 +1387,6 @@ namespace Collections.Pooled.Tests.PooledList
 
             //[] Verify FindAll returns an empty List if the match returns false on every item
             VerifyList(list.FindAll(_alwaysFalseDelegate), new PooledList<T>());
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         [Theory]
@@ -1486,7 +1396,7 @@ namespace Collections.Pooled.Tests.PooledList
             var list = GenericListFactory(count);
             for (int i = 0; i < count / 2; i++)
                 list.Add(list[i]);
-            var beforeList = list.ToPooledList();
+            using var beforeList = list.ToPooledList();
             T expectedItem = default;
             bool equalsDelegate(T value) => expectedItem == null ? value == null : expectedItem.Equals(value);
             //[] Verify FindAll returns the correct List with one item
@@ -1502,9 +1412,6 @@ namespace Collections.Pooled.Tests.PooledList
 
             //[] Verify FindAll returns an empty List if the match returns false on every item
             VerifyList(list.FindAll(_alwaysFalseDelegate), new PooledList<T>());
-
-            list.Dispose();
-            beforeList.Dispose();
         }
 
         #endregion

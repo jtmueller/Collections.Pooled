@@ -29,6 +29,23 @@ namespace Collections.Pooled.Tests.PooledList
             visitedItems.Dispose();
         }
 
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void ForEach_Index_Verify(int count)
+        {
+            var list = GenericListFactory(count);
+            var visitedItems = new PooledList<T>();
+            void action(T item, int i) => visitedItems.Add(item);
+
+            //[] Verify ForEach looks at every item
+            visitedItems.Clear();
+            list.ForEach(action);
+            VerifyList(list, visitedItems);
+
+            list.Dispose();
+            visitedItems.Dispose();
+        }
+
         [Fact]
         public void ForEach_NullAction_ThrowsArgumentNullException()
         {

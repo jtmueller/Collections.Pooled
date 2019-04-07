@@ -21,28 +21,40 @@ namespace Collections.Pooled.Tests.PooledList
         {
             IndexOf_T,
             IndexOf_T_int,
+            IndexOf_T_Index,
             IndexOf_T_int_int,
+            IndexOf_T_Range,
             LastIndexOf_T,
             LastIndexOf_T_int,
+            LastIndexOf_T_Index,
             LastIndexOf_T_int_int,
+            LastIndexOf_T_Range
         };
 
         private IndexOfDelegate IndexOfDelegateFromType(IndexOfMethod methodType)
         {
             switch (methodType)
             {
-                case (IndexOfMethod.IndexOf_T):
-                    return ((PooledList<T> list, T value) => { return list.IndexOf(value); });
-                case (IndexOfMethod.IndexOf_T_int):
-                    return ((PooledList<T> list, T value) => { return list.IndexOf(value, 0); });
-                case (IndexOfMethod.IndexOf_T_int_int):
-                    return ((PooledList<T> list, T value) => { return list.IndexOf(value, 0, list.Count); });
-                case (IndexOfMethod.LastIndexOf_T):
-                    return ((PooledList<T> list, T value) => { return list.LastIndexOf(value); });
-                case (IndexOfMethod.LastIndexOf_T_int):
-                    return ((PooledList<T> list, T value) => { return list.LastIndexOf(value, list.Count - 1); });
-                case (IndexOfMethod.LastIndexOf_T_int_int):
-                    return ((PooledList<T> list, T value) => { return list.LastIndexOf(value, list.Count - 1, list.Count); });
+                case IndexOfMethod.IndexOf_T:
+                    return (PooledList<T> list, T value) => list.IndexOf(value);
+                case IndexOfMethod.IndexOf_T_int:
+                    return (PooledList<T> list, T value) => list.IndexOf(value, 0);
+                case IndexOfMethod.IndexOf_T_Index:
+                    return (PooledList<T> list, T value) => list.IndexOf(value, (Index)0);
+                case IndexOfMethod.IndexOf_T_int_int:
+                    return (PooledList<T> list, T value) => list.IndexOf(value, 0, list.Count);
+                case IndexOfMethod.IndexOf_T_Range:
+                    return (PooledList<T> list, T value) => list.IndexOf(value, ..);
+                case IndexOfMethod.LastIndexOf_T:
+                    return (PooledList<T> list, T value) => list.LastIndexOf(value);
+                case IndexOfMethod.LastIndexOf_T_int:
+                    return (PooledList<T> list, T value) => list.LastIndexOf(value, list.Count - 1);
+                case IndexOfMethod.LastIndexOf_T_Index:
+                    return (PooledList<T> list, T value) => list.LastIndexOf(value, ^1);
+                case IndexOfMethod.LastIndexOf_T_int_int:
+                    return (PooledList<T> list, T value) => list.LastIndexOf(value, list.Count - 1, list.Count);
+                case IndexOfMethod.LastIndexOf_T_Range:
+                    return (PooledList<T> list, T value) => list.LastIndexOf(value, ..);
                 default:
                     throw new Exception("Invalid IndexOfMethod");
             }
@@ -65,9 +77,13 @@ namespace Collections.Pooled.Tests.PooledList
                 if (count > 0) // 0 is an invalid index for IndexOf when the count is 0.
                 {
                     yield return new object[] { IndexOfMethod.IndexOf_T_int, count, true };
+                    yield return new object[] { IndexOfMethod.IndexOf_T_Index, count, true };
                     yield return new object[] { IndexOfMethod.LastIndexOf_T_int, count, false };
+                    yield return new object[] { IndexOfMethod.LastIndexOf_T_Index, count, false };
                     yield return new object[] { IndexOfMethod.IndexOf_T_int_int, count, true };
+                    yield return new object[] { IndexOfMethod.IndexOf_T_Range, count, true };
                     yield return new object[] { IndexOfMethod.LastIndexOf_T_int_int, count, false };
+                    yield return new object[] { IndexOfMethod.LastIndexOf_T_Range, count, false };
                 }
             }
         }
@@ -81,33 +97,28 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(IndexOfTestData))]
         public void IndexOf_NoDuplicates(IndexOfMethod indexOfMethod, int count, bool frontToBackOrder)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> expectedList = list.ToPooledList();
-            IndexOfDelegate IndexOf = IndexOfDelegateFromType(indexOfMethod);
+            var list = GenericListFactory(count);
+            using var expectedList = list.ToPooledList();
+            var IndexOf = IndexOfDelegateFromType(indexOfMethod);
 
             Assert.All(Enumerable.Range(0, count), i =>
             {
                 Assert.Equal(i, IndexOf(list, expectedList[i]));
             });
-
-            list.Dispose();
-            expectedList.Dispose();
         }
 
         [Theory]
         [MemberData(nameof(IndexOfTestData))]
         public void IndexOf_NonExistingValues(IndexOfMethod indexOfMethod, int count, bool frontToBackOrder)
         {
-            PooledList<T> list = GenericListFactory(count);
-            IEnumerable<T> nonexistentValues = CreateEnumerable(EnumerableType.List, list, count: count, numberOfMatchingElements: 0, numberOfDuplicateElements: 0);
-            IndexOfDelegate IndexOf = IndexOfDelegateFromType(indexOfMethod);
+            var list = GenericListFactory(count);
+            var nonexistentValues = CreateEnumerable(EnumerableType.List, list, count: count, numberOfMatchingElements: 0, numberOfDuplicateElements: 0);
+            var IndexOf = IndexOfDelegateFromType(indexOfMethod);
 
             Assert.All(nonexistentValues, nonexistentValue =>
             {
                 Assert.Equal(-1, IndexOf(list, nonexistentValue));
             });
-
-            list.Dispose();
         }
 
         [Theory]
@@ -115,24 +126,22 @@ namespace Collections.Pooled.Tests.PooledList
         public void IndexOf_DefaultValue(IndexOfMethod indexOfMethod, int count, bool frontToBackOrder)
         {
             T defaultValue = default;
-            PooledList<T> list = GenericListFactory(count);
-            IndexOfDelegate IndexOf = IndexOfDelegateFromType(indexOfMethod);
+            var list = GenericListFactory(count);
+            var IndexOf = IndexOfDelegateFromType(indexOfMethod);
             while (list.Remove(defaultValue))
                 count--;
             list.Add(defaultValue);
             Assert.Equal(count, IndexOf(list, defaultValue));
-
-            list.Dispose();
         }
 
         [Theory]
         [MemberData(nameof(IndexOfTestData))]
         public void IndexOf_OrderIsCorrect(IndexOfMethod indexOfMethod, int count, bool frontToBackOrder)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> withoutDuplicates = list.ToPooledList();
+            var list = GenericListFactory(count);
+            using var withoutDuplicates = list.ToPooledList();
             list.AddRange(list);
-            IndexOfDelegate IndexOf = IndexOfDelegateFromType(indexOfMethod);
+            var IndexOf = IndexOfDelegateFromType(indexOfMethod);
 
             Assert.All(Enumerable.Range(0, count), i =>
             {
@@ -141,9 +150,6 @@ namespace Collections.Pooled.Tests.PooledList
                 else
                     Assert.Equal(count + i, IndexOf(list, withoutDuplicates[i]));
             });
-
-            list.Dispose();
-            withoutDuplicates.Dispose();
         }
 
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
@@ -153,8 +159,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void IndexOf_int_OrderIsCorrectWithManyDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> withoutDuplicates = list.ToPooledList();
+            var list = GenericListFactory(count);
+            using var withoutDuplicates = list.ToPooledList();
             list.AddRange(list);
             list.AddRange(list);
             list.AddRange(list);
@@ -168,17 +174,14 @@ namespace Collections.Pooled.Tests.PooledList
                     Assert.Equal(expectedIndex, list.IndexOf(withoutDuplicates[i], (count * j), count));
                 });
             });
-
-            list.Dispose();
-            withoutDuplicates.Dispose();
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void LastIndexOf_int_OrderIsCorrectWithManyDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> withoutDuplicates = list.ToPooledList();
+            var list = GenericListFactory(count);
+            using var withoutDuplicates = list.ToPooledList();
             list.AddRange(list);
             list.AddRange(list);
             list.AddRange(list);
@@ -193,29 +196,29 @@ namespace Collections.Pooled.Tests.PooledList
                 });
             });
 
-            list.Dispose();
-            withoutDuplicates.Dispose();
+
+
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void IndexOf_int_OutOfRangeExceptions(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            T element = CreateT(234);
+            var list = GenericListFactory(count);
+            var element = CreateT(234);
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, count + 1)); //"Expect ArgumentOutOfRangeException for index greater than length of list.."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, count + 10)); //"Expect ArgumentOutOfRangeException for index greater than length of list.."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, -1)); //"Expect ArgumentOutOfRangeException for negative index."
-            Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, int.MinValue)); //"Expect ArgumentOutOfRangeException for negative index."
-            list.Dispose();
+            Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, Int32.MinValue)); //"Expect ArgumentOutOfRangeException for negative index."
+
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void IndexOf_int_int_OutOfRangeExceptions(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            T element = CreateT(234);
+            var list = GenericListFactory(count);
+            var element = CreateT(234);
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, count, 1)); //"ArgumentOutOfRangeException expected on index larger than array."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, count + 1, 1)); //"ArgumentOutOfRangeException expected  on index larger than array."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, 0, count + 1)); //"ArgumentOutOfRangeException expected  on count larger than array."
@@ -223,29 +226,29 @@ namespace Collections.Pooled.Tests.PooledList
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, 0, count + 1)); //"ArgumentOutOfRangeException expected  on count larger than array."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, 0, -1)); //"ArgumentOutOfRangeException expected on negative count."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.IndexOf(element, -1, 1)); //"ArgumentOutOfRangeException expected on negative index."
-            list.Dispose();
+
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void LastIndexOf_int_OutOfRangeExceptions(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            T element = CreateT(234);
+            var list = GenericListFactory(count);
+            var element = CreateT(234);
             Assert.Throws<ArgumentOutOfRangeException>(() => list.LastIndexOf(element, count)); //"ArgumentOutOfRangeException expected."
             if (count == 0)  // IndexOf with a 0 count List is special cased to return -1.
                 Assert.Equal(-1, list.LastIndexOf(element, -1));
             else
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.LastIndexOf(element, -1));
-            list.Dispose();
+
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void LastIndexOf_int_int_OutOfRangeExceptions(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            T element = CreateT(234);
+            var list = GenericListFactory(count);
+            var element = CreateT(234);
 
             if (count > 0)
             {
@@ -269,7 +272,7 @@ namespace Collections.Pooled.Tests.PooledList
                 Assert.Equal(-1, list.LastIndexOf(element, count, 1));
             }
 
-            list.Dispose();
+
         }
 
         #endregion

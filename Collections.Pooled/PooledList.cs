@@ -954,7 +954,7 @@ namespace Collections.Pooled
             if ((uint)start > (uint)_size)
                 ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
 
-            if (end < start || end >= _size)
+            if (end < start || end > _size)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
 
             if (match == null)
@@ -1444,8 +1444,16 @@ namespace Collections.Pooled
         /// </summary>
         public int LastIndexOf(T item, Range range)
         {
-            var (start, count) = range.GetOffsetAndLength(_size);
-            return LastIndexOf(item, start, count);
+            int start = range.Start.IsFromEnd ? _size - range.Start.Value : range.Start.Value;
+            int end = range.End.IsFromEnd ? _size - range.End.Value : range.End.Value;
+
+            if ((uint)start > (uint)_size)
+                ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
+
+            if (end < start || end > _size)
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
+
+            return Array.LastIndexOf(_items, item, end == _size ? end - 1 : end, end - start);
         }
 #endif
 
