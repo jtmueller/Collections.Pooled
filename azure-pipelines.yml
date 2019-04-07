@@ -17,7 +17,7 @@ steps:
   inputs:
     version: '3.0.100-preview3-010431'
     
-- script: dotnet build --configuration $(buildConfiguration)
+- script: dotnet build --configuration $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet build $(buildConfiguration)'
 - script: dotnet test <test-project> --logger trx --collect "Code coverage"
 - task: PublishTestResults@2
