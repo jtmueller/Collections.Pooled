@@ -26,7 +26,7 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_WithoutDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             IComparer<T> comparer = Comparer<T>.Default;
             list.Sort();
             Assert.All(Enumerable.Range(0, count - 2), i =>
@@ -39,7 +39,7 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_WithDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             list.Add(list[0]);
             IComparer<T> comparer = Comparer<T>.Default;
             list.Sort();
@@ -57,8 +57,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_IComparer_WithoutDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            IComparer<T> comparer = GetIComparer();
+            var list = GenericListFactory(count);
+            var comparer = GetIComparer();
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
@@ -70,9 +70,9 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_IComparer_WithDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             list.Add(list[0]);
-            IComparer<T> comparer = GetIComparer();
+            var comparer = GetIComparer();
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
@@ -88,9 +88,9 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_Comparison_WithoutDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            IComparer<T> iComparer = GetIComparer();
-            int comparer(T first, T second) { return iComparer.Compare(first, second); }
+            var list = GenericListFactory(count);
+            var iComparer = GetIComparer();
+            int comparer(T first, T second) => iComparer.Compare(first, second);
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
@@ -102,10 +102,10 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_Comparison_WithDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             list.Add(list[0]);
-            IComparer<T> iComparer = GetIComparer();
-            int comparer(T first, T second) { return iComparer.Compare(first, second); }
+            var iComparer = GetIComparer();
+            int comparer(T first, T second) => iComparer.Compare(first, second);
             list.Sort(comparer);
             Assert.All(Enumerable.Range(0, count - 2), i =>
             {
@@ -121,8 +121,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_intintIComparer_WithoutDuplicates(int count)
         {
-            PooledList<T> unsortedList = GenericListFactory(count);
-            IComparer<T> comparer = GetIComparer();
+            var unsortedList = GenericListFactory(count);
+            var comparer = GetIComparer();
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 1; sortCount < count - startIndex; sortCount++)
                 {
@@ -130,7 +130,7 @@ namespace Collections.Pooled.Tests.PooledList
                     {
                         list.Sort(startIndex, sortCount + 1, comparer);
                         for (int i = startIndex; i < sortCount; i++)
-                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 0);
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 0);
                     }
                 }
 
@@ -141,8 +141,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_intintIComparer_WithDuplicates(int count)
         {
-            PooledList<T> unsortedList = GenericListFactory(count);
-            IComparer<T> comparer = GetIComparer();
+            var unsortedList = GenericListFactory(count);
+            var comparer = GetIComparer();
             unsortedList.Add(unsortedList[0]);
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 2; sortCount < count - startIndex; sortCount++)
@@ -151,7 +151,7 @@ namespace Collections.Pooled.Tests.PooledList
                     {
                         list.Sort(startIndex, sortCount + 1, comparer);
                         for (int i = startIndex; i < sortCount; i++)
-                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), int.MinValue, 1);
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 1);
                     }
                 }
 
@@ -159,21 +159,58 @@ namespace Collections.Pooled.Tests.PooledList
         }
 
         [Theory]
+        [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
+        public void Sort_RangeIComparer_WithoutDuplicates(int count)
+        {
+            var unsortedList = GenericListFactory(count);
+            var comparer = GetIComparer();
+            for (int startIndex = 0; startIndex < count - 2; startIndex++)
+                for (int sortCount = 1; sortCount < count - startIndex; sortCount++)
+                {
+                    using (var list = new PooledList<T>(unsortedList))
+                    {
+                        list.Sort(startIndex..(startIndex + sortCount + 1), comparer);
+                        for (int i = startIndex; i < sortCount; i++)
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 0);
+                    }
+                }
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
+        public void Sort_RangeIComparer_WithDuplicates(int count)
+        {
+            var unsortedList = GenericListFactory(count);
+            var comparer = GetIComparer();
+            unsortedList.Add(unsortedList[0]);
+            for (int startIndex = 0; startIndex < count - 2; startIndex++)
+                for (int sortCount = 2; sortCount < count - startIndex; sortCount++)
+                {
+                    using (var list = new PooledList<T>(unsortedList))
+                    {
+                        list.Sort(startIndex..(startIndex + sortCount + 1), comparer);
+                        for (int i = startIndex; i < sortCount; i++)
+                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 1);
+                    }
+                }
+        }
+
+        [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void Sort_intintIComparer_NegativeRange_ThrowsArgumentOutOfRangeException(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            (int, int)[] InvalidParameters = new[]
+            var list = GenericListFactory(count);
+            var InvalidParameters = new[]
             {
                 (-1,-1),
                 (-1, 0),
                 (-1, 1),
                 (-1, 2),
                 (-2, 0),
-                (int.MinValue, 0),
+                (Int32.MinValue, 0),
                 (0 ,-1),
                 (0 ,-2),
-                (0 , int.MinValue),
+                (0 , Int32.MinValue),
                 (1 ,-1),
                 (2 ,-1),
             };
@@ -190,12 +227,12 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void Sort_intintIComparer_InvalidRange_ThrowsArgumentException(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             var InvalidParameters = new[]
             {
                 (count, 1),
                 (count + 1, 0),
-                (int.MaxValue, 0),
+                (Int32.MaxValue, 0),
             };
 
             Assert.All(InvalidParameters, invalidSet =>

@@ -16,8 +16,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void Reverse(int listLength)
         {
-            PooledList<T> list = GenericListFactory(listLength);
-            PooledList<T> listBefore = list.ToPooledList();
+            var list = GenericListFactory(listLength);
+            var listBefore = list.ToPooledList();
 
             list.Reverse();
 
@@ -42,10 +42,48 @@ namespace Collections.Pooled.Tests.PooledList
         [InlineData(10, 8, 2)]
         public void Reverse_int_int(int listLength, int index, int count)
         {
-            PooledList<T> list = GenericListFactory(listLength);
-            PooledList<T> listBefore = list.ToPooledList();
+            var list = GenericListFactory(listLength);
+            var listBefore = list.ToPooledList();
 
             list.Reverse(index, count);
+
+            for (int i = 0; i < index; i++)
+            {
+                Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
+            }
+
+            int j = 0;
+            for (int i = index; i < index + count; i++)
+            {
+                Assert.Equal(list[i], listBefore[index + count - (j + 1)]); //"Expect them to be the same."
+                j++;
+            }
+
+            for (int i = index + count; i < listBefore.Count; i++)
+            {
+                Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
+            }
+
+            list.Dispose();
+            listBefore.Dispose();
+        }
+
+        [Theory]
+        [InlineData(10, 0, 10)]
+        [InlineData(10, 3, 3)]
+        [InlineData(10, 10, 0)]
+        [InlineData(10, 5, 5)]
+        [InlineData(10, 0, 5)]
+        [InlineData(10, 1, 9)]
+        [InlineData(10, 9, 1)]
+        [InlineData(10, 2, 8)]
+        [InlineData(10, 8, 2)]
+        public void Reverse_Range(int listLength, int index, int count)
+        {
+            var list = GenericListFactory(listLength);
+            var listBefore = list.ToPooledList();
+
+            list.Reverse(index..(index + count));
 
             for (int i = 0; i < index; i++)
             {
@@ -80,10 +118,10 @@ namespace Collections.Pooled.Tests.PooledList
         [InlineData(10, 8, 2)]
         public void Reverse_RepeatedValues(int listLength, int index, int count)
         {
-            PooledList<T> list = GenericListFactory(1);
+            var list = GenericListFactory(1);
             for (int i = 1; i < listLength; i++)
                 list.Add(list[0]);
-            PooledList<T> listBefore = list.ToPooledList();
+            var listBefore = list.ToPooledList();
 
             list.Reverse(index, count);
 
@@ -114,8 +152,8 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (listLength % 2 != 0)
                 listLength++;
-            PooledList<T> list = GenericListFactory(listLength);
-            (int, int)[] InvalidParameters = new[]
+            var list = GenericListFactory(listLength);
+            var InvalidParameters = new[]
             {
                 (listLength     ,1             ),
                 (listLength+1   ,0             ),
@@ -149,8 +187,8 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (listLength % 2 != 0)
                 listLength++;
-            PooledList<T> list = GenericListFactory(listLength);
-            (int, int)[] InvalidParameters = new[]
+            var list = GenericListFactory(listLength);
+            var InvalidParameters = new[]
             {
                 (-1,-1),
                 (-1, 0),
