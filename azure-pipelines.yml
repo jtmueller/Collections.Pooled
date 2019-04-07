@@ -1,0 +1,28 @@
+# .NET Core
+# Build and test projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+variables:
+  buildConfiguration: 'Release'
+
+steps:
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: '2.2.202'
+    
+- script: dotnet build --configuration $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
+  displayName: 'dotnet build $(buildConfiguration)'
+- script: dotnet test --configuration $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
+  displayName: 'dotnet test'
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: VSTest
+    testResultsFiles: '**/*.trx'
