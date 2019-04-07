@@ -1,15 +1,20 @@
 # Collections.Pooled 
 
-Core-3 branch:
-[![Build Status](https://dev.azure.com/joelmueller0536/joelmueller/_apis/build/status/jtmueller.Collections.Pooled?branchName=core-3)](https://dev.azure.com/joelmueller0536/joelmueller/_build/latest?definitionId=1&branchName=core-3)
+[![Build Status](https://dev.azure.com/jt-mueller/Collections.Pooled/_apis/build/status/jtmueller.Collections.Pooled?branchName=master)](https://dev.azure.com/jt-mueller/Collections.Pooled/_build/latest?definitionId=1&branchName=master)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
 to minimize memory allocations, improve performance, and/or allow greater interoperablity 
 with modern API's.
 
+##### New in version 2.0: Collections.Pooled targets .NET Standard exclusively
+
 Collections.Pooled supports .NET Standard 2.0 (.NET Framework 4.6.1+) and 
-.NET Standard 2.1 (.NET Core 3.0+).
+.NET Standard 2.1 (.NET Core 3.0+). Targeting of .NET Core 2.x has been dropped,
+which means that .NET Core 2.x projects will receive the .NET Standard 2.0 version of
+Collections.Pooled 2.x. For this reason, it is recommended that .NET Core 2.x projects
+stick with Collections.Pooled 1.x until those projects can be upgraded to .NET Core 3.x.
+
 An extensive set of unit tests and benchmarks have been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
@@ -69,6 +74,7 @@ There are some API changes worth noting:
     All entries in the list will have the default value for the type, or if `clearMode` is set to `ClearMode.Never`
 	then entries in the list may have a previously-used value from the array pool. This feature is primarily useful
 	when working with value types and avoiding unnecessary allocations.
+  * The .NET Standard 2.1 version of PooledList supports the C# 8 `Index` and `Range` types.
 
 #### Performance
 
