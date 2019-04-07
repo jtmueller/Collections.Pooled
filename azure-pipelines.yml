@@ -31,10 +31,5 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- task: NuGetCommand@2
-  inputs:
-    command: pack
-    versioningScheme: byPrereleaseNumber
-    majorVersion: '$(Major)'
-    minorVersion: '$(Minor)'
-    patchVersion: '$(Patch)'
+- script: dotnet pack /p:PackageVersion=$(Major).$(Minor)-preview.$(rev:.r)
+  displayName: 'dotnet pack'
