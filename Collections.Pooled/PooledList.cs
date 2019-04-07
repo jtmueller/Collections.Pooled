@@ -426,21 +426,21 @@ namespace Collections.Pooled
         {
             get
             {
-                int idx = index.IsFromEnd ? _size - index.Value : index.Value;
-                if ((uint)idx >= (uint)_size)
+                int offset = index.GetOffset(_size);
+                if ((uint)offset >= (uint)_size)
                 {
                     ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
-                return _items[idx];
+                return _items[offset];
             }
             set
             {
-                int idx = index.IsFromEnd ? _size - index.Value : index.Value;
-                if ((uint)idx >= (uint)_size)
+                int offset = index.GetOffset(_size);
+                if ((uint)offset >= (uint)_size)
                 {
                     ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
-                _items[idx] = value;
+                _items[offset] = value;
                 _version++;
             }
         }
@@ -622,7 +622,7 @@ namespace Collections.Pooled
         /// then that is used for comparison, otherwise <see cref="Comparer{T}.Default"/> is used.
         /// </summary>
         public int BinarySearch(Index index, int count, T item, IComparer<T>? comparer = null)
-            => BinarySearch(index.IsFromEnd ? _size - index.Value : index.Value, count, item, comparer);
+            => BinarySearch(index.GetOffset(_size), count, item, comparer);
 
         /// <summary>
         /// Searches the list for a given element using a binary search
@@ -631,8 +631,8 @@ namespace Collections.Pooled
         /// </summary>
         public int BinarySearch(Range range, T item, IComparer<T>? comparer = null)
         {
-            var (start, count) = range.GetOffsetAndLength(_size);
-            return BinarySearch(start, count, item, comparer);
+            var (offset, length) = range.GetOffsetAndLength(_size);
+            return BinarySearch(offset, length, item, comparer);
         }
 #endif
 
@@ -834,8 +834,8 @@ namespace Collections.Pooled
         /// </summary>
         public int FindIndex(Index startIndex, Func<T, bool> match)
         {
-            int idx = startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value;
-            return FindIndex(idx, _size - idx, match);
+            int offset = startIndex.GetOffset(_size);
+            return FindIndex(offset, _size - offset, match);
         }
 
         /// <summary>
@@ -844,7 +844,7 @@ namespace Collections.Pooled
         /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
         /// </summary>
         public int FindIndex(Index startIndex, int count, Func<T, bool> match)
-            => FindIndex(startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value, count, match);
+            => FindIndex(startIndex.GetOffset(_size), count, match);
 
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
@@ -853,8 +853,8 @@ namespace Collections.Pooled
         /// </summary>
         public int FindIndex(Range range, Func<T, bool> match)
         {
-            var (start, count) = range.GetOffsetAndLength(_size);
-            return FindIndex(start, count, match);
+            var (offset, length) = range.GetOffsetAndLength(_size);
+            return FindIndex(offset, length, match);
         }
 #endif
 
@@ -931,8 +931,8 @@ namespace Collections.Pooled
         /// </summary>
         public int FindLastIndex(Index startIndex, Func<T, bool> match)
         {
-            int idx = startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value;
-            return FindLastIndex(idx, idx + 1, match);
+            int offset = startIndex.GetOffset(_size);
+            return FindLastIndex(offset, offset + 1, match);
         }
 
         /// <summary>
@@ -940,7 +940,7 @@ namespace Collections.Pooled
         /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
         /// </summary>
         public int FindLastIndex(Index startIndex, int count, Func<T, bool> match)
-            => FindLastIndex(startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value, count, match);
+            => FindLastIndex(startIndex.GetOffset(_size), count, match);
 
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
@@ -948,8 +948,8 @@ namespace Collections.Pooled
         /// </summary>
         public int FindLastIndex(Range range, Func<T, bool> match)
         {
-            int start = range.Start.IsFromEnd ? _size - range.Start.Value : range.Start.Value;
-            int end = range.End.IsFromEnd ? _size - range.End.Value : range.End.Value;
+            int start = range.Start.GetOffset(_size);
+            int end = range.End.GetOffset(_size);
 
             if ((uint)start > (uint)_size)
                 ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
@@ -1178,7 +1178,7 @@ namespace Collections.Pooled
         /// index and upto count number of elements. 
         /// </summary>
         public int IndexOf(T item, Index index)
-            => IndexOf(item, index.IsFromEnd ? _size - index.Value : index.Value);
+            => IndexOf(item, index.GetOffset(_size));
 
         /// <summary>
         /// Returns the index of the first occurrence of a given value in a range of
@@ -1197,7 +1197,7 @@ namespace Collections.Pooled
         /// before inserting the new element.
         /// </summary>
         public void Insert(Index index, T item)
-            => Insert(index.IsFromEnd ? _size - index.Value : index.Value, item);
+            => Insert(index.GetOffset(_size), item);
 #endif
 
         /// <summary>
@@ -1329,7 +1329,7 @@ namespace Collections.Pooled
         /// to the end of the list by setting index to the List's size.
         /// </summary>
         public void InsertRange(Index index, IEnumerable<T> collection)
-            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, collection);
+            => InsertRange(index.GetOffset(_size), collection);
 
         /// <summary>
         /// Inserts the elements of the given collection at a given index. If
@@ -1338,7 +1338,7 @@ namespace Collections.Pooled
         /// to the end of the list by setting index to the List's size.
         /// </summary>
         public void InsertRange(Index index, ReadOnlySpan<T> span)
-            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, span);
+            => InsertRange(index.GetOffset(_size), span);
 
         /// <summary>
         /// Inserts the elements of the given collection at a given index. If
@@ -1347,7 +1347,7 @@ namespace Collections.Pooled
         /// to the end of the list by setting index to the List's size.
         /// </summary>
         public void InsertRange(Index index, T[] array)
-            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, array.AsSpan());
+            => InsertRange(index.GetOffset(_size), array.AsSpan());
 
         /// <summary>
         /// Inserts the given number of items at the given index, increasing the
@@ -1355,7 +1355,7 @@ namespace Collections.Pooled
         /// to be inserted, allowing direct writes to that section of the collection.
         /// </summary>
         public Span<T> InsertSpan(Index index, int count)
-            => InsertSpan(index.IsFromEnd ? _size - index.Value : index.Value, count, true);
+            => InsertSpan(index.GetOffset(_size), count, true);
 #endif
 
         /// <summary>
@@ -1425,8 +1425,8 @@ namespace Collections.Pooled
         /// </summary>
         public int LastIndexOf(T item, Index index)
         {
-            int idx = index.IsFromEnd ? _size - index.Value : index.Value;
-            return LastIndexOf(item, idx, idx + 1);
+            int offset = index.GetOffset(_size);
+            return LastIndexOf(item, offset, offset + 1);
         }
 
         /// <summary>
@@ -1435,7 +1435,7 @@ namespace Collections.Pooled
         /// index and up to count elements
         /// </summary>
         public int LastIndexOf(T item, Index index, int count)
-            => LastIndexOf(item, index.IsFromEnd ? _size - index.Value : index.Value, count);
+            => LastIndexOf(item, index.GetOffset(_size), count);
 
         /// <summary>
         /// Returns the index of the last occurrence of a given value in a range of
@@ -1444,8 +1444,8 @@ namespace Collections.Pooled
         /// </summary>
         public int LastIndexOf(T item, Range range)
         {
-            int start = range.Start.IsFromEnd ? _size - range.Start.Value : range.Start.Value;
-            int end = range.End.IsFromEnd ? _size - range.End.Value : range.End.Value;
+            int start = range.Start.GetOffset(_size);
+            int end = range.End.GetOffset(_size);
 
             if ((uint)start > (uint)_size)
                 ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
@@ -1586,21 +1586,21 @@ namespace Collections.Pooled
         /// decreased by one.
         /// </summary>
         public void RemoveAt(Index index)
-            => RemoveAt(index.IsFromEnd ? _size - index.Value : index.Value);
+            => RemoveAt(index.GetOffset(_size));
 
         /// <summary>
         /// Removes a range of elements from this list.
         /// </summary>
         public void RemoveRange(Index index, int count)
-            => RemoveRange(index.IsFromEnd ? _size - index.Value : index.Value, count);
+            => RemoveRange(index.GetOffset(_size), count);
 
         /// <summary>
         /// Removes a range of elements from this list.
         /// </summary>
         public void RemoveRange(Range range)
         {
-            var (index, count) = range.GetOffsetAndLength(_size);
-            RemoveRange(index, count);
+            var (offset, length) = range.GetOffsetAndLength(_size);
+            RemoveRange(offset, length);
         }
 #endif
 
@@ -1674,7 +1674,7 @@ namespace Collections.Pooled
         /// index index + (index + count - i - 1).
         /// </summary>
         public void Reverse(Index index, int count)
-            => Reverse(index.IsFromEnd ? _size - index.Value : index.Value, count);
+            => Reverse(index.GetOffset(_size), count);
 
         /// <summary>
         /// Reverses the elements in a range of this list. Following a call to this
@@ -1693,7 +1693,7 @@ namespace Collections.Pooled
         /// provided comparer.
         /// </summary>
         public void Sort(Index index, int count, IComparer<T>? comparer = null)
-            => Sort(index.IsFromEnd ? _size - index.Value : index.Value, count, comparer);
+            => Sort(index.GetOffset(_size), count, comparer);
 
         /// <summary>
         /// Sorts the elements in this list.  Uses Array.Sort with the
@@ -1701,8 +1701,8 @@ namespace Collections.Pooled
         /// </summary>
         public void Sort(Range range, IComparer<T>? comparer = null)
         {
-            var (start, count) = range.GetOffsetAndLength(_size);
-            Sort(start, count, comparer);
+            var (offset, length) = range.GetOffsetAndLength(_size);
+            Sort(offset, length, comparer);
         }
 #endif
 

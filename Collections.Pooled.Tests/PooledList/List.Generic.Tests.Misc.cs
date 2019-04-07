@@ -64,7 +64,7 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 using (var list = new PooledList<T>(items))
                 {
-                    int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
+                    int[] bad = new int[] { items.Length + 1, items.Length + 2, Int32.MaxValue, -1, -2, Int32.MinValue };
                     for (int i = 0; i < bad.Length; i++)
                     {
                         Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(bad[i], items[0])); //"ArgumentOutOfRangeException expected."
@@ -78,14 +78,14 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void InsertRangeIEnumerable(T[] itemsX, T[] itemsY, int index, int repeat, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
-                PooledList<T> list = new PooledList<T>(constructIEnumerable(itemsX));
+                var list = new PooledList<T>(constructIEnumerable(itemsX));
 
                 for (int i = 0; i < repeat; i++)
                 {
                     list.InsertRange(index, constructIEnumerable(itemsY));
                 }
 
-                foreach (T item in itemsY)
+                foreach (var item in itemsY)
                 {
                     Assert.True(list.Contains(item)); //"Should contain the item."
                 }
@@ -111,7 +111,7 @@ namespace Collections.Pooled.Tests.PooledList
                 list = new PooledList<T>(constructIEnumerable(itemsX));
                 list.InsertRange(index, list);
 
-                foreach (T item in itemsX)
+                foreach (var item in itemsX)
                 {
                     Assert.True(list.Contains(item)); //"Should contain the item."
                 }
@@ -139,7 +139,7 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 using (var list = new PooledList<T>(constructIEnumerable(items)))
                 {
-                    int[] bad = new int[] { items.Length + 1, items.Length + 2, int.MaxValue, -1, -2, int.MinValue };
+                    int[] bad = new int[] { items.Length + 1, items.Length + 2, Int32.MaxValue, -1, -2, Int32.MinValue };
                     for (int i = 0; i < bad.Length; i++)
                     {
                         Assert.Throws<ArgumentOutOfRangeException>(() => list.InsertRange(bad[i], constructIEnumerable(items))); //"ArgumentOutOfRangeException expected"
@@ -149,10 +149,7 @@ namespace Collections.Pooled.Tests.PooledList
                 }
             }
 
-            public IEnumerable<T> ConstructTestEnumerable(T[] items)
-            {
-                return items;
-            }
+            public IEnumerable<T> ConstructTestEnumerable(T[] items) => items;
 
             public IEnumerable<T> ConstructLazyTestEnumerable(T[] items)
             {
@@ -160,10 +157,7 @@ namespace Collections.Pooled.Tests.PooledList
                     .Select(item => item);
             }
 
-            public IEnumerable<T> ConstructTestList(T[] items)
-            {
-                return items.ToPooledList();
-            }
+            public IEnumerable<T> ConstructTestList(T[] items) => items.ToPooledList();
 
             #endregion
 
@@ -171,22 +165,27 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void BasicGetRange(T[] items, int index, int count)
             {
-                PooledList<T> list = new PooledList<T>(items);
-                Span<T> range = list.GetRange(index, count);
+                using var list = new PooledList<T>(items);
 
-                //ensure range is good
-                for (int i = 0; i < count; i++)
+                verifyRange(list.GetRange(index, count));
+                verifyRange(list.GetRange(index));
+                verifyRange(list.GetRange((Index)index));
+                verifyRange(list.GetRange(index..(index + count)));
+
+                void verifyRange(Span<T> range)
                 {
-                    Assert.Equal(range[i], items[i + index]); //String.Format("Err_170178aqhbpa Expected item: {0} at: {1} actual: {2}", items[i + index], i, range[i])
-                }
+                    //ensure range is good
+                    for (int i = 0; i < count; i++)
+                    {
+                        Assert.Equal(range[i], items[i + index]); //String.Format("Err_170178aqhbpa Expected item: {0} at: {1} actual: {2}", items[i + index], i, range[i])
+                    }
 
-                //ensure no side effects
-                for (int i = 0; i < items.Length; i++)
-                {
-                    Assert.Equal(list[i], items[i]); //String.Format("Err_00125698ahpap Expected item: {0} at: {1} actual: {2}", items[i], i, list[i])
+                    //ensure no side effects
+                    for (int i = 0; i < items.Length; i++)
+                    {
+                        Assert.Equal(list[i], items[i]); //String.Format("Err_00125698ahpap Expected item: {0} at: {1} actual: {2}", items[i], i, list[i])
+                    }
                 }
-
-                list.Dispose();
             }
 
             //// We explicitly don't want this behavior in PooledList. We want it to return
@@ -218,7 +217,7 @@ namespace Collections.Pooled.Tests.PooledList
                 //
                 //Always send items.Length is even
                 //
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
                 int[] bad = new int[] {  /**/items.Length,1,
                     /**/
                                     items.Length+1,0,
@@ -290,57 +289,47 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void Exists_VerifyExceptions(T[] items)
             {
-                using (var list = new PooledList<T>())
-                {
-                    for (int i = 0; i < items.Length; ++i)
-                        list.Add(items[i]);
-
-                    //[] Verify Null match
-                    Assert.Throws<ArgumentNullException>(() => list.Exists(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
-                }
+                using var list = new PooledList<T>(items);
+                //[] Verify Null match
+                Assert.Throws<ArgumentNullException>(() => list.Exists(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
             }
 
             private void Exists_VerifyVanilla(T[] items)
             {
                 T expectedItem = default;
-                using (var list = new PooledList<T>())
+                using var list = new PooledList<T>(items);
+                bool expectedItemDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
+                bool typeNullable = default(T) == null;
+
+                //[] Verify Exists returns the correct index
+                for (int i = 0; i < items.Length; ++i)
                 {
-                    bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
-                    bool typeNullable = default(T) == null;
+                    expectedItem = items[i];
 
-                    for (int i = 0; i < items.Length; ++i)
-                        list.Add(items[i]);
-
-                    //[] Verify Exists returns the correct index
-                    for (int i = 0; i < items.Length; ++i)
-                    {
-                        expectedItem = items[i];
-
-                        Assert.True(list.Exists(expectedItemDelegate),
-                            "Err_282308ahid Verifying Nullable returned FAILED\n");
-                    }
-
-                    //[] Verify Exists returns true if the match returns true on every item
-                    Assert.True((0 < items.Length) == list.Exists((T item) => { return true; }),
-                            "Err_548ahid Verify Exists returns 0 if the match returns true on every item FAILED\n");
-
-                    //[] Verify Exists returns false if the match returns false on every item
-                    Assert.True(!list.Exists((T item) => { return false; }),
-                            "Err_30848ahidi Verify Exists returns -1 if the match returns false on every item FAILED\n");
-
-                    //[] Verify with default(T)
-                    list.Add(default);
-                    Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
-                            "Err_541848ajodi Verify with default(T) FAILED\n");
-                    list.RemoveAt(list.Count - 1);
+                    Assert.True(list.Exists(expectedItemDelegate),
+                        "Err_282308ahid Verifying Nullable returned FAILED\n");
                 }
+
+                //[] Verify Exists returns true if the match returns true on every item
+                Assert.True((0 < items.Length) == list.Exists((T item) => { return true; }),
+                        "Err_548ahid Verify Exists returns 0 if the match returns true on every item FAILED\n");
+
+                //[] Verify Exists returns false if the match returns false on every item
+                Assert.True(!list.Exists((T item) => { return false; }),
+                        "Err_30848ahidi Verify Exists returns -1 if the match returns false on every item FAILED\n");
+
+                //[] Verify with default(T)
+                list.Add(default);
+                Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
+                        "Err_541848ajodi Verify with default(T) FAILED\n");
+                list.RemoveAt(^1);
             }
 
             private void Exists_VerifyDuplicates(T[] items)
             {
                 T expectedItem = default;
-                PooledList<T> list = new PooledList<T>();
-                bool expectedItemDelegate(T item) { return expectedItem == null ? item == null : expectedItem.Equals(item); }
+                var list = new PooledList<T>();
+                bool expectedItemDelegate(T item) => expectedItem == null ? item == null : expectedItem.Equals(item);
 
                 if (0 < items.Length)
                 {
@@ -377,7 +366,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void BasicContains(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
 
                 for (int i = 0; i < items.Length; i++)
                 {
@@ -389,7 +378,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void NonExistingValues(T[] itemsX, T[] itemsY)
             {
-                PooledList<T> list = new PooledList<T>(itemsX);
+                var list = new PooledList<T>(itemsX);
 
                 for (int i = 0; i < itemsY.Length; i++)
                 {
@@ -401,7 +390,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void RemovedValues(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
                 for (int i = 0; i < items.Length; i++)
                 {
                     list.Remove(items[i]);
@@ -413,7 +402,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void AddRemoveValues(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
                 for (int i = 0; i < items.Length; i++)
                 {
                     list.Add(items[i]);
@@ -426,7 +415,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void MultipleValues(T[] items, int times)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
 
                 for (int i = 0; i < times; i++)
                 {
@@ -444,7 +433,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void ContainsNullWhenReference(T[] items, T value)
             {
-                if ((object)value != null)
+                if (value != null)
                 {
                     throw new ArgumentException("invalid argument passed to testcase");
                 }
@@ -460,14 +449,14 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void ClearEmptyList()
             {
-                PooledList<T> list = new PooledList<T>();
+                var list = new PooledList<T>();
                 Assert.Equal(0, list.Count); //"Should be equal to 0"
                 list.Clear();
                 Assert.Equal(0, list.Count); //"Should be equal to 0."
             }
             public void ClearMultipleTimesEmptyList(int times)
             {
-                PooledList<T> list = new PooledList<T>();
+                var list = new PooledList<T>();
                 Assert.Equal(0, list.Count); //"Should be equal to 0."
                 for (int i = 0; i < times; i++)
                 {
@@ -477,7 +466,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
             public void ClearNonEmptyList(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
                 list.Clear();
                 Assert.Equal(0, list.Count); //"Should be equal to 0."
                 list.Dispose();
@@ -485,7 +474,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void ClearMultipleTimesNonEmptyList(T[] items, int times)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
                 for (int i = 0; i < times; i++)
                 {
                     list.Clear();
@@ -500,8 +489,8 @@ namespace Collections.Pooled.Tests.PooledList
             public void TrueForAll_VerifyVanilla(T[] items)
             {
                 T expectedItem = default;
-                PooledList<T> list = new PooledList<T>();
-                bool expectedItemDelegate(T item) { return expectedItem == null ? item != null : !expectedItem.Equals(item); }
+                using var list = new PooledList<T>();
+                bool expectedItemDelegate(T item) => expectedItem == null ? item != null : !expectedItem.Equals(item);
                 bool typeNullable = default(T) == null;
 
                 for (int i = 0; i < items.Length; ++i)
@@ -521,19 +510,16 @@ namespace Collections.Pooled.Tests.PooledList
                 //[] Verify TrueForAll returns false if the match returns false on every item
                 Assert.True((0 == items.Length) == list.TrueForAll(delegate (T item) { return false; }),
                         "Err_30848ahidi Verify TrueForAll returns " + (0 == items.Length) + " if the match returns false on every item FAILED\n");
-
-                list.Dispose();
             }
 
             public void TrueForAll_VerifyExceptions(T[] items)
             {
-                PooledList<T> list = new PooledList<T>();
+                using var list = new PooledList<T>();
                 for (int i = 0; i < items.Length; ++i)
                     list.Add(items[i]);
 
                 //[] Verify Null match
                 Assert.Throws<ArgumentNullException>(() => list.TrueForAll(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
-                list.Dispose();
             }
 
             #endregion
@@ -542,9 +528,9 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void BasicToArray(T[] items)
             {
-                PooledList<T> list = new PooledList<T>(items);
+                var list = new PooledList<T>(items);
 
-                T[] arr = list.ToArray();
+                var arr = list.ToArray();
 
                 for (int i = 0; i < items.Length; i++)
                 {
@@ -556,10 +542,10 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void EnsureNotUnderlyingToArray(T[] items, T item)
             {
-                PooledList<T> list = new PooledList<T>(items);
-                T[] arr = list.ToArray();
+                var list = new PooledList<T>(items);
+                var arr = list.ToArray();
                 list[0] = item;
-                if (((object)arr[0]) == null)
+                if (arr[0] == null)
                     Assert.NotNull(list[0]); //"Should NOT be null"
                 else
                     Assert.NotEqual((object)arr[0], list[0]); //"Should NOT be equal."
@@ -573,7 +559,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void InsertTests()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
@@ -590,7 +576,7 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.BasicInsert(intArr1, 50, 1, 8);
             IntDriver.BasicInsert(intArr1, 100, 50, 50);
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -612,13 +598,13 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void InsertTests_negative()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
             IntDriver.InsertValidations(intArr1);
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -628,7 +614,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void InsertRangeTests()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
@@ -639,7 +625,7 @@ namespace Collections.Pooled.Tests.PooledList
                 intArr2[i] = i + 100;
             }
 
-            foreach (Func<int[], IEnumerable<int>> collectionGenerator in IntDriver.CollectionGenerators)
+            foreach (var collectionGenerator in IntDriver.CollectionGenerators)
             {
                 IntDriver.InsertRangeIEnumerable(new int[0], intArr1, 0, 1, collectionGenerator);
                 IntDriver.InsertRangeIEnumerable(intArr1, intArr2, 0, 1, collectionGenerator);
@@ -649,7 +635,7 @@ namespace Collections.Pooled.Tests.PooledList
                 IntDriver.InsertRangeIEnumerable(intArr1, intArr2, 50, 50, collectionGenerator);
             }
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -657,7 +643,7 @@ namespace Collections.Pooled.Tests.PooledList
             for (int i = 0; i < 10; i++)
                 stringArr2[i] = "SomeTestString" + (i + 100).ToString();
 
-            foreach (Func<string[], IEnumerable<string>> collectionGenerator in StringDriver.CollectionGenerators)
+            foreach (var collectionGenerator in StringDriver.CollectionGenerators)
             {
                 StringDriver.InsertRangeIEnumerable(new string[0], stringArr1, 0, 1, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, 0, 1, collectionGenerator);
@@ -675,11 +661,11 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void InsertRangeTests_Negative()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -691,7 +677,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void GetRangeTests()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
@@ -708,7 +694,7 @@ namespace Collections.Pooled.Tests.PooledList
             //IntDriver.EnsureRangeIsReference(intArr1, 101, 0, 10);
             //IntDriver.EnsureThrowsAfterModification(intArr1, 10, 10, 10);
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -729,12 +715,12 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void GetRangeTests_Negative()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[100];
             for (int i = 0; i < 100; i++)
                 intArr1[i] = i;
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
@@ -746,8 +732,8 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void ExistsTests()
         {
-            Driver<int> intDriver = new Driver<int>();
-            Driver<string> stringDriver = new Driver<string>();
+            var intDriver = new Driver<int>();
+            var stringDriver = new Driver<string>();
             int[] intArray;
             string[] stringArray;
             int arraySize = 16;
@@ -773,8 +759,8 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void ExistsTests_Negative()
         {
-            Driver<int> intDriver = new Driver<int>();
-            Driver<string> stringDriver = new Driver<string>();
+            var intDriver = new Driver<int>();
+            var stringDriver = new Driver<string>();
             int[] intArray;
             string[] stringArray;
             int arraySize = 16;
@@ -795,7 +781,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void ContainsTests()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr1 = new int[10];
             for (int i = 0; i < 10; i++)
             {
@@ -816,7 +802,7 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.MultipleValues(intArr1, 5);
             IntDriver.MultipleValues(intArr1, 17);
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[10];
             for (int i = 0; i < 10; i++)
             {
@@ -841,7 +827,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void ClearTests()
         {
-            Driver<int> IntDriver = new Driver<int>();
+            var IntDriver = new Driver<int>();
             int[] intArr = new int[10];
             for (int i = 0; i < 10; i++)
             {
@@ -857,7 +843,7 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.ClearMultipleTimesNonEmptyList(intArr, 7);
             IntDriver.ClearMultipleTimesNonEmptyList(intArr, 31);
 
-            Driver<string> StringDriver = new Driver<string>();
+            var StringDriver = new Driver<string>();
             string[] stringArr = new string[10];
             for (int i = 0; i < 10; i++)
             {
@@ -877,8 +863,8 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void TrueForAllTests()
         {
-            Driver<int> intDriver = new Driver<int>();
-            Driver<string> stringDriver = new Driver<string>();
+            var intDriver = new Driver<int>();
+            var stringDriver = new Driver<string>();
             int[] intArray;
             string[] stringArray;
             int arraySize = 16;
@@ -904,8 +890,8 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public static void TrueForAllTests_Negative()
         {
-            Driver<int> intDriver = new Driver<int>();
-            Driver<string> stringDriver = new Driver<string>();
+            var intDriver = new Driver<int>();
+            var stringDriver = new Driver<string>();
             int[] intArray;
             string[] stringArray;
             int arraySize = 16;
