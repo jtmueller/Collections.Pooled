@@ -35,3 +35,8 @@ steps:
 
 - script: dotnet pack -c $(buildConfiguration) /p:PackageVersion=$(Major).$(Minor)-preview.$(Patch) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet pack'
+- task: NuGetCommand@2
+  inputs:
+    command: push
+    nuGetFeedType: external
+    publishFeedCredentials: 'NuGet'
