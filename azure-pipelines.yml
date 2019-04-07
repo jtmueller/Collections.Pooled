@@ -33,5 +33,5 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c $(buildConfiguration) -p:PackageVersion=$(Major).$(Minor)-preview.$(Rev:r)
+- script: dotnet pack -c $(buildConfiguration) -p:PackageVersion=$(Major).$(Minor)-preview.$(BUILD_BUILDNUMBER) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet pack'
