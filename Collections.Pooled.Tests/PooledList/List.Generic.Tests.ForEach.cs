@@ -16,9 +16,9 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void ForEach_Verify(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> visitedItems = new PooledList<T>();
-            void action(T item) { visitedItems.Add(item); }
+            var list = GenericListFactory(count);
+            var visitedItems = new PooledList<T>();
+            void action(T item) => visitedItems.Add(item);
 
             //[] Verify ForEach looks at every item
             visitedItems.Clear();
@@ -32,8 +32,8 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void ForEach_NullAction_ThrowsArgumentNullException()
         {
-            PooledList<T> list = GenericListFactory();
-            Assert.Throws<ArgumentNullException>(() => list.ForEach(null));
+            var list = GenericListFactory();
+            Assert.Throws<ArgumentNullException>(() => list.ForEach((Action<T>)null));
             list.Dispose();
         }
     }

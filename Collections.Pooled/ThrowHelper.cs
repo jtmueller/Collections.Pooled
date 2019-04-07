@@ -497,6 +497,8 @@ namespace Collections.Pooled
                     return "elementType";
                 case ExceptionArgument.arrayIndex:
                     return "arrayIndex";
+                case ExceptionArgument.range:
+                    return "range";
                 default:
                     Debug.Fail("The enum value is not defined, please check the ExceptionArgument Enum.");
                     return argument.ToString();
@@ -650,7 +652,8 @@ namespace Collections.Pooled
         indices,
         endIndex,
         elementType,
-        arrayIndex
+        arrayIndex,
+        range
     }
 
     //

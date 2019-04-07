@@ -10,21 +10,39 @@ namespace Collections.Pooled
     {
         #region PooledList
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this IEnumerable<T> items)
             => new PooledList<T>(items);
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this T[] array)
             => new PooledList<T>(array.AsSpan());
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this ReadOnlySpan<T> span)
             => new PooledList<T>(span);
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this Span<T> span)
             => new PooledList<T>(span);
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this ReadOnlyMemory<T> memory)
             => new PooledList<T>(memory.Span);
 
+        /// <summary>
+        /// Converts the collection to a new <see cref="PooledList{T}"/> instance.
+        /// </summary>
         public static PooledList<T> ToPooledList<T>(this Memory<T> memory)
             => new PooledList<T>(memory.Span);
 
@@ -212,18 +230,38 @@ namespace Collections.Pooled
 
         #region PooledSet
 
+        /// <summary>
+        /// Converts the collection to a new instance of <see cref="PooledSet{T}"/>,
+        /// optionally using the given comparer.
+        /// </summary>
         public static PooledSet<T> ToPooledSet<T>(this IEnumerable<T> source, IEqualityComparer<T>? comparer = null)
             => new PooledSet<T>(source, comparer);
 
+        /// <summary>
+        /// Converts the collection to a new instance of <see cref="PooledSet{T}"/>,
+        /// optionally using the given comparer.
+        /// </summary>
         public static PooledSet<T> ToPooledSet<T>(this Span<T> source, IEqualityComparer<T>? comparer = null)
             => new PooledSet<T>(source, comparer);
 
+        /// <summary>
+        /// Converts the collection to a new instance of <see cref="PooledSet{T}"/>,
+        /// optionally using the given comparer.
+        /// </summary>
         public static PooledSet<T> ToPooledSet<T>(this ReadOnlySpan<T> source, IEqualityComparer<T>? comparer = null)
             => new PooledSet<T>(source, comparer);
 
+        /// <summary>
+        /// Converts the collection to a new instance of <see cref="PooledSet{T}"/>,
+        /// optionally using the given comparer.
+        /// </summary>
         public static PooledSet<T> ToPooledSet<T>(this Memory<T> source, IEqualityComparer<T>? comparer = null)
             => new PooledSet<T>(source.Span, comparer);
 
+        /// <summary>
+        /// Converts the collection to a new instance of <see cref="PooledSet{T}"/>,
+        /// optionally using the given comparer.
+        /// </summary>
         public static PooledSet<T> ToPooledSet<T>(this ReadOnlyMemory<T> source, IEqualityComparer<T>? comparer = null)
             => new PooledSet<T>(source.Span, comparer);
 

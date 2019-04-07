@@ -112,7 +112,7 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ClearMode clearMode, bool sizeToCapacity) : this(capacity, clearMode, ArrayPool<T>.Shared, sizeToCapacity) { }        
+        public PooledList(int capacity, ClearMode clearMode, bool sizeToCapacity) : this(capacity, clearMode, ArrayPool<T>.Shared, sizeToCapacity) { }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
@@ -126,7 +126,7 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ArrayPool<T> customPool, bool sizeToCapacity) : this(capacity, ClearMode.Auto, customPool, sizeToCapacity) { }        
+        public PooledList(int capacity, ArrayPool<T> customPool, bool sizeToCapacity) : this(capacity, ClearMode.Auto, customPool, sizeToCapacity) { }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
@@ -140,6 +140,9 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
+        /// <param name="capacity">The intial capacity of the list.</param>
+        /// <param name="clearMode">Determines whether values are cleared before returning them to the ArrayPool. See <see cref="Pooled.ClearMode"/> for more details.</param>
+        /// <param name="customPool">A custom ArrayPool to use when allocating internal arrays.</param>
         /// <param name="sizeToCapacity">If true, Count of list equals capacity. Depending on ClearMode, rented items may or may not hold dirty values.</param>
         public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool, bool sizeToCapacity)
         {
@@ -157,7 +160,7 @@ namespace Collections.Pooled
             {
                 _items = _pool.Rent(capacity);
             }
-            
+
             if (sizeToCapacity)
             {
                 _size = capacity;
@@ -165,7 +168,7 @@ namespace Collections.Pooled
                 {
                     Array.Clear(_items, 0, _size);
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -311,7 +314,9 @@ namespace Collections.Pooled
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+        /// </summary>
         ReadOnlySpan<T> IReadOnlyPooledList<T>.Span => Span;
 
         /// <summary>
@@ -419,10 +424,23 @@ namespace Collections.Pooled
         /// </summary>
         public T this[Index index]
         {
-            get => Span[index];
+            get
+            {
+                int idx = index.IsFromEnd ? _size - index.Value : index.Value;
+                if ((uint)idx >= (uint)_size)
+                {
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+                }
+                return _items[idx];
+            }
             set
             {
-                Span[index] = value;
+                int idx = index.IsFromEnd ? _size - index.Value : index.Value;
+                if ((uint)idx >= (uint)_size)
+                {
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+                }
+                _items[idx] = value;
                 _version++;
             }
         }
@@ -542,6 +560,9 @@ namespace Collections.Pooled
         public Span<T> AddSpan(int count)
             => InsertSpan(_size, count);
 
+        /// <summary>
+        /// Returns a read-only version of the current list.
+        /// </summary>
         public ReadOnlyCollection<T> AsReadOnly()
             => new ReadOnlyCollection<T>(this);
 
@@ -594,6 +615,27 @@ namespace Collections.Pooled
         public int BinarySearch(T item, IComparer<T> comparer)
             => BinarySearch(0, Count, item, comparer);
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Searches the list for a given element using a binary search
+        /// algorithm. If the item implements <see cref="IComparable{T}"/>
+        /// then that is used for comparison, otherwise <see cref="Comparer{T}.Default"/> is used.
+        /// </summary>
+        public int BinarySearch(Index index, int count, T item, IComparer<T>? comparer = null)
+            => BinarySearch(index.IsFromEnd ? _size - index.Value : index.Value, count, item, comparer);
+
+        /// <summary>
+        /// Searches the list for a given element using a binary search
+        /// algorithm. If the item implements <see cref="IComparable{T}"/>
+        /// then that is used for comparison, otherwise <see cref="Comparer{T}.Default"/> is used.
+        /// </summary>
+        public int BinarySearch(Range range, T item, IComparer<T>? comparer = null)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            return BinarySearch(start, count, item, comparer);
+        }
+#endif
+
         /// <summary>
         /// Clears the contents of the PooledList.
         /// </summary>
@@ -638,6 +680,14 @@ namespace Collections.Pooled
             return false;
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="PooledList{TOutput}"/> containing
+        /// the output of running the <paramref name="converter"/> function on each item
+        /// in the current list.
+        /// </summary>
+        /// <typeparam name="TOutput">The type to convert the contents of this list to.</typeparam>
+        /// <param name="converter">The function that converts each item in the current list.</param>
+        /// <returns>A new instance of <see cref="PooledList{TOutput}"/>.</returns>
         public PooledList<TOutput> ConvertAll<TOutput>(Func<T, TOutput> converter)
         {
             if (converter == null)
@@ -706,9 +756,20 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Returns true if the given <paramref name="match"/> function returns true for any item in the list.
+        /// </summary>
+        /// <param name="match"></param>
         public bool Exists(Func<T, bool> match)
             => FindIndex(match) != -1;
 
+        /// <summary>
+        /// The first item for which the given <paramref name="match"/> function returns true
+        /// will be returned in the <paramref name="result"/> output parameter. The method will
+        /// return true if a match was found, otherwise false.
+        /// </summary>
+        /// <param name="match"></param>
+        /// <param name="result"></param>
         public bool TryFind(Func<T, bool> match, out T result)
         {
             if (match == null)
@@ -727,6 +788,12 @@ namespace Collections.Pooled
             return false;
         }
 
+        /// <summary>
+        /// Returns a new instance of <see cref="PooledList{T}"/> containing
+        /// all of the items for which the <paramref name="match"/> function
+        /// returns true.
+        /// </summary>
+        /// <param name="match">A predicate function that returns true for matches.</param>
         public PooledList<T> FindAll(Func<T, bool> match)
         {
             if (match == null)
@@ -743,12 +810,59 @@ namespace Collections.Pooled
             return list;
         }
 
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
         public int FindIndex(Func<T, bool> match)
             => FindIndex(0, _size, match);
 
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
         public int FindIndex(int startIndex, Func<T, bool> match)
             => FindIndex(startIndex, _size - startIndex, match);
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
+        public int FindIndex(Index startIndex, Func<T, bool> match)
+        {
+            int idx = startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value;
+            return FindIndex(idx, _size - idx, match);
+        }
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
+        public int FindIndex(Index startIndex, int count, Func<T, bool> match)
+            => FindIndex(startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value, count, match);
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
+        public int FindIndex(Range range, Func<T, bool> match)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            return FindIndex(start, count, match);
+        }
+#endif
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
+        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
+        /// </summary>
         public int FindIndex(int startIndex, int count, Func<T, bool> match)
         {
             if ((uint)startIndex > (uint)_size)
@@ -757,27 +871,35 @@ namespace Collections.Pooled
             if (count < 0 || startIndex > _size - count)
                 ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
-            if (match is null)
+            if (match == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
             {
-                if (match!(_items[i])) return i;
+                if (match(_items[i]))
+                    return i;
             }
             return -1;
         }
 
+        /// <summary>
+        /// The last item for which the given <paramref name="match"/> function returns true
+        /// will be returned in the <paramref name="result"/> output parameter. The method will
+        /// return true if a match was found, otherwise false.
+        /// </summary>
+        /// <param name="match"></param>
+        /// <param name="result"></param>
         public bool TryFindLast(Func<T, bool> match, out T result)
         {
-            if (match is null)
+            if (match == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = _size - 1; i >= 0; i--)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     result = _items[i];
                     return true;
@@ -788,12 +910,70 @@ namespace Collections.Pooled
             return false;
         }
 
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
         public int FindLastIndex(Func<T, bool> match)
             => FindLastIndex(_size - 1, _size, match);
 
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
         public int FindLastIndex(int startIndex, Func<T, bool> match)
             => FindLastIndex(startIndex, startIndex + 1, match);
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
+        public int FindLastIndex(Index startIndex, Func<T, bool> match)
+        {
+            int idx = startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value;
+            return FindLastIndex(idx, idx + 1, match);
+        }
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
+        public int FindLastIndex(Index startIndex, int count, Func<T, bool> match)
+            => FindLastIndex(startIndex.IsFromEnd ? _size - startIndex.Value : startIndex.Value, count, match);
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
+        public int FindLastIndex(Range range, Func<T, bool> match)
+        {
+            int start = range.Start.IsFromEnd ? _size - range.Start.Value : range.Start.Value;
+            int end = range.End.IsFromEnd ? _size - range.End.Value : range.End.Value;
+
+            if ((uint)start > (uint)_size)
+                ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
+
+            if (end < start || end >= _size)
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
+
+            if (match == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+
+            for (int i = end; i >= start; i--)
+            {
+                if (match(_items[i]))
+                    return i;
+            }
+
+            return -1;
+        }
+#endif
+
+        /// <summary>
+        /// Searches for an element that matches the conditions defined by a specified predicate, 
+        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
+        /// </summary>
         public int FindLastIndex(int startIndex, int count, Func<T, bool> match)
         {
             if (match == null)
@@ -832,9 +1012,14 @@ namespace Collections.Pooled
                     return i;
                 }
             }
+
             return -1;
         }
 
+        /// <summary>
+        /// Passes each item in the list to the given <paramref name="action"/> function.
+        /// </summary>
+        /// <param name="action"></param>
         public void ForEach(Action<T> action)
         {
             if (action == null)
@@ -850,6 +1035,31 @@ namespace Collections.Pooled
                     break;
                 }
                 action(_items[i]);
+            }
+
+            if (version != _version)
+                ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion();
+        }
+
+        /// <summary>
+        /// Passes each item in the list and the item's index to the given <paramref name="action"/> function.
+        /// </summary>
+        /// <param name="action"></param>
+        public void ForEach(Action<T, int> action)
+        {
+            if (action == null)
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
+            }
+
+            int version = _version;
+            for (int i = 0; i < _size; i++)
+            {
+                if (version != _version)
+                {
+                    break;
+                }
+                action(_items[i], i);
             }
 
             if (version != _version)
@@ -894,11 +1104,27 @@ namespace Collections.Pooled
             return Span.Slice(index, count);
         }
 
+        /// <summary>
+        /// Gets a range starting from the given index and going to the end of the list.
+        /// </summary>
+        public Span<T> GetRange(int index)
+        {
+            if ((uint)index > (uint)_size)
+                ThrowHelper.ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index();
+
+            return Span.Slice(index);
+        }
+
 #if NETSTANDARD2_1
         /// <summary>
         /// Equivalent to PooledList[range]
         /// </summary>
         public Span<T> GetRange(Range range) => Span[range];
+
+        /// <summary>
+        /// Gets a range starting from the given index and going to the end of the list.
+        /// </summary>
+        public Span<T> GetRange(Index startIndex) => Span.Slice(startIndex);
 #endif
 
         /// <summary>
@@ -944,6 +1170,35 @@ namespace Collections.Pooled
 
             return Array.IndexOf(_items, item, index, count);
         }
+
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Returns the index of the first occurrence of a given value in a range of
+        /// this list. The list is searched forwards, starting at index
+        /// index and upto count number of elements. 
+        /// </summary>
+        public int IndexOf(T item, Index index)
+            => IndexOf(item, index.IsFromEnd ? _size - index.Value : index.Value);
+
+        /// <summary>
+        /// Returns the index of the first occurrence of a given value in a range of
+        /// this list. The list is searched forwards, starting at index
+        /// index and upto count number of elements. 
+        /// </summary>
+        public int IndexOf(T item, Range range)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            return IndexOf(item, start, count);
+        }
+
+        /// <summary>
+        /// Inserts an element into this list at a given index. The size of the list
+        /// is increased by one. If required, the capacity of the list is doubled
+        /// before inserting the new element.
+        /// </summary>
+        public void Insert(Index index, T item)
+            => Insert(index.IsFromEnd ? _size - index.Value : index.Value, item);
+#endif
 
         /// <summary>
         /// Inserts an element into this list at a given index. The size of the list
@@ -1066,11 +1321,47 @@ namespace Collections.Pooled
             InsertRange(index, array.AsSpan());
         }
 
+#if NETSTANDARD2_1
         /// <summary>
-        /// Advances the <see cref="Count"/> by the number of items specified,
-        /// increasing the capacity if required, then returns a Span representing
-        /// the set of items to be added, allowing direct writes to that section
-        /// of the collection.
+        /// Inserts the elements of the given collection at a given index. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.  Ranges may be added
+        /// to the end of the list by setting index to the List's size.
+        /// </summary>
+        public void InsertRange(Index index, IEnumerable<T> collection)
+            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, collection);
+
+        /// <summary>
+        /// Inserts the elements of the given collection at a given index. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.  Ranges may be added
+        /// to the end of the list by setting index to the List's size.
+        /// </summary>
+        public void InsertRange(Index index, ReadOnlySpan<T> span)
+            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, span);
+
+        /// <summary>
+        /// Inserts the elements of the given collection at a given index. If
+        /// required, the capacity of the list is increased to twice the previous
+        /// capacity or the new size, whichever is larger.  Ranges may be added
+        /// to the end of the list by setting index to the List's size.
+        /// </summary>
+        public void InsertRange(Index index, T[] array)
+            => InsertRange(index.IsFromEnd ? _size - index.Value : index.Value, array.AsSpan());
+
+        /// <summary>
+        /// Inserts the given number of items at the given index, increasing the
+        /// capacity if required, then returns a Span representing the set of items
+        /// to be inserted, allowing direct writes to that section of the collection.
+        /// </summary>
+        public Span<T> InsertSpan(Index index, int count)
+            => InsertSpan(index.IsFromEnd ? _size - index.Value : index.Value, count, true);
+#endif
+
+        /// <summary>
+        /// Inserts the given number of items at the given index, increasing the
+        /// capacity if required, then returns a Span representing the set of items
+        /// to be inserted, allowing direct writes to that section of the collection.
         /// </summary>
         public Span<T> InsertSpan(int index, int count)
             => InsertSpan(index, count, true);
@@ -1117,7 +1408,7 @@ namespace Collections.Pooled
         /// <summary>
         /// Returns the index of the last occurrence of a given value in a range of
         /// this list. The list is searched backwards, starting at index
-        /// index and ending at the first element in the list.
+        /// and ending at the first element in the list.
         /// </summary>
         public int LastIndexOf(T item, int index)
         {
@@ -1126,10 +1417,42 @@ namespace Collections.Pooled
             return LastIndexOf(item, index, index + 1);
         }
 
+#if NETSTANDARD2_1
         /// <summary>
         /// Returns the index of the last occurrence of a given value in a range of
         /// this list. The list is searched backwards, starting at index
-        /// index and upto count elements
+        /// and ending at the first element in the list.
+        /// </summary>
+        public int LastIndexOf(T item, Index index)
+        {
+            int idx = index.IsFromEnd ? _size - index.Value : index.Value;
+            return LastIndexOf(item, idx, idx + 1);
+        }
+
+        /// <summary>
+        /// Returns the index of the last occurrence of a given value in a range of
+        /// this list. The list is searched backwards, starting at index
+        /// index and up to count elements
+        /// </summary>
+        public int LastIndexOf(T item, Index index, int count)
+            => LastIndexOf(item, index.IsFromEnd ? _size - index.Value : index.Value, count);
+
+        /// <summary>
+        /// Returns the index of the last occurrence of a given value in a range of
+        /// this list. The list is searched backwards, starting at index
+        /// index and up to count elements
+        /// </summary>
+        public int LastIndexOf(T item, Range range)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            return LastIndexOf(item, start, count);
+        }
+#endif
+
+        /// <summary>
+        /// Returns the index of the last occurrence of a given value in a range of
+        /// this list. The list is searched backwards, starting at index
+        /// index and up to count elements
         /// </summary>
         public int LastIndexOf(T item, int index, int count)
         {
@@ -1162,8 +1485,10 @@ namespace Collections.Pooled
             return Array.LastIndexOf(_items, item, index, count);
         }
 
-        // Removes the element at the given index. The size of the list is
-        // decreased by one.
+        /// <summary>
+        /// Removes the element at the given index. The size of the list is
+        /// decreased by one.
+        /// </summary>
         public bool Remove(T item)
         {
             int index = IndexOf(item);
@@ -1247,6 +1572,30 @@ namespace Collections.Pooled
             }
         }
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Removes the element at the given index. The size of the list is
+        /// decreased by one.
+        /// </summary>
+        public void RemoveAt(Index index)
+            => RemoveAt(index.IsFromEnd ? _size - index.Value : index.Value);
+
+        /// <summary>
+        /// Removes a range of elements from this list.
+        /// </summary>
+        public void RemoveRange(Index index, int count)
+            => RemoveRange(index.IsFromEnd ? _size - index.Value : index.Value, count);
+
+        /// <summary>
+        /// Removes a range of elements from this list.
+        /// </summary>
+        public void RemoveRange(Range range)
+        {
+            var (index, count) = range.GetOffsetAndLength(_size);
+            RemoveRange(index, count);
+        }
+#endif
+
         /// <summary>
         /// Removes a range of elements from this list.
         /// </summary>
@@ -1309,6 +1658,46 @@ namespace Collections.Pooled
             _version++;
         }
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Reverses the elements in a range of this list. Following a call to this
+        /// method, an element in the range given by index and count
+        /// which was previously located at index i will now be located at
+        /// index index + (index + count - i - 1).
+        /// </summary>
+        public void Reverse(Index index, int count)
+            => Reverse(index.IsFromEnd ? _size - index.Value : index.Value, count);
+
+        /// <summary>
+        /// Reverses the elements in a range of this list. Following a call to this
+        /// method, an element in the range given by index and count
+        /// which was previously located at index i will now be located at
+        /// index index + (index + count - i - 1).
+        /// </summary>
+        public void Reverse(Range range)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            Reverse(start, count);
+        }
+
+        /// <summary>
+        /// Sorts the elements in this list.  Uses Array.Sort with the
+        /// provided comparer.
+        /// </summary>
+        public void Sort(Index index, int count, IComparer<T>? comparer = null)
+            => Sort(index.IsFromEnd ? _size - index.Value : index.Value, count, comparer);
+
+        /// <summary>
+        /// Sorts the elements in this list.  Uses Array.Sort with the
+        /// provided comparer.
+        /// </summary>
+        public void Sort(Range range, IComparer<T>? comparer = null)
+        {
+            var (start, count) = range.GetOffsetAndLength(_size);
+            Sort(start, count, comparer);
+        }
+#endif
+
         /// <summary>
         /// Sorts the elements in this list.  Uses the default comparer and 
         /// Array.Sort.
@@ -1351,6 +1740,15 @@ namespace Collections.Pooled
             _version++;
         }
 
+        /// <summary>
+        /// Sorts the elements in a section of this list. The sort compares the
+        /// elements to each other using the given IComparer interface. If
+        /// comparer is null, the elements are compared to each other using
+        /// the IComparable interface, which in that case must be implemented by all
+        /// elements of the list.
+        /// 
+        /// This method uses the Array.Sort method to sort the elements.
+        /// </summary>
         public void Sort(Func<T, T, int> comparison)
         {
             if (comparison == null)
@@ -1402,6 +1800,11 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Returns true if all the items in the list return true
+        /// for the given predicate function.
+        /// </summary>
+        /// <param name="match"></param>
         public bool TrueForAll(Func<T, bool> match)
         {
             if (match == null)
@@ -1465,6 +1868,9 @@ namespace Collections.Pooled
             _pool = ArrayPool<T>.Shared;
         }
 
+        /// <summary>
+        /// An enumerator, for enumerating the <see cref="PooledList{T}"/>.
+        /// </summary>
         public struct Enumerator : IEnumerator<T>, IEnumerator
         {
             private readonly PooledList<T> _list;
@@ -1480,10 +1886,13 @@ namespace Collections.Pooled
                 _current = default!;
             }
 
-            public void Dispose()
+            void IDisposable.Dispose()
             {
             }
 
+            /// <summary>
+            /// Advances to the next item in the list. Returns false if there are no more items.
+            /// </summary>
             public bool MoveNext()
             {
                 var localList = _list;
@@ -1509,6 +1918,9 @@ namespace Collections.Pooled
                 return false;
             }
 
+            /// <summary>
+            /// Returns the current item.
+            /// </summary>
             public T Current => _current;
 
             object? IEnumerator.Current

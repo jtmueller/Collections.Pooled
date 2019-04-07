@@ -67,7 +67,7 @@ namespace Collections.Pooled.Tests.PooledList
             Assert.Equal(value, list[7]);
 
             list.Dispose();
-        } 
+        }
 
         [Fact]
         public void SizeToCapacityClearModeAlways()
@@ -75,7 +75,7 @@ namespace Collections.Pooled.Tests.PooledList
             var items = GenericArrayFactory(13);
             var value = CreateT(42);
             items[7] = value;
-            items[items.Length-1] = value;
+            items[items.Length - 1] = value;
             var pool = new SingleArrayPool(items);
 
             var list = new PooledList<T>(13, ClearMode.Always, pool, true);
@@ -84,6 +84,6 @@ namespace Collections.Pooled.Tests.PooledList
             Assert.Equal(default, list[list.Count - 1]);
 
             list.Dispose();
-        }               
+        }
     }
 }

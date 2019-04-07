@@ -67,7 +67,7 @@ namespace Collections.Pooled.Tests.PooledList
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         [Fact]
-        public void Constructo_NullIEnumerable_ThrowsArgumentNullException()
+        public void Constructor_NullIEnumerable_ThrowsArgumentNullException()
         {
             Assert.Throws<ArgumentNullException>(() => { PooledList<T> _list = new PooledList<T>((IEnumerable<T>)null); }); //"Expected ArgumentnUllException for null items"
         }

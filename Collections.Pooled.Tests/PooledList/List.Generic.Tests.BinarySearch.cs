@@ -17,19 +17,22 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void BinarySearch_ForEveryItemWithoutDuplicates(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            foreach (T item in list)
+            var list = GenericListFactory(count);
+            foreach (var item in list)
                 while (list.Count((value) => value.Equals(item)) > 1)
                     list.Remove(item);
             list.Sort();
-            PooledList<T> beforeList = list.ToPooledList();
+            var beforeList = list.ToPooledList();
 
             Assert.All(Enumerable.Range(0, list.Count), index =>
             {
                 Assert.Equal(index, list.BinarySearch(beforeList[index]));
                 Assert.Equal(index, list.BinarySearch(beforeList[index], GetIComparer()));
+                Assert.Equal(index, list.BinarySearch(.., beforeList[index]));
+                Assert.Equal(index, list.BinarySearch(.., beforeList[index], GetIComparer()));
                 Assert.Equal(beforeList[index], list[index]);
             });
+            beforeList.Dispose();
             list.Dispose();
         }
 
@@ -39,17 +42,20 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (count > 0)
             {
-                PooledList<T> list = GenericListFactory(count);
+                var list = GenericListFactory(count);
                 list.Add(list[0]);
                 list.Sort();
-                PooledList<T> beforeList = list.ToPooledList();
+                var beforeList = list.ToPooledList();
 
                 Assert.All(Enumerable.Range(0, list.Count), index =>
                 {
                     Assert.True(list.BinarySearch(beforeList[index]) >= 0);
                     Assert.True(list.BinarySearch(beforeList[index], GetIComparer()) >= 0);
+                    Assert.True(list.BinarySearch(.., beforeList[index]) >= 0);
+                    Assert.True(list.BinarySearch(.., beforeList[index], GetIComparer()) >= 0);
                     Assert.Equal(beforeList[index], list[index]);
                 });
+                beforeList.Dispose();
                 list.Dispose();
             }
         }
@@ -58,9 +64,9 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void BinarySearch_Validations(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
+            var list = GenericListFactory(count);
             list.Sort();
-            T element = CreateT(3215);
+            var element = CreateT(3215);
             AssertExtensions.Throws<ArgumentException>(null, () => list.BinarySearch(0, count + 1, element, GetIComparer())); //"Finding items longer than array should throw ArgumentException"
             Assert.Throws<ArgumentOutOfRangeException>(() => list.BinarySearch(-1, count, element, GetIComparer())); //"ArgumentOutOfRangeException should be thrown on negative index."
             Assert.Throws<ArgumentOutOfRangeException>(() => list.BinarySearch(0, -1, element, GetIComparer())); //"ArgumentOutOfRangeException should be thrown on negative count."
