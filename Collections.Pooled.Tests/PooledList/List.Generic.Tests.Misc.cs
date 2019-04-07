@@ -32,31 +32,61 @@ namespace Collections.Pooled.Tests.PooledList
 
             public void BasicInsert(T[] items, T item, int index, int repeat)
             {
-                using (var list = new PooledList<T>(items))
+                using var list = new PooledList<T>(items);
+
+                for (int i = 0; i < repeat; i++)
                 {
-                    for (int i = 0; i < repeat; i++)
-                    {
-                        list.Insert(index, item);
-                    }
+                    list.Insert(index, item);
+                }
 
-                    Assert.True(list.Contains(item)); //"Expect it to contain the item."
-                    Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
+                Assert.True(list.Contains(item)); //"Expect it to contain the item."
+                Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
 
-                    for (int i = 0; i < index; i++)
-                    {
-                        Assert.Equal(list[i], items[i]); //"Expect to be the same."
-                    }
+                for (int i = 0; i < index; i++)
+                {
+                    Assert.Equal(list[i], items[i]); //"Expect to be the same."
+                }
 
-                    for (int i = index; i < index + repeat; i++)
-                    {
-                        Assert.Equal(list[i], item); //"Expect to be the same."
-                    }
+                for (int i = index; i < index + repeat; i++)
+                {
+                    Assert.Equal(list[i], item); //"Expect to be the same."
+                }
 
 
-                    for (int i = index + repeat; i < list.Count; i++)
-                    {
-                        Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
-                    }
+                for (int i = index + repeat; i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
+                }
+            }
+
+            public void BasicInsert(T[] items, T item, Index index, int repeat)
+            {
+                using var list = new PooledList<T>(items);
+
+                var offset = index.GetOffset(list.Count);
+
+                for (int i = 0; i < repeat; i++)
+                {
+                    list.Insert(index, item);
+                }
+
+                Assert.True(list.Contains(item)); //"Expect it to contain the item."
+                Assert.Equal(list.Count, items.Length + repeat); //"Expect to be the same."
+
+                for (int i = 0; i < offset; i++)
+                {
+                    Assert.Equal(list[i], items[i]); //"Expect to be the same."
+                }
+
+                for (int i = offset; i < offset + repeat; i++)
+                {
+                    Assert.Equal(list[i], item); //"Expect to be the same."
+                }
+
+
+                for (int i = offset + repeat; i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
                 }
             }
 
@@ -135,6 +165,66 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
+            public void InsertRangeIEnumerable(T[] itemsX, T[] itemsY, Index index, int repeat, Func<T[], IEnumerable<T>> constructIEnumerable)
+            {
+                var list = new PooledList<T>(constructIEnumerable(itemsX));
+                var offset = index.GetOffset(list.Count);
+
+                for (int i = 0; i < repeat; i++)
+                {
+                    list.InsertRange(index, constructIEnumerable(itemsY));
+                }
+
+                foreach (var item in itemsY)
+                {
+                    Assert.True(list.Contains(item)); //"Should contain the item."
+                }
+                Assert.Equal(list.Count, itemsX.Length + (itemsY.Length * repeat)); //"Should have the same result."
+
+                for (int i = 0; i < offset; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i]); //"Should have the same result."
+                }
+
+                for (int i = offset; i < offset + (itemsY.Length * repeat); i++)
+                {
+                    Assert.Equal(list[i], itemsY[(i - offset) % itemsY.Length]); //"Should have the same result."
+                }
+
+                for (int i = offset + (itemsY.Length * repeat); i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i - (itemsY.Length * repeat)]); //"Should have the same result."
+                }
+
+                //InsertRange into itself
+                list.Dispose();
+                list = new PooledList<T>(constructIEnumerable(itemsX));
+                list.InsertRange(index, list);
+
+                foreach (var item in itemsX)
+                {
+                    Assert.True(list.Contains(item)); //"Should contain the item."
+                }
+                Assert.Equal(list.Count, itemsX.Length + itemsX.Length); //"Should have the same result."
+
+                for (int i = 0; i < offset; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i]); //"Should have the same result."
+                }
+
+                for (int i = offset; i < offset + itemsX.Length; i++)
+                {
+                    Assert.Equal(list[i], itemsX[(i - offset) % itemsX.Length]); //"Should have the same result."
+                }
+
+                for (int i = offset + (itemsX.Length); i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i - (itemsX.Length)]); //"Should have the same result."
+                }
+
+                list.Dispose();
+            }
+
             public void InsertRangeValidations(T[] items, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
                 using (var list = new PooledList<T>(constructIEnumerable(items)))
@@ -158,6 +248,71 @@ namespace Collections.Pooled.Tests.PooledList
             }
 
             public IEnumerable<T> ConstructTestList(T[] items) => items.ToPooledList();
+
+            #endregion
+
+            #region InsertSpan
+
+            public void InsertSpan(ReadOnlySpan<T> itemsX, ReadOnlySpan<T> itemsY, Index index, int repeat)
+            {
+                var list = new PooledList<T>(itemsX);
+                var offset = index.GetOffset(list.Count);
+
+                for (int i = 0; i < repeat; i++)
+                {
+                    var span = list.InsertSpan(index, itemsY.Length);
+                    itemsY.CopyTo(span);
+                }
+
+                foreach (var item in itemsY)
+                {
+                    Assert.True(list.Contains(item)); //"Should contain the item."
+                }
+                Assert.Equal(list.Count, itemsX.Length + (itemsY.Length * repeat)); //"Should have the same result."
+
+                for (int i = 0; i < offset; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i]); //"Should have the same result."
+                }
+
+                for (int i = offset; i < offset + (itemsY.Length * repeat); i++)
+                {
+                    Assert.Equal(list[i], itemsY[(i - offset) % itemsY.Length]); //"Should have the same result."
+                }
+
+                for (int i = offset + (itemsY.Length * repeat); i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i - (itemsY.Length * repeat)]); //"Should have the same result."
+                }
+
+                //InsertRange into itself
+                list.Dispose();
+                list = new PooledList<T>(itemsX);
+                list.InsertRange(index, list);
+
+                foreach (var item in itemsX)
+                {
+                    Assert.True(list.Contains(item)); //"Should contain the item."
+                }
+                Assert.Equal(list.Count, itemsX.Length + itemsX.Length); //"Should have the same result."
+
+                for (int i = 0; i < offset; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i]); //"Should have the same result."
+                }
+
+                for (int i = offset; i < offset + itemsX.Length; i++)
+                {
+                    Assert.Equal(list[i], itemsX[(i - offset) % itemsX.Length]); //"Should have the same result."
+                }
+
+                for (int i = offset + (itemsX.Length); i < list.Count; i++)
+                {
+                    Assert.Equal(list[i], itemsX[i - (itemsX.Length)]); //"Should have the same result."
+                }
+
+                list.Dispose();
+            }
 
             #endregion
 
@@ -575,6 +730,9 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.BasicInsert(intArr1, 50, 0, 7);
             IntDriver.BasicInsert(intArr1, 50, 1, 8);
             IntDriver.BasicInsert(intArr1, 100, 50, 50);
+            IntDriver.BasicInsert(intArr1, 50, ^1, 7);
+            IntDriver.BasicInsert(intArr1, 50, ^5, 8);
+            IntDriver.BasicInsert(intArr1, 100, ^50, 50);
 
             var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
@@ -590,6 +748,9 @@ namespace Collections.Pooled.Tests.PooledList
             StringDriver.BasicInsert(stringArr1, "strobia", 1, 5);
             StringDriver.BasicInsert(stringArr1, "strobia", 50, 51);
             StringDriver.BasicInsert(stringArr1, "strobia", 0, 100);
+            StringDriver.BasicInsert(stringArr1, "strobia", ^1, 5);
+            StringDriver.BasicInsert(stringArr1, "strobia", ^50, 51);
+            StringDriver.BasicInsert(stringArr1, "strobia", ^5, 100);
             StringDriver.BasicInsert(new string[] { null, null, null, "strobia", null }, null, 2, 3);
             StringDriver.BasicInsert(new string[] { null, null, null, null, null }, "strobia", 0, 5);
             StringDriver.BasicInsert(new string[] { null, null, null, null, null }, "strobia", 5, 1);
@@ -609,6 +770,55 @@ namespace Collections.Pooled.Tests.PooledList
             for (int i = 0; i < 100; i++)
                 stringArr1[i] = "SomeTestString" + i.ToString();
             StringDriver.InsertValidations(stringArr1);
+        }
+
+        [Fact]
+        public static void InsertSpanTests()
+        {
+            var IntDriver = new Driver<int>();
+            int[] intArr1 = new int[100];
+            for (int i = 0; i < 100; i++)
+                intArr1[i] = i;
+
+            int[] intArr2 = new int[10];
+            for (int i = 0; i < 10; i++)
+            {
+                intArr2[i] = i + 100;
+            }
+
+            IntDriver.InsertSpan(new int[0], intArr1, 0, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, 0, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, 1, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, 99, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, 100, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, 50, 50);
+            IntDriver.InsertSpan(intArr1, intArr2, ^1, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, ^99, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, ^100, 1);
+            IntDriver.InsertSpan(intArr1, intArr2, ^50, 50);
+
+            var StringDriver = new Driver<string>();
+            string[] stringArr1 = new string[100];
+            for (int i = 0; i < 100; i++)
+                stringArr1[i] = "SomeTestString" + i.ToString();
+            string[] stringArr2 = new string[10];
+            for (int i = 0; i < 10; i++)
+                stringArr2[i] = "SomeTestString" + (i + 100).ToString();
+
+            StringDriver.InsertSpan(new string[0], stringArr1, 0, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, 0, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, 1, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, 99, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, 100, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, 50, 50);
+            StringDriver.InsertSpan(stringArr1, stringArr2, ^1, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, ^99, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, ^100, 1);
+            StringDriver.InsertSpan(stringArr1, stringArr2, ^50, 50);
+            StringDriver.InsertSpan(new string[] { null, null, null, null }, stringArr2, 0, 1);
+            StringDriver.InsertSpan(new string[] { null, null, null, null }, stringArr2, 4, 1);
+            StringDriver.InsertSpan(new string[] { null, null, null, null }, new string[] { null, null, null, null }, 0, 1);
+            StringDriver.InsertSpan(new string[] { null, null, null, null }, new string[] { null, null, null, null }, 4, 50);
         }
 
         [Fact]
@@ -633,6 +843,10 @@ namespace Collections.Pooled.Tests.PooledList
                 IntDriver.InsertRangeIEnumerable(intArr1, intArr2, 99, 1, collectionGenerator);
                 IntDriver.InsertRangeIEnumerable(intArr1, intArr2, 100, 1, collectionGenerator);
                 IntDriver.InsertRangeIEnumerable(intArr1, intArr2, 50, 50, collectionGenerator);
+                IntDriver.InsertRangeIEnumerable(intArr1, intArr2, ^1, 1, collectionGenerator);
+                IntDriver.InsertRangeIEnumerable(intArr1, intArr2, ^99, 1, collectionGenerator);
+                IntDriver.InsertRangeIEnumerable(intArr1, intArr2, ^100, 1, collectionGenerator);
+                IntDriver.InsertRangeIEnumerable(intArr1, intArr2, ^50, 50, collectionGenerator);
             }
 
             var StringDriver = new Driver<string>();
@@ -651,6 +865,10 @@ namespace Collections.Pooled.Tests.PooledList
                 StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, 99, 1, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, 100, 1, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, 50, 50, collectionGenerator);
+                StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, ^1, 1, collectionGenerator);
+                StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, ^99, 1, collectionGenerator);
+                StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, ^100, 1, collectionGenerator);
+                StringDriver.InsertRangeIEnumerable(stringArr1, stringArr2, ^50, 50, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(new string[] { null, null, null, null }, stringArr2, 0, 1, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(new string[] { null, null, null, null }, stringArr2, 4, 1, collectionGenerator);
                 StringDriver.InsertRangeIEnumerable(new string[] { null, null, null, null }, new string[] { null, null, null, null }, 0, 1, collectionGenerator);
