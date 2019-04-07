@@ -25,7 +25,7 @@ steps:
 - script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj /p:Version=$(Major).$(Minor)-preview.$(Patch)
   displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet test -c $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
+- script: dotnet test -c $(buildConfiguration) --no-build --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
   displayName: 'dotnet test'
 - task: PublishTestResults@2
   condition: succeededOrFailed()
@@ -33,10 +33,12 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c $(buildConfiguration) /p:PackageVersion=$(Major).$(Minor)-preview.$(Patch) Collections.Pooled/Collections.Pooled.csproj
+- script: dotnet pack -c $(buildConfiguration) --no-build /p:PackageVersion=$(Major).$(Minor)-preview.$(Patch) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet pack'
 - task: NuGetCommand@2
+  displayName: 'nuget publish'
   inputs:
     command: push
     nuGetFeedType: external
     publishFeedCredentials: 'NuGet'
+    packagesToPush: 'Collections.Pooled/bin/$(buildConfiguration)/*.nupkg;!Collections.Pooled/bin/$(buildConfiguration)/*.symbols.nupkg'
