@@ -1,8 +1,7 @@
 # Collections.Pooled 
 
-| Master | Latest  |
-|--------|---------|
-| [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4/branch/master?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/vb6j2jon32ia5qq4?svg=true)](https://ci.appveyor.com/project/jtmueller/collections-pooled) |
+Core-3 branch:
+[![Build Status](https://dev.azure.com/joelmueller0536/joelmueller/_apis/build/status/jtmueller.Collections.Pooled?branchName=core-3)](https://dev.azure.com/joelmueller0536/joelmueller/_build/latest?definitionId=1&branchName=core-3)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
