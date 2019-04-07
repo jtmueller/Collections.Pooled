@@ -25,7 +25,7 @@ steps:
 - script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj /p:Version=$(Major).$(Minor)-preview.$(Patch)
   displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet test -c $(buildConfiguration) --no-build --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
+- script: dotnet test -c $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
   displayName: 'dotnet test'
 - task: PublishTestResults@2
   condition: succeededOrFailed()
