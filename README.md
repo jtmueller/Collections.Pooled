@@ -8,9 +8,9 @@ to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` 
 to minimize memory allocations, improve performance, and/or allow greater interoperablity 
 with modern API's.
 
-Collections.Pooled supports both .NET Standard 2.0 (.NET Framework 4.6.1+) as well as an 
-optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmarks have
-been ported from [corefx](https://github.com/dotnet/corefx).
+Collections.Pooled supports .NET Standard 2.0 (.NET Framework 4.6.1+) and 
+.NET Standard 2.1 (.NET Core 3.0+).
+An extensive set of unit tests and benchmarks have been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
 Total tests: 27501. Passed: 27501. Failed: 0. Skipped: 0.
