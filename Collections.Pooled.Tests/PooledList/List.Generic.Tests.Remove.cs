@@ -3,7 +3,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -20,8 +19,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void RemoveAll_AllElements(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> beforeList = list.ToPooledList();
+            var list = GenericListFactory(count);
+            var beforeList = list.ToPooledList();
             int removedCount = list.RemoveAll((value) => { return true; });
             Assert.Equal(count, removedCount);
             Assert.Equal(0, list.Count);
@@ -34,8 +33,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void RemoveAll_NoElements(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> beforeList = list.ToPooledList();
+            var list = GenericListFactory(count);
+            var beforeList = list.ToPooledList();
             int removedCount = list.RemoveAll((value) => { return false; });
             Assert.Equal(0, removedCount);
             Assert.Equal(count, list.Count);
@@ -49,9 +48,9 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void RemoveAll_DefaultElements(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            PooledList<T> beforeList = list.ToPooledList();
-            bool EqualsDefaultElement(T value) { return default(T) == null ? value == null : default(T).Equals(value); }
+            var list = GenericListFactory(count);
+            var beforeList = list.ToPooledList();
+            bool EqualsDefaultElement(T value) => default(T) == null ? value == null : default(T).Equals(value);
             int expectedCount = beforeList.Count((value) => EqualsDefaultElement(value));
             int removedCount = list.RemoveAll(EqualsDefaultElement);
             Assert.Equal(expectedCount, removedCount);
@@ -61,10 +60,7 @@ namespace Collections.Pooled.Tests.PooledList
         }
 
         [Fact]
-        public void RemoveAll_NullMatchPredicate()
-        {
-            AssertExtensions.Throws<ArgumentNullException>("match", () => new PooledList<T>().RemoveAll(null));
-        }
+        public void RemoveAll_NullMatchPredicate() => AssertExtensions.Throws<ArgumentNullException>("match", () => new PooledList<T>().RemoveAll(null));
 
         #endregion
 
@@ -82,10 +78,10 @@ namespace Collections.Pooled.Tests.PooledList
         [InlineData(10, 8, 2)]
         public void Remove_Range(int listLength, int index, int count)
         {
-            PooledList<T> list = GenericListFactory(listLength);
-            PooledList<T> beforeList = list.ToPooledList();
+            var list = GenericListFactory(listLength);
+            using var beforeList = list.ToPooledList();
 
-            list.RemoveRange(index, count);
+            list.RemoveRange((Index)index, count);
             Assert.Equal(list.Count, listLength - count); //"Expected them to be the same."
             for (int i = 0; i < index; i++)
             {
@@ -96,9 +92,23 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Equal(list[i], beforeList[i + count]); //"Expected them to be the same."
             }
+        }
 
-            list.Dispose();
-            beforeList.Dispose();
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Remove_Range_Range(int listLength)
+        {
+            if (listLength < 2)
+                return;
+
+            var list = GenericListFactory(listLength);
+            using var beforeList = list.ToPooledList();
+
+            // remove all but the first and last items
+            list.RemoveRange(1..^1);
+            Assert.Equal(2, list.Count);
+            Assert.Equal(beforeList[0], list[0]);
+            Assert.Equal(beforeList[^1], list[^1]);
         }
 
         [Theory]
@@ -107,8 +117,8 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (listLength % 2 != 0)
                 listLength++;
-            PooledList<T> list = GenericListFactory(listLength);
-            (int, int)[] InvalidParameters = new[]
+            var list = GenericListFactory(listLength);
+            var InvalidParameters = new[]
             {
                 (listLength     ,1             ),
                 (listLength+1   ,0             ),
@@ -132,8 +142,6 @@ namespace Collections.Pooled.Tests.PooledList
                 if (index >= 0 && count >= 0)
                     AssertExtensions.Throws<ArgumentException>(null, () => list.RemoveRange(index, count));
             });
-
-            list.Dispose();
         }
 
         [Theory]
@@ -142,8 +150,8 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (listLength % 2 != 0)
                 listLength++;
-            PooledList<T> list = GenericListFactory(listLength);
-            (int, int)[] InvalidParameters = new[]
+            var list = GenericListFactory(listLength);
+            var InvalidParameters = new[]
             {
                 (-1,-1),
                 (-1, 0),
@@ -158,8 +166,6 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.RemoveRange(invalidSet.Item1, invalidSet.Item2));
             });
-
-            list.Dispose();
         }
 
         #endregion
