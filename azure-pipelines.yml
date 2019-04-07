@@ -22,10 +22,10 @@ steps:
   inputs:
     version: '3.0.100-preview3-010431'
     
-- script: dotnet build --configuration $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
+- script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet test --configuration $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
+- script: dotnet test -c $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
   displayName: 'dotnet test'
 - task: PublishTestResults@2
   condition: succeededOrFailed()
@@ -33,5 +33,5 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack /p:PackageVersion=$(Major).$(Minor)-preview.$(rev:.r)
+- script: dotnet pack -c $(buildConfiguration) -p:PackageVersion=$(Major).$(Minor)-preview.$(Rev:r)
   displayName: 'dotnet pack'
