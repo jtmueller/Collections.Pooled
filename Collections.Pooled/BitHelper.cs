@@ -11,7 +11,7 @@ namespace Collections.Pooled
 {
     internal ref struct BitHelper
     {
-        private const int IntSize = sizeof(int) * 8;
+        private const int s_intSize = sizeof(int) * 8;
         private readonly Span<int> _span;
 
         internal BitHelper(Span<int> span, bool clear)
@@ -25,27 +25,27 @@ namespace Collections.Pooled
 
         internal void MarkBit(int bitPosition)
         {
-            int bitArrayIndex = bitPosition / IntSize;
+            int bitArrayIndex = bitPosition / s_intSize;
             if ((uint)bitArrayIndex < (uint)_span.Length)
             {
-                _span[bitArrayIndex] |= (1 << (bitPosition % IntSize));
+                _span[bitArrayIndex] |= (1 << (bitPosition % s_intSize));
             }
         }
 
         internal bool IsMarked(int bitPosition)
         {
-            int bitArrayIndex = bitPosition / IntSize;
+            int bitArrayIndex = bitPosition / s_intSize;
             return
                 (uint)bitArrayIndex < (uint)_span.Length &&
-                (_span[bitArrayIndex] & (1 << (bitPosition % IntSize))) != 0;
+                (_span[bitArrayIndex] & (1 << (bitPosition % s_intSize))) != 0;
         }
 
         internal int FindFirstUnmarked(int startPosition = 0)
         {
             int i = startPosition;
-            for (int bi = i / IntSize; (uint)bi < (uint)_span.Length; bi = ++i / IntSize)
+            for (int bi = i / s_intSize; (uint)bi < (uint)_span.Length; bi = ++i / s_intSize)
             {
-                if ((_span[bi] & (1 << (i % IntSize))) == 0)
+                if ((_span[bi] & (1 << (i % s_intSize))) == 0)
                     return i;
             }
             return -1;
@@ -54,15 +54,15 @@ namespace Collections.Pooled
         internal int FindFirstMarked(int startPosition = 0)
         {
             int i = startPosition;
-            for (int bi = i / IntSize; (uint)bi < (uint)_span.Length; bi = ++i / IntSize)
+            for (int bi = i / s_intSize; (uint)bi < (uint)_span.Length; bi = ++i / s_intSize)
             {
-                if ((_span[bi] & (1 << (i % IntSize))) != 0)
+                if ((_span[bi] & (1 << (i % s_intSize))) != 0)
                     return i;
             }
             return -1;
         }
 
         /// <summary>How many ints must be allocated to represent n bits. Returns (n+31)/32, but avoids overflow.</summary>
-        internal static int ToIntArrayLength(int n) => n > 0 ? ((n - 1) / IntSize + 1) : 0;
+        internal static int ToIntArrayLength(int n) => n > 0 ? ((n - 1) / s_intSize + 1) : 0;
     }
 }
