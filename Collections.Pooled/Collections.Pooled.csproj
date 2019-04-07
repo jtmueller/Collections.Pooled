@@ -14,10 +14,11 @@
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0</Version>
-    <PackageReleaseNotes>Now targeting .NET Standard 2.0 and 2.1, adding support for Index, Range types in .NET Standard 2.1</PackageReleaseNotes>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0-preview</Version>
+    <PackageReleaseNotes>Now targeting .NET Standard 2.0 and 2.1, adding support for Index, Range types in .NET Standard 2.1.
+Because this release drops support for .NET Core 2.1 in order to support .NET Standard, the major version number has been incremented to prevent auto-updating for projects targeting .NET Core 2.x.</PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
