@@ -98,7 +98,21 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
+        public PooledList(int capacity, bool sizeToCapacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared, sizeToCapacity) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
         public PooledList(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        public PooledList(int capacity, ClearMode clearMode, bool sizeToCapacity) : this(capacity, clearMode, ArrayPool<T>.Shared, sizeToCapacity) { }        
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
@@ -112,7 +126,22 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool)
+        public PooledList(int capacity, ArrayPool<T> customPool, bool sizeToCapacity) : this(capacity, ClearMode.Auto, customPool, sizeToCapacity) { }        
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool) : this(capacity, clearMode, customPool, false) { }
+
+        /// <summary>
+        /// Constructs a List with a given initial capacity. The list is
+        /// initially empty, but will have room for the given number of elements
+        /// before any reallocations are required.
+        /// </summary>
+        /// <param name="sizeToCapacity">If true, Count of list equals capacity. Depending on ClearMode, rented items may or may not hold dirty values.</param>
+        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool, bool sizeToCapacity)
         {
             if (capacity < 0)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
@@ -128,6 +157,15 @@ namespace Collections.Pooled
             {
                 _items = _pool.Rent(capacity);
             }
+            
+            if (sizeToCapacity)
+            {
+                _size = capacity;
+                if (clearMode != ClearMode.Never)
+                {
+                    Array.Clear(_items, 0, _size);
+                }
+            }            
         }
 
         /// <summary>

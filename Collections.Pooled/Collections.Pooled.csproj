@@ -8,7 +8,7 @@
     <Authors>Joel Mueller</Authors>
     <Company />
     <Description>Includes PooledList, PooledDictionary, PooledSet, PooledStack, and PooledQueue: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
-    <Copyright>Copyright (c) 2018, 2019 Joel Mueller, based on code from the .NET Foundation</Copyright>
+    <Copyright>Copyright (c) 2018, 2019 Joel Mueller, Dzmitry Lahoda, based on code from the .NET Foundation</Copyright>
     <PackageTags>List ArrayPool Span Dictionary Stack Set HashSet</PackageTags>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>

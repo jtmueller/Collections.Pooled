@@ -14,9 +14,9 @@ optimized build for .NET Core 2.1+. An extensive set of unit tests and benchmark
 been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 27481. Passed: 27481. Failed: 0. Skipped: 0.
+Total tests: 27501. Passed: 27501. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 9.5839 Seconds
+Test execution time: 9.9019 Seconds
 ```
 
 ## Installation
@@ -64,8 +64,12 @@ There are some API changes worth noting:
   * A selection of `ToPooledList()` extension methods are provided.
   * You can optionally supply a custom implementation of `ArrayPool<T>` to the constructor, to be used instead of the
     default `ArrayPool<T>.Shared` pool.
-  * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
+  * The `clearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
+  * The `sizeToCapacity` constructor parameter causes the list to start out with `Count == Capacity`. 
+    All entries in the list will have the default value for the type, or if `clearMode` is set to `ClearMode.Never`
+	then entries in the list may have a previously-used value from the array pool. This feature is primarily useful
+	when working with value types and avoiding unnecessary allocations.
 
 #### Performance
 

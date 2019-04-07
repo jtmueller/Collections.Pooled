@@ -166,6 +166,15 @@ namespace Collections.Pooled
         }
 
         /// <summary>
+        /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of KeyValuePair values.
+        /// </summary>
+        public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            return new PooledDictionary<TKey, TValue>(source, comparer);
+        }
+
+        /// <summary>
         /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of key/value tuples.
         /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<Tuple<TKey, TValue>> source,
