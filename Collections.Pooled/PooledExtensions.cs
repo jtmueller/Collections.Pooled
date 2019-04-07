@@ -169,7 +169,7 @@ namespace Collections.Pooled
         /// Creates a <see cref="PooledDictionary{TKey,TValue}"/> from a sequence of KeyValuePair values.
         /// </summary>
         public static PooledDictionary<TKey, TValue> ToPooledDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source,
-            IEqualityComparer<TKey> comparer = null)
+            IEqualityComparer<TKey>? comparer = null)
         {
             return new PooledDictionary<TKey, TValue>(source, comparer);
         }
