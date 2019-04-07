@@ -15,14 +15,14 @@ variables:
   buildConfiguration: 'Release'
   Major: '2'
   Minor: '0'
-  Patch: '0'
+  Patch: $[counter('myversioncounter', 0)]
 
 steps:
 - task: DotNetCoreInstaller@0
   inputs:
     version: '3.0.100-preview3-010431'
     
-- script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj
+- script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj /p:Version=$(Major).$(Minor)-preview.$(Patch)
   displayName: 'dotnet build $(buildConfiguration)'
 
 - script: dotnet test -c $(buildConfiguration) --logger trx Collections.Pooled.Tests/Collections.Pooled.Tests.csproj
@@ -33,5 +33,5 @@ steps:
     testRunner: VSTest
     testResultsFiles: '**/*.trx'
 
-- script: dotnet pack -c $(buildConfiguration) -p:PackageVersion=$(Major).$(Minor)-preview.$(BUILD_BUILDNUMBER) Collections.Pooled/Collections.Pooled.csproj
+- script: dotnet pack -c $(buildConfiguration) /p:PackageVersion=$(Major).$(Minor)-preview.$(Patch) Collections.Pooled/Collections.Pooled.csproj
   displayName: 'dotnet pack'
