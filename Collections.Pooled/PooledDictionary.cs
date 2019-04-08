@@ -457,41 +457,44 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Adds a set of key-value pairs to the dictionary.
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, an exception is thrown.
         /// </summary>
         public void AddRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
-            if (enumerable is null)
+            if (enumerable == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var pair in enumerable!)
+            foreach (var pair in enumerable)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
         /// <summary>
-        /// Adds a set of key-value pairs to the dictionary.
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, an exception is thrown.
         /// </summary>
         public void AddRange(IEnumerable<(TKey key, TValue value)> enumerable)
         {
-            if (enumerable is null)
+            if (enumerable == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var (key, value) in enumerable!)
+            foreach (var (key, value) in enumerable)
             {
                 TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
         }
 
         /// <summary>
-        /// Adds a set of key-value pairs to the dictionary.
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, an exception is thrown.
         /// </summary>
         public void AddRange(ReadOnlySpan<(TKey key, TValue value)> span)
         {
@@ -504,11 +507,77 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Adds a set of key-value pairs to the dictionary.
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, an exception is thrown.
         /// </summary>
         public void AddRange((TKey key, TValue value)[] array)
             => AddRange(array.AsSpan());
 
+        /// <summary>
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, the existing value is overwritten.
+        /// </summary>
+        public void SetRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
+        {
+            if (enumerable == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+
+            if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
+                EnsureCapacity(_count + collection.Count);
+
+            foreach (var pair in enumerable)
+            {
+                TryInsert(pair.Key, pair.Value, InsertionBehavior.OverwriteExisting);
+            }
+        }
+
+        /// <summary>
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, the existing value is overwritten.
+        /// </summary>
+        public void SetRange(IEnumerable<(TKey key, TValue value)> enumerable)
+        {
+            if (enumerable == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
+
+            if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
+                EnsureCapacity(_count + collection.Count);
+
+            foreach (var (key, value) in enumerable)
+            {
+                TryInsert(key, value, InsertionBehavior.OverwriteExisting);
+            }
+        }
+
+        /// <summary>
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, the existing value is overwritten.
+        /// </summary>
+        public void SetRange(ReadOnlySpan<(TKey key, TValue value)> span)
+        {
+            EnsureCapacity(_count + span.Length);
+
+            foreach (var (key, value) in span)
+            {
+                TryInsert(key, value, InsertionBehavior.OverwriteExisting);
+            }
+        }
+
+        /// <summary>
+        /// Adds a set of key-value pairs to the dictionary. If any of the keys are already
+        /// present, the existing value is overwritten.
+        /// </summary>
+        public void SetRange((TKey key, TValue value)[] array)
+            => SetRange(array.AsSpan());
+
+        /// <summary>
+        /// Adds a key/value pair to the dictionary. If the key is already present, the <paramref name="updater"/>
+        /// function is called, with the key and the current value as parameters. The value returned from this function
+        /// will overwrite the current value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="addValue"></param>
+        /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
         {
             if (TryGetValue(key, out TValue value))
@@ -522,6 +591,15 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Adds a key/value pair to the dictionary. If the key is not already present, the <paramref name="addValueFactory"/>
+        /// function is called to generate the value for the key in question. 
+        /// If the key is already present, the <paramref name="updater"/> function is called, with the key and
+        /// the current value as parameters. The value returned from this function will overwrite the current value.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="addValueFactory"></param>
+        /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updater)
         {
             if (TryGetValue(key, out TValue value))
@@ -1738,6 +1816,20 @@ namespace Collections.Pooled
                 }
             }
 
+            public void CopyTo(Span<TKey> span)
+            {
+                if (span.Length < _dictionary.Count)
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
+
+                int index = 0;
+                int count = _dictionary._count;
+                var entries = _dictionary._entries;
+                for (int i = 0; i < count; i++)
+                {
+                    if (entries[i].hashCode >= 0) span[index++] = entries[i].key;
+                }
+            }
+
             public int Count => _dictionary.Count;
 
             bool ICollection<TKey>.IsReadOnly => true;
@@ -1821,7 +1913,7 @@ namespace Collections.Pooled
                     _currentKey = default!;
                 }
 
-                public void Dispose()
+                void IDisposable.Dispose()
                 {
                 }
 
@@ -1913,6 +2005,20 @@ namespace Collections.Pooled
                 }
             }
 
+            public void CopyTo(Span<TValue> span)
+            {
+                if (span.Length < _dictionary.Count)
+                    ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
+
+                int index = 0;
+                int count = _dictionary._count;
+                var entries = _dictionary._entries;
+                for (int i = 0; i < count; i++)
+                {
+                    if (entries[i].hashCode >= 0) span[index++] = entries[i].value;
+                }
+            }
+
             public int Count => _dictionary.Count;
 
             bool ICollection<TValue>.IsReadOnly => true;
@@ -1996,7 +2102,7 @@ namespace Collections.Pooled
                     _currentValue = default!;
                 }
 
-                public void Dispose()
+                void IDisposable.Dispose()
                 {
                 }
 

@@ -100,7 +100,7 @@ modified to use ArrayPool for internal storage allocation, and to support `Span<
 
 There are some API changes worth noting:
 
-  * New methods include: `AddRange`, `GetOrAdd`, `AddOrUpdate`
+  * New methods include: `AddRange`, `SetRange`, `GetOrAdd`, `AddOrUpdate`
   * Both constructors and AddRange can take a sequence of `KeyValuePair<TKey, TValue>` objects, or a sequence of 
     `ValueTuple<TKey, TValue>` objects.
   * Significantly reduced memory allocations when adding many items.
