@@ -18,9 +18,9 @@ stick with Collections.Pooled 1.x until those projects can be upgraded to .NET C
 An extensive set of unit tests and benchmarks have been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 27501. Passed: 27501. Failed: 0. Skipped: 0.
+Total tests: 27986. Passed: 27986. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 9.9019 Seconds
+Test execution time: 10.4201 Seconds
 ```
 
 ## Installation
@@ -74,7 +74,19 @@ There are some API changes worth noting:
     All entries in the list will have the default value for the type, or if `clearMode` is set to `ClearMode.Never`
 	then entries in the list may have a previously-used value from the array pool. This feature is primarily useful
 	when working with value types and avoiding unnecessary allocations.
-  * The .NET Standard 2.1 version of PooledList supports the C# 8 `Index` and `Range` types.
+  * The .NET Standard 2.1 version of PooledList supports the C# 8 `Index` and `Range` types,
+    which allows for things like...
+
+<dl>
+  <dt>Get the last three items from the list:</dt>
+  <dd><code>list[^3..];</code></dd>
+  <dt>Reverse the last five items in a list:</dt>
+  <dd><code>list.Reverse(^5..);</code></dd>
+  <dt>Sort the list in-place, excluding the first and last items:</dt>
+  <dd><code>list.Sort(1..^1);</code></dd>
+  <dt>Find the last occurance of an item within the first 10 items in the list:</dt>
+  <dd><code>list.LastIndexOf(item, ..10);</code></dd>
+</dl>
 
 #### Performance
 

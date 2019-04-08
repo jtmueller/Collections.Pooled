@@ -17,17 +17,14 @@ namespace Collections.Pooled.Tests.PooledList
         public void Reverse(int listLength)
         {
             var list = GenericListFactory(listLength);
-            var listBefore = list.ToPooledList();
+            using var listBefore = list.ToPooledList();
 
             list.Reverse();
 
             for (int i = 0; i < listBefore.Count; i++)
             {
-                Assert.Equal(list[i], listBefore[listBefore.Count - (i + 1)]); //"Expect them to be the same."
+                Assert.Equal(list[i], listBefore[^(i + 1)]); //"Expect them to be the same."
             }
-
-            list.Dispose();
-            listBefore.Dispose();
         }
 
         [Theory]
@@ -43,7 +40,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void Reverse_int_int(int listLength, int index, int count)
         {
             var list = GenericListFactory(listLength);
-            var listBefore = list.ToPooledList();
+            using var listBefore = list.ToPooledList();
 
             list.Reverse(index, count);
 
@@ -63,9 +60,6 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
-
-            list.Dispose();
-            listBefore.Dispose();
         }
 
         [Theory]
@@ -81,7 +75,7 @@ namespace Collections.Pooled.Tests.PooledList
         public void Reverse_Range(int listLength, int index, int count)
         {
             var list = GenericListFactory(listLength);
-            var listBefore = list.ToPooledList();
+            using var listBefore = list.ToPooledList();
 
             list.Reverse(index..(index + count));
 
@@ -101,9 +95,6 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
-
-            list.Dispose();
-            listBefore.Dispose();
         }
 
         [Theory]
@@ -121,7 +112,7 @@ namespace Collections.Pooled.Tests.PooledList
             var list = GenericListFactory(1);
             for (int i = 1; i < listLength; i++)
                 list.Add(list[0]);
-            var listBefore = list.ToPooledList();
+            using var listBefore = list.ToPooledList();
 
             list.Reverse(index, count);
 
@@ -141,9 +132,6 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
-
-            list.Dispose();
-            listBefore.Dispose();
         }
 
         [Theory]
@@ -177,8 +165,6 @@ namespace Collections.Pooled.Tests.PooledList
                 if (index >= 0 && count >= 0)
                     AssertExtensions.Throws<ArgumentException>(null, () => list.Reverse(index, count));
             });
-
-            list.Dispose();
         }
 
         [Theory]
@@ -203,8 +189,6 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Throws<ArgumentOutOfRangeException>(() => list.Reverse(invalidSet.Item1, invalidSet.Item2));
             });
-
-            list.Dispose();
         }
     }
 }
