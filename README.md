@@ -84,8 +84,10 @@ There are some API changes worth noting:
   <dd><code>list.Reverse(^5..);</code></dd>
   <dt>Sort the list in-place, excluding the first and last items:</dt>
   <dd><code>list.Sort(1..^1);</code></dd>
-  <dt>Find the last occurance of an item within the first 10 items in the list:</dt>
+  <dt>Find the last occurrence of an item within the first 10 items in the list:</dt>
   <dd><code>list.LastIndexOf(item, ..10);</code></dd>
+  <dt>Insert an item in the second-to-last position:</dt>
+  <dd><code>list.Insert(^2, item);</code></dd>
 </dl>
 
 #### Performance
