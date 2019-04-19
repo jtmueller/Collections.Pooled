@@ -1,6 +1,6 @@
 # Collections.Pooled 
 
-[![Build Status](https://dev.azure.com/jt-mueller/Collections.Pooled/_apis/build/status/jtmueller.Collections.Pooled?branchName=master)](https://dev.azure.com/jt-mueller/Collections.Pooled/_build/latest?definitionId=1&branchName=master)
+[![Build Status](https://dev.azure.com/jt-mueller/Collections.Pooled/_apis/build/status/jtmueller.Collections.Pooled?branchName=core-3)](https://dev.azure.com/jt-mueller/Collections.Pooled/_build/latest?definitionId=1&branchName=core-3)
 
 This library is based on classes from `System.Collections.Generic` that have been altered 
 to take advantage of the new `System.Span<T>` and `System.Buffers.ArrayPool<T>` libraries 
