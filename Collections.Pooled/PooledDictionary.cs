@@ -34,6 +34,8 @@ namespace Collections.Pooled
         ThrowOnExisting = 2
     }
 
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
+
     /// <remarks>
     /// A <see cref="PooledDictionary{TKey,TValue}"/> can support multiple readers concurrently, as long as the collection is not modified. 
     /// Even so, enumerating through a collection is intrinsically not a thread-safe procedure. 
@@ -141,7 +143,7 @@ namespace Collections.Pooled
             _clearKeyOnFree = ShouldClearKey(clearMode);
             _clearValueOnFree = ShouldClearValue(clearMode);
 
-            if (typeof(TKey) == typeof(string) && _comparer == null)
+            if (typeof(TKey) == typeof(string) && _comparer is null)
             {
                 // To start, move off default comparer for string which is randomised
                 _comparer = (IEqualityComparer<TKey>)NonRandomizedStringEqualityComparer.Default;
@@ -172,7 +174,7 @@ namespace Collections.Pooled
         public PooledDictionary(IDictionary<TKey, TValue> dictionary, ClearMode clearMode, IEqualityComparer<TKey>? comparer) :
             this(dictionary?.Count ?? 0, clearMode, comparer)
         {
-            if (dictionary == null)
+            if (dictionary is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
 
             // It is likely that the passed-in dictionary is PooledDictionary<TKey,TValue>. When this is the case,
@@ -193,7 +195,7 @@ namespace Collections.Pooled
                 return;
             }
 
-            foreach (var pair in dictionary)
+            foreach (var pair in dictionary!)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
@@ -223,10 +225,10 @@ namespace Collections.Pooled
         public PooledDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, ClearMode clearMode, IEqualityComparer<TKey>? comparer) :
             this((collection as ICollection<KeyValuePair<TKey, TValue>>)?.Count ?? 0, clearMode, comparer)
         {
-            if (collection == null)
+            if (collection is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
 
-            foreach (var pair in collection)
+            foreach (var pair in collection!)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
@@ -256,10 +258,10 @@ namespace Collections.Pooled
         public PooledDictionary(IEnumerable<(TKey key, TValue value)> collection, ClearMode clearMode, IEqualityComparer<TKey>? comparer)
             : this((collection as ICollection<(TKey, TValue)>)?.Count ?? 0, clearMode, comparer)
         {
-            if (collection == null)
+            if (collection is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
 
-            foreach (var (key, value) in collection)
+            foreach (var (key, value) in collection!)
             {
                 TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
@@ -319,12 +321,10 @@ namespace Collections.Pooled
             }
         }
 
-#pragma warning disable IDE0060 // Remove unused parameter
         /// <summary>
         /// Creates a new instance of PooledDictionary.
         /// </summary>
-        protected PooledDictionary(SerializationInfo info, StreamingContext context)
-#pragma warning restore IDE0060
+        protected PooledDictionary(SerializationInfo info, StreamingContext _)
         {
             _clearKeyOnFree = (bool?)info.GetValue(s_clearKeyName, typeof(bool)) ?? ShouldClearKey(ClearMode.Auto);
             _clearValueOnFree = (bool?)info.GetValue(s_clearValueName, typeof(bool)) ?? ShouldClearValue(ClearMode.Auto);
@@ -343,13 +343,8 @@ namespace Collections.Pooled
         /// The <see cref="IEqualityComparer{TKey}"/> used to compare keys in this dictionary.
         /// </summary>
         public IEqualityComparer<TKey> Comparer
-        {
-            get
-            {
-                return (_comparer == null || _comparer is NonRandomizedStringEqualityComparer)
+            => (_comparer is null || _comparer is NonRandomizedStringEqualityComparer)
                     ? EqualityComparer<TKey>.Default : _comparer;
-            }
-        }
 
         /// <summary>
         /// The number of items in the dictionary.
@@ -375,7 +370,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_keys == null) _keys = new KeyCollection(this);
+                if (_keys is null) _keys = new KeyCollection(this);
                 return _keys;
             }
         }
@@ -384,7 +379,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_keys == null) _keys = new KeyCollection(this);
+                if (_keys is null) _keys = new KeyCollection(this);
                 return _keys;
             }
         }
@@ -393,7 +388,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_keys == null) _keys = new KeyCollection(this);
+                if (_keys is null) _keys = new KeyCollection(this);
                 return _keys;
             }
         }
@@ -405,7 +400,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_values == null) _values = new ValueCollection(this);
+                if (_values is null) _values = new ValueCollection(this);
                 return _values;
             }
         }
@@ -414,7 +409,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_values == null) _values = new ValueCollection(this);
+                if (_values is null) _values = new ValueCollection(this);
                 return _values;
             }
         }
@@ -423,7 +418,7 @@ namespace Collections.Pooled
         {
             get
             {
-                if (_values == null) _values = new ValueCollection(this);
+                if (_values is null) _values = new ValueCollection(this);
                 return _values;
             }
         }
@@ -462,13 +457,13 @@ namespace Collections.Pooled
         /// </summary>
         public void AddRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
-            if (enumerable == null)
+            if (enumerable is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var pair in enumerable)
+            foreach (var pair in enumerable!)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.ThrowOnExisting);
             }
@@ -480,13 +475,13 @@ namespace Collections.Pooled
         /// </summary>
         public void AddRange(IEnumerable<(TKey key, TValue value)> enumerable)
         {
-            if (enumerable == null)
+            if (enumerable is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var (key, value) in enumerable)
+            foreach (var (key, value) in enumerable!)
             {
                 TryInsert(key, value, InsertionBehavior.ThrowOnExisting);
             }
@@ -519,13 +514,13 @@ namespace Collections.Pooled
         /// </summary>
         public void SetRange(IEnumerable<KeyValuePair<TKey, TValue>> enumerable)
         {
-            if (enumerable == null)
+            if (enumerable is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var pair in enumerable)
+            foreach (var pair in enumerable!)
             {
                 TryInsert(pair.Key, pair.Value, InsertionBehavior.OverwriteExisting);
             }
@@ -537,13 +532,13 @@ namespace Collections.Pooled
         /// </summary>
         public void SetRange(IEnumerable<(TKey key, TValue value)> enumerable)
         {
-            if (enumerable == null)
+            if (enumerable is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.enumerable);
 
             if (enumerable is ICollection<KeyValuePair<TKey, TValue>> collection)
                 EnsureCapacity(_count + collection.Count);
 
-            foreach (var (key, value) in enumerable)
+            foreach (var (key, value) in enumerable!)
             {
                 TryInsert(key, value, InsertionBehavior.OverwriteExisting);
             }
@@ -580,7 +575,7 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
         {
-            if (TryGetValue(key, out TValue value))
+            if (TryGetValue(key, out var value))
             {
                 var updatedValue = updater(key, value);
                 TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
@@ -602,7 +597,7 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updater)
         {
-            if (TryGetValue(key, out TValue value))
+            if (TryGetValue(key, out var value))
             {
                 var updatedValue = updater(key, value);
                 TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
@@ -663,11 +658,11 @@ namespace Collections.Pooled
         public bool ContainsValue(TValue value)
         {
             var entries = _entries;
-            if (value == null)
+            if (value is null)
             {
                 for (int i = 0; i < _count; i++)
                 {
-                    if (entries[i].hashCode >= 0 && entries[i].value == null)
+                    if (entries[i].hashCode >= 0 && entries[i].value is null)
                         return true;
                 }
             }
@@ -698,12 +693,12 @@ namespace Collections.Pooled
 
         private void CopyTo(KeyValuePair<TKey, TValue>[] array, int index)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if ((uint)index > (uint)array.Length)
+            if ((uint)index > (uint)array!.Length)
             {
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
             }
@@ -740,12 +735,12 @@ namespace Collections.Pooled
         /// <param name="context"></param>
         protected virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
-            info.AddValue(s_versionName, _version);
+            info!.AddValue(s_versionName, _version);
             info.AddValue(s_comparerName, _comparer ?? EqualityComparer<TKey>.Default, typeof(IEqualityComparer<TKey>));
             info.AddValue(s_hashSizeName, _size); // This is the length of the bucket array
             info.AddValue(s_clearKeyName, _clearKeyOnFree);
@@ -761,7 +756,7 @@ namespace Collections.Pooled
 
         private int FindEntry(TKey key)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
@@ -771,16 +766,17 @@ namespace Collections.Pooled
             if (length <= 0)
                 return i;
 
-            var buckets = _buckets;
+            int[] buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
             var comparer = _comparer;
 
-            if (comparer == null)
+            if (comparer is null)
             {
                 int hashCode = key!.GetHashCode() & s_lower31BitMask;
                 // Value in _buckets is 1-based
                 i = buckets[hashCode % length] - 1;
+
                 if (default(TKey) != null)
                 {
                     // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
@@ -871,7 +867,7 @@ namespace Collections.Pooled
 
         private bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
@@ -883,16 +879,16 @@ namespace Collections.Pooled
 
             var entries = _entries;
             var comparer = _comparer;
-            var size = _size;
+            int size = _size;
 
-            int hashCode = ((comparer == null) ? key!.GetHashCode() : comparer.GetHashCode(key)) & s_lower31BitMask;
+            int hashCode = ((comparer is null) ? key!.GetHashCode() : comparer.GetHashCode(key)) & s_lower31BitMask;
 
             int collisionCount = 0;
             ref int bucket = ref _buckets[hashCode % size];
             // Value in _buckets is 1-based
             int i = bucket - 1;
 
-            if (comparer == null)
+            if (comparer is null)
             {
                 if (default(TKey) != null)
                 {
@@ -1056,7 +1052,7 @@ namespace Collections.Pooled
             _version++;
 
             // Value types never rehash
-            if (default(TKey) == null && collisionCount > HashHelpers.HashCollisionThreshold && comparer is NonRandomizedStringEqualityComparer)
+            if (default(TKey) is null && collisionCount > HashHelpers.HashCollisionThreshold && comparer is NonRandomizedStringEqualityComparer)
             {
                 // If we hit the collision threshold we'll need to switch to the comparer which is using randomized string hashing
                 // i.e. EqualityComparer<string>.Default.
@@ -1069,9 +1065,9 @@ namespace Collections.Pooled
 
         public virtual void OnDeserialization(object sender)
         {
-            HashHelpers.SerializationInfoTable.TryGetValue(this, out SerializationInfo siInfo);
+            HashHelpers.SerializationInfoTable.TryGetValue(this, out var siInfo);
 
-            if (siInfo == null)
+            if (siInfo is null)
             {
                 // We can return immediately if this function is called twice. 
                 // Note we remove the serialization info from the table at the end of this method.
@@ -1089,14 +1085,14 @@ namespace Collections.Pooled
                 var array = (KeyValuePair<TKey, TValue>[])
                     siInfo.GetValue(s_keyValuePairsName, typeof(KeyValuePair<TKey, TValue>[]));
 
-                if (array == null)
+                if (array is null)
                 {
                     throw new SerializationException("Serialized PooledDictionary missing data.");
                 }
 
                 for (int i = 0; i < array.Length; i++)
                 {
-                    if (array[i].Key == null)
+                    if (array[i].Key is null)
                     {
                         throw new SerializationException("Serialized PooledDictionary had null key.");
                     }
@@ -1118,7 +1114,7 @@ namespace Collections.Pooled
         private void Resize(int newSize, bool forceNewHashCodes)
         {
             // Value types never rehash
-            Debug.Assert(!forceNewHashCodes || default(TKey) == null);
+            Debug.Assert(!forceNewHashCodes || default(TKey) is null);
             Debug.Assert(newSize >= _size);
 
             int[] buckets;
@@ -1146,13 +1142,13 @@ namespace Collections.Pooled
                 replaceArrays = true;
             }
 
-            if (default(TKey) == null && forceNewHashCodes)
+            if (default(TKey) is null && forceNewHashCodes)
             {
                 for (int i = 0; i < count; i++)
                 {
                     if (entries[i].hashCode >= 0)
                     {
-                        Debug.Assert(_comparer == null);
+                        Debug.Assert(_comparer is null);
                         entries[i].hashCode = entries[i].key!.GetHashCode() & s_lower31BitMask;
                     }
                 }
@@ -1184,12 +1180,12 @@ namespace Collections.Pooled
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
 
-            var buckets = _buckets;
+            int[] buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
             if (_size > 0)
@@ -1247,12 +1243,12 @@ namespace Collections.Pooled
         // Code has been intentionally duplicated for performance reasons.
         public bool Remove(TKey key, out TValue value)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
 
-            var buckets = _buckets;
+            int[] buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
             int hashCode = (_comparer?.GetHashCode(key) ?? key!.GetHashCode()) & s_lower31BitMask;
@@ -1322,7 +1318,7 @@ namespace Collections.Pooled
 
         public TValue GetOrAdd(TKey key, TValue addValue)
         {
-            if (TryGetValue(key, out TValue value))
+            if (TryGetValue(key, out var value))
                 return value;
 
             Add(key, addValue);
@@ -1331,7 +1327,7 @@ namespace Collections.Pooled
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
-            if (TryGetValue(key, out TValue value))
+            if (TryGetValue(key, out var value))
                 return value;
 
             var addValue = valueFactory(key);
@@ -1346,9 +1342,9 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int index)
         {
-            if (array == null)
+            if (array is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
-            if (array.Rank != 1)
+            if (array!.Rank != 1)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             if (array.GetLowerBound(0) != 0)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
@@ -1363,7 +1359,7 @@ namespace Collections.Pooled
             }
             else if (array is DictionaryEntry[] dictEntryArray)
             {
-                Entry[] entries = _entries;
+                var entries = _entries;
                 for (int i = 0; i < _count; i++)
                 {
                     if (entries[i].hashCode >= 0)
@@ -1444,9 +1440,9 @@ namespace Collections.Pooled
                 throw new ArgumentOutOfRangeException(nameof(capacity));
             int newSize = HashHelpers.GetPrime(capacity);
 
-            Entry[] oldEntries = _entries;
+            var oldEntries = _entries;
             int[] oldBuckets = _buckets;
-            int currentCapacity = oldEntries == null ? 0 : oldEntries.Length;
+            int currentCapacity = oldEntries.Length;
             if (newSize >= currentCapacity)
                 return;
 
@@ -1454,7 +1450,7 @@ namespace Collections.Pooled
             _version++;
             Initialize(newSize);
             var entries = _entries;
-            var buckets = _buckets;
+            int[] buckets = _buckets;
             int count = 0;
             for (int i = 0; i < oldCount; i++)
             {
@@ -1487,7 +1483,7 @@ namespace Collections.Pooled
 #nullable disable
             get
             {
-                if (_syncRoot == null)
+                if (_syncRoot is null)
                 {
                     Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
@@ -1520,7 +1516,7 @@ namespace Collections.Pooled
             }
             set
             {
-                if (key == null)
+                if (key is null)
                 {
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
                 }
@@ -1528,7 +1524,7 @@ namespace Collections.Pooled
 
                 try
                 {
-                    var tempKey = (TKey)key;
+                    var tempKey = (TKey)key!;
                     try
                     {
                         this[tempKey] = (TValue)value!;
@@ -1597,7 +1593,7 @@ namespace Collections.Pooled
 
         private static bool IsCompatibleKey(object key)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
@@ -1606,7 +1602,7 @@ namespace Collections.Pooled
 
         void IDictionary.Add(object key, object value)
         {
-            if (key == null)
+            if (key is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
@@ -1614,7 +1610,7 @@ namespace Collections.Pooled
 
             try
             {
-                var tempKey = (TKey)key;
+                var tempKey = (TKey)key!;
 
                 try
                 {
@@ -1799,13 +1795,13 @@ namespace Collections.Pooled
 
             public void CopyTo(TKey[] array, int index)
             {
-                if (array == null)
+                if (array is null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
 
-                if (index < 0 || index > array.Length)
+                if (index < 0 || index > array!.Length)
                     ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
-                if (array.Length - index < _dictionary.Count)
+                if (array!.Length - index < _dictionary.Count)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 int count = _dictionary._count;
@@ -1857,9 +1853,9 @@ namespace Collections.Pooled
 
             void ICollection.CopyTo(Array array, int index)
             {
-                if (array == null)
+                if (array is null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
-                if (array.Rank != 1)
+                if (array!.Rank != 1)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
                 if (array.GetLowerBound(0) != 0)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
@@ -1976,11 +1972,11 @@ namespace Collections.Pooled
 
             public ValueCollection(PooledDictionary<TKey, TValue> dictionary)
             {
-                if (dictionary == null)
+                if (dictionary is null)
                 {
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.dictionary);
                 }
-                _dictionary = dictionary;
+                _dictionary = dictionary!;
             }
 
             public Enumerator GetEnumerator()
@@ -1988,13 +1984,13 @@ namespace Collections.Pooled
 
             public void CopyTo(TValue[] array, int index)
             {
-                if (array == null)
+                if (array is null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
 
-                if (index < 0 || index > array.Length)
+                if (index < 0 || index > array!.Length)
                     ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
-                if (array.Length - index < _dictionary.Count)
+                if (array!.Length - index < _dictionary.Count)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
 
                 int count = _dictionary._count;
@@ -2046,9 +2042,9 @@ namespace Collections.Pooled
 
             void ICollection.CopyTo(Array array, int index)
             {
-                if (array == null)
+                if (array is null)
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
-                if (array.Rank != 1)
+                if (array!.Rank != 1)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
                 if (array.GetLowerBound(0) != 0)
                     ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_NonZeroLowerBound);
@@ -2155,4 +2151,5 @@ namespace Collections.Pooled
             }
         }
     }
+#pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
 }

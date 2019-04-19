@@ -37,7 +37,7 @@ namespace Collections.Pooled.Tests.PooledList
 
         protected virtual PooledList<T> GenericListFactory(int count)
         {
-            IEnumerable<T> toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
+            var toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
             var list = new PooledList<T>(toCreateFrom);
             RegisterForDispose(list);
             return list;
@@ -45,7 +45,7 @@ namespace Collections.Pooled.Tests.PooledList
 
         protected virtual T[] GenericArrayFactory(int count)
         {
-            IEnumerable<T> toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
+            var toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
             return toCreateFrom.ToArray();
         }
 
@@ -69,7 +69,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             if (count > 0)
             {
-                PooledList<T> list = GenericListFactory(count);
+                var list = GenericListFactory(count);
                 AssertExtensions.Throws<ArgumentException>(null, () => list.CopyTo(new T[0]));
                 list.Dispose();
             }

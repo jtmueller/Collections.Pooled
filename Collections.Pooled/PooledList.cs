@@ -383,7 +383,7 @@ namespace Collections.Pooled
 #nullable disable
             get
             {
-                if (_syncRoot == null)
+                if (_syncRoot is null)
                 {
                     Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
@@ -455,7 +455,9 @@ namespace Collections.Pooled
         {
             // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-            return (value is T) || (value == null && default(T) == null);
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
+            return (value is T) || (value is null && default(T) is null);
+#pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
         }
 
         object? IList.this[int index]
@@ -690,7 +692,7 @@ namespace Collections.Pooled
         /// <returns>A new instance of <see cref="PooledList{TOutput}"/>.</returns>
         public PooledList<TOutput> ConvertAll<TOutput>(Func<T, TOutput> converter)
         {
-            if (converter == null)
+            if (converter is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.converter);
             }
@@ -698,7 +700,7 @@ namespace Collections.Pooled
             var list = new PooledList<TOutput>(_size);
             for (int i = 0; i < _size; i++)
             {
-                list._items[i] = converter(_items[i]);
+                list._items[i] = converter!(_items[i]);
             }
             list._size = _size;
             return list;
@@ -710,7 +712,7 @@ namespace Collections.Pooled
         public void CopyTo(Span<T> span)
         {
             if (span.Length < Count)
-                throw new ArgumentException("Destination span is shorter than the list to be copied.");
+                throw new ArgumentException("Destination is shorter than the list to be copied.");
 
             Span.CopyTo(span);
         }
@@ -772,12 +774,12 @@ namespace Collections.Pooled
         /// <param name="result"></param>
         public bool TryFind(Func<T, bool> match, out T result)
         {
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             for (int i = 0; i < _size; i++)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                 {
                     result = _items[i];
                     return true;
@@ -796,13 +798,13 @@ namespace Collections.Pooled
         /// <param name="match">A predicate function that returns true for matches.</param>
         public PooledList<T> FindAll(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             var list = new PooledList<T>();
             for (int i = 0; i < _size; i++)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                 {
                     list.Add(_items[i]);
                 }
@@ -871,13 +873,13 @@ namespace Collections.Pooled
             if (count < 0 || startIndex > _size - count)
                 ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                     return i;
             }
             return -1;
@@ -892,14 +894,14 @@ namespace Collections.Pooled
         /// <param name="result"></param>
         public bool TryFindLast(Func<T, bool> match, out T result)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = _size - 1; i >= 0; i--)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                 {
                     result = _items[i];
                     return true;
@@ -957,12 +959,12 @@ namespace Collections.Pooled
             if (end < start || end > _size)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
 
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             for (int i = end; i >= start; i--)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                     return i;
             }
 
@@ -976,7 +978,7 @@ namespace Collections.Pooled
         /// </summary>
         public int FindLastIndex(int startIndex, int count, Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
@@ -1007,7 +1009,7 @@ namespace Collections.Pooled
             int endIndex = startIndex - count;
             for (int i = startIndex; i > endIndex; i--)
             {
-                if (match(_items[i]))
+                if (match!(_items[i]))
                 {
                     return i;
                 }
@@ -1022,7 +1024,7 @@ namespace Collections.Pooled
         /// <param name="action"></param>
         public void ForEach(Action<T> action)
         {
-            if (action == null)
+            if (action is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
             }
@@ -1034,7 +1036,7 @@ namespace Collections.Pooled
                 {
                     break;
                 }
-                action(_items[i]);
+                action!(_items[i]);
             }
 
             if (version != _version)
@@ -1047,7 +1049,7 @@ namespace Collections.Pooled
         /// <param name="action"></param>
         public void ForEach(Action<T, int> action)
         {
-            if (action == null)
+            if (action is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
             }
@@ -1059,7 +1061,7 @@ namespace Collections.Pooled
                 {
                     break;
                 }
-                action(_items[i], i);
+                action!(_items[i], i);
             }
 
             if (version != _version)
@@ -1523,20 +1525,20 @@ namespace Collections.Pooled
         /// </summary>
         public int RemoveAll(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int freeIndex = 0;   // the first free slot in items array
 
             // Find the first item which needs to be removed.
-            while (freeIndex < _size && !match(_items[freeIndex])) freeIndex++;
+            while (freeIndex < _size && !match!(_items[freeIndex])) freeIndex++;
             if (freeIndex >= _size) return 0;
 
             int current = freeIndex + 1;
             while (current < _size)
             {
                 // Find the first item which needs to be kept.
-                while (current < _size && match(_items[current])) current++;
+                while (current < _size && match!(_items[current])) current++;
 
                 if (current < _size)
                 {
@@ -1730,7 +1732,7 @@ namespace Collections.Pooled
         /// 
         /// This method uses the Array.Sort method to sort the elements.
         /// </summary>
-        public void Sort(int index, int count, IComparer<T>? comparer)
+        public void Sort(int index, int count, IComparer<T>? comparer = null)
         {
             if (index < 0)
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
@@ -1759,7 +1761,7 @@ namespace Collections.Pooled
         /// </summary>
         public void Sort(Func<T, T, int> comparison)
         {
-            if (comparison == null)
+            if (comparison is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.comparison);
             }
@@ -1769,7 +1771,7 @@ namespace Collections.Pooled
                 // List<T> uses ArraySortHelper here but since it's an internal class,
                 // we're creating an IComparer<T> using the comparison function to avoid
                 // duplicating all that code.
-                Array.Sort(_items, 0, _size, new Comparer(comparison));
+                Array.Sort(_items, 0, _size, new Comparer(comparison!));
             }
             _version++;
         }
@@ -1815,14 +1817,14 @@ namespace Collections.Pooled
         /// <param name="match"></param>
         public bool TrueForAll(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = 0; i < _size; i++)
             {
-                if (!match(_items[i]))
+                if (!match!(_items[i]))
                 {
                     return false;
                 }

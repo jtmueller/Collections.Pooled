@@ -28,11 +28,13 @@ namespace Collections.Pooled.Tests.PooledStack
 
         protected PooledStack<T> GenericStackFactory(int count)
         {
-            PooledStack<T> stack = new PooledStack<T>(count);
-            RegisterForDispose(stack);
+            using var stack = new PooledStack<T>(count);
             int seed = count * 34;
             for (int i = 0; i < count; i++)
+            {
                 stack.Push(CreateT(seed++));
+            }
+
             return stack;
         }
 
@@ -40,15 +42,9 @@ namespace Collections.Pooled.Tests.PooledStack
 
         #endregion
 
-        protected override IEnumerable<T> GenericIEnumerableFactory()
-        {
-            return GenericStackFactory();
-        }
+        protected override IEnumerable<T> GenericIEnumerableFactory() => GenericStackFactory();
 
-        protected override IEnumerable<T> GenericIEnumerableFactory(int count)
-        {
-            return GenericStackFactory(count);
-        }
+        protected override IEnumerable<T> GenericIEnumerableFactory(int count) => GenericStackFactory(count);
 
         protected override int Count(IEnumerable<T> enumerable) => ((PooledStack<T>)enumerable).Count;
         protected override void Add(IEnumerable<T> enumerable, T value) => ((PooledStack<T>)enumerable).Push(value);
@@ -79,17 +75,13 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(EnumerableTestData))]
         public void Stack_Generic_Constructor_IEnumerable(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
-            PooledStack<T> stack = new PooledStack<T>(enumerable);
-            RegisterForDispose(stack);
+            var enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
+            using var stack = new PooledStack<T>(enumerable);
             Assert.Equal(enumerable.ToArray().Reverse(), stack.ToArray());
         }
 
         [Fact]
-        public void Stack_Generic_Constructor_IEnumerable_Null_ThrowsArgumentNullException()
-        {
-            AssertExtensions.Throws<ArgumentNullException>("enumerable", () => new PooledStack<T>((IEnumerable<T>)null));
-        }
+        public void Stack_Generic_Constructor_IEnumerable_Null_ThrowsArgumentNullException() => AssertExtensions.Throws<ArgumentNullException>("enumerable", () => new PooledStack<T>((IEnumerable<T>)null));
 
         #endregion
 
@@ -99,8 +91,7 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_Constructor_int(int count)
         {
-            PooledStack<T> stack = new PooledStack<T>(count);
-            RegisterForDispose(stack);
+            using var stack = new PooledStack<T>(count);
             Assert.Equal(Array.Empty<T>(), stack.ToArray());
         }
 
@@ -108,7 +99,7 @@ namespace Collections.Pooled.Tests.PooledStack
         public void Stack_Generic_Constructor_int_Negative_ThrowsArgumentOutOfRangeException()
         {
             AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledStack<T>(-1));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledStack<T>(int.MinValue));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledStack<T>(Int32.MinValue));
         }
 
         #endregion
@@ -119,17 +110,16 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_Pop_AllElements(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
-            List<T> elements = stack.ToList();
-            foreach (T element in elements)
+            var stack = GenericStackFactory(count);
+            var elements = stack.ToList();
+            foreach (var element in elements)
+            {
                 Assert.Equal(element, stack.Pop());
+            }
         }
 
         [Fact]
-        public void Stack_Generic_Pop_OnEmptyStack_ThrowsInvalidOperationException()
-        {
-            Assert.Throws<InvalidOperationException>(() => new PooledStack<T>().Pop());
-        }
+        public void Stack_Generic_Pop_OnEmptyStack_ThrowsInvalidOperationException() => Assert.Throws<InvalidOperationException>(() => new PooledStack<T>().Pop());
 
         #endregion
 
@@ -141,8 +131,8 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_RemoveWhere(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
-            var startingCount = stack.Count;
+            var stack = GenericStackFactory(count);
+            int startingCount = stack.Count;
             var expected = stack.Where(x => !RemoveWherePredicate(x)).ToPooledList();
             stack.RemoveWhere(RemoveWherePredicate);
             Assert.Equal(expected.Count, stack.Count);
@@ -158,7 +148,7 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_ToArray(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
+            var stack = GenericStackFactory(count);
             Assert.Equal(Enumerable.ToArray(stack), stack.ToArray());
         }
 
@@ -170,9 +160,9 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_Peek_AllElements(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
-            List<T> elements = stack.ToList();
-            foreach (T element in elements)
+            var stack = GenericStackFactory(count);
+            var elements = stack.ToList();
+            foreach (var element in elements)
             {
                 Assert.Equal(element, stack.Peek());
                 stack.Pop();
@@ -180,10 +170,7 @@ namespace Collections.Pooled.Tests.PooledStack
         }
 
         [Fact]
-        public void Stack_Generic_Peek_OnEmptyStack_ThrowsInvalidOperationException()
-        {
-            Assert.Throws<InvalidOperationException>(() => new PooledStack<T>().Peek());
-        }
+        public void Stack_Generic_Peek_OnEmptyStack_ThrowsInvalidOperationException() => Assert.Throws<InvalidOperationException>(() => new PooledStack<T>().Peek());
 
         #endregion
 
@@ -193,7 +180,7 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_TrimExcess_OnValidStackThatHasntBeenRemovedFrom(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
+            var stack = GenericStackFactory(count);
             stack.TrimExcess();
         }
 
@@ -201,8 +188,8 @@ namespace Collections.Pooled.Tests.PooledStack
         [MemberData(nameof(ValidCollectionSizes))]
         public void Stack_Generic_TrimExcess_Repeatedly(int count)
         {
-            PooledStack<T> stack = GenericStackFactory(count);
-            List<T> expected = stack.ToList();
+            var stack = GenericStackFactory(count);
+            var expected = stack.ToList();
             stack.TrimExcess();
             stack.TrimExcess();
             stack.TrimExcess();
@@ -215,9 +202,9 @@ namespace Collections.Pooled.Tests.PooledStack
         {
             if (count > 0)
             {
-                PooledStack<T> stack = GenericStackFactory(count);
-                List<T> expected = stack.ToList();
-                T elementToRemove = stack.ElementAt(0);
+                var stack = GenericStackFactory(count);
+                var expected = stack.ToList();
+                var elementToRemove = stack.ElementAt(0);
 
                 stack.TrimExcess();
                 stack.Pop();
@@ -234,7 +221,7 @@ namespace Collections.Pooled.Tests.PooledStack
         {
             if (count > 0)
             {
-                PooledStack<T> stack = GenericStackFactory(count);
+                var stack = GenericStackFactory(count);
                 stack.TrimExcess();
                 stack.Clear();
                 stack.TrimExcess();
@@ -252,7 +239,7 @@ namespace Collections.Pooled.Tests.PooledStack
         {
             if (count > 0)
             {
-                PooledStack<T> stack = GenericStackFactory(count);
+                var stack = GenericStackFactory(count);
                 stack.TrimExcess();
                 stack.Clear();
                 stack.TrimExcess();

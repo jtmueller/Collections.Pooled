@@ -23,7 +23,7 @@ namespace Collections.Pooled.Tests.PooledQueue
 
         protected PooledQueue<T> GenericQueueFactory(int count)
         {
-            PooledQueue<T> queue = new PooledQueue<T>(count);
+            var queue = new PooledQueue<T>(count);
             RegisterForDispose(queue);
             int seed = count * 34;
             for (int i = 0; i < count; i++)
@@ -63,9 +63,8 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(EnumerableTestData))]
         public void Queue_Generic_Constructor_IEnumerable(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
-            PooledQueue<T> queue = new PooledQueue<T>(enumerable);
-            RegisterForDispose(queue);
+            var enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
+            using var queue = new PooledQueue<T>(enumerable);
             Assert.Equal(enumerable, queue);
         }
 
@@ -83,8 +82,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_Constructor_int(int count)
         {
-            PooledQueue<T> queue = new PooledQueue<T>(count);
-            RegisterForDispose(queue);
+            using var queue = new PooledQueue<T>(count);
             Assert.Equal(Array.Empty<T>(), queue.ToArray());
             queue.Clear();
             Assert.Equal(Array.Empty<T>(), queue.ToArray());
@@ -94,7 +92,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         public void Queue_Generic_Constructor_int_Negative_ThrowsArgumentOutOfRangeException()
         {
             AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledQueue<T>(-1));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledQueue<T>(int.MinValue));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledQueue<T>(Int32.MinValue));
         }
 
         #endregion
@@ -105,9 +103,9 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_Dequeue_AllElements(int count)
         {
-            PooledQueue<T> queue = GenericQueueFactory(count);
-            List<T> elements = queue.ToList();
-            foreach (T element in elements)
+            var queue = GenericQueueFactory(count);
+            var elements = queue.ToList();
+            foreach (var element in elements)
                 Assert.Equal(element, queue.Dequeue());
         }
 
@@ -124,13 +122,12 @@ namespace Collections.Pooled.Tests.PooledQueue
         public void Queue_Generic_EnqueueAndDequeue(int capacity, int items)
         {
             int seed = 53134;
-            var q = new PooledQueue<T>(capacity);
-            RegisterForDispose(q);
+            using var q = new PooledQueue<T>(capacity);
             Assert.Equal(0, q.Count);
 
             // Enqueue some values and make sure the count is correct
-            List<T> source = (List<T>)CreateEnumerable(EnumerableType.List, null, items, 0, 0);
-            foreach (T val in source)
+            var source = (List<T>)CreateEnumerable(EnumerableType.List, null, items, 0, 0);
+            foreach (var val in source)
             {
                 q.Enqueue(val);
             }
@@ -139,7 +136,7 @@ namespace Collections.Pooled.Tests.PooledQueue
             // Dequeue to make sure the values are removed in the right order and the count is updated
             for (int i = 0; i < items; i++)
             {
-                T itemToRemove = source[0];
+                var itemToRemove = source[0];
                 source.RemoveAt(0);
                 Assert.Equal(itemToRemove, q.Dequeue());
                 Assert.Equal(items - i - 1, q.Count);
@@ -149,7 +146,7 @@ namespace Collections.Pooled.Tests.PooledQueue
             Assert.Throws<InvalidOperationException>(() => q.Dequeue());
 
             // But can still be used after a failure and after bouncing at empty
-            T itemToAdd = CreateT(seed++);
+            var itemToAdd = CreateT(seed++);
             q.Enqueue(itemToAdd);
             Assert.Equal(itemToAdd, q.Dequeue());
         }
@@ -162,7 +159,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_ToArray(int count)
         {
-            PooledQueue<T> queue = GenericQueueFactory(count);
+            var queue = GenericQueueFactory(count);
             Assert.True(queue.ToArray().SequenceEqual(queue.ToArray<T>()));
         }
 
@@ -170,10 +167,9 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_ToArray_NonWrappedQueue(int count)
         {
-            PooledQueue<T> collection = new PooledQueue<T>(count + 1);
-            RegisterForDispose(collection);
+            using var collection = new PooledQueue<T>(count + 1);
             AddToCollection(collection, count);
-            T[] elements = collection.ToArray();
+            var elements = collection.ToArray();
             elements.Reverse();
             Assert.True(Enumerable.SequenceEqual(elements, collection.ToArray<T>()));
         }
@@ -186,9 +182,9 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_Peek_AllElements(int count)
         {
-            PooledQueue<T> queue = GenericQueueFactory(count);
-            List<T> elements = queue.ToList();
-            foreach (T element in elements)
+            var queue = GenericQueueFactory(count);
+            var elements = queue.ToList();
+            foreach (var element in elements)
             {
                 Assert.Equal(element, queue.Peek());
                 queue.Dequeue();
@@ -209,7 +205,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_TrimExcess_OnValidQueueThatHasntBeenRemovedFrom(int count)
         {
-            PooledQueue<T> queue = GenericQueueFactory(count);
+            var queue = GenericQueueFactory(count);
             queue.TrimExcess();
         }
 
@@ -217,8 +213,8 @@ namespace Collections.Pooled.Tests.PooledQueue
         [MemberData(nameof(ValidCollectionSizes))]
         public void Queue_Generic_TrimExcess_Repeatedly(int count)
         {
-            PooledQueue<T> queue = GenericQueueFactory(count); ;
-            List<T> expected = queue.ToList();
+            var queue = GenericQueueFactory(count); ;
+            var expected = queue.ToList();
             queue.TrimExcess();
             queue.TrimExcess();
             queue.TrimExcess();
@@ -231,10 +227,10 @@ namespace Collections.Pooled.Tests.PooledQueue
         {
             if (count > 0)
             {
-                PooledQueue<T> queue = GenericQueueFactory(count); ;
-                List<T> expected = queue.ToList();
+                var queue = GenericQueueFactory(count); ;
+                var expected = queue.ToList();
                 queue.TrimExcess();
-                T removed = queue.Dequeue();
+                var removed = queue.Dequeue();
                 expected.Remove(removed);
                 queue.TrimExcess();
 
@@ -248,7 +244,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         {
             if (count > 0)
             {
-                PooledQueue<T> queue = GenericQueueFactory(count); ;
+                var queue = GenericQueueFactory(count); ;
                 queue.TrimExcess();
                 queue.Clear();
                 queue.TrimExcess();
@@ -266,7 +262,7 @@ namespace Collections.Pooled.Tests.PooledQueue
         {
             if (count > 0)
             {
-                PooledQueue<T> queue = GenericQueueFactory(count); ;
+                var queue = GenericQueueFactory(count); ;
                 queue.TrimExcess();
                 queue.Clear();
                 queue.TrimExcess();

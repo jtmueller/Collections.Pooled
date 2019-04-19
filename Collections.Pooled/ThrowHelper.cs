@@ -36,7 +36,6 @@
 //
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -346,8 +345,11 @@ namespace Collections.Pooled
         internal static void IfNullAndNullsAreIllegalThenThrow<T>(object? value, ExceptionArgument argName)
         {
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>.
+#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
             if (!(default(T) == null) && value == null)
                 ThrowHelper.ThrowArgumentNullException(argName);
+#pragma warning restore CS8653
+
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

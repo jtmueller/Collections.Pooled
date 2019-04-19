@@ -187,7 +187,7 @@ namespace Collections.Pooled
         /// </summary>
         public PooledSet(IEnumerable<T> collection, ClearMode clearMode, IEqualityComparer<T>? comparer) : this(clearMode, comparer)
         {
-            if (collection == null)
+            if (collection is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
             }
@@ -204,7 +204,7 @@ namespace Collections.Pooled
                 int suggestedCapacity = (collection is ICollection<T> coll) ? coll.Count : 0;
                 Initialize(suggestedCapacity);
 
-                UnionWith(collection);
+                UnionWith(collection!);
 
                 if (_count > 0 && _size / _count > s_shrinkThreshold)
                 {
@@ -503,14 +503,14 @@ namespace Collections.Pooled
         /// </summary>
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
         {
-            if (info == null)
+            if (info is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
-            info.AddValue(s_versionName, _version); // need to serialize version to avoid problems with serializing while enumerating
+            info!.AddValue(s_versionName, _version); // need to serialize version to avoid problems with serializing while enumerating
             info.AddValue(s_comparerName, _comparer, typeof(IEqualityComparer<T>));
-            info.AddValue(s_capacityName, _buckets == null ? 0 : _size);
+            info.AddValue(s_capacityName, _buckets is null ? 0 : _size);
 
             if (_buckets != null)
             {
@@ -529,7 +529,7 @@ namespace Collections.Pooled
         /// </summary>
         public virtual void OnDeserialization(object sender)
         {
-            if (_siInfo == null)
+            if (_siInfo is null)
             {
                 // It might be necessary to call OnDeserialization from a container if the 
                 // container object also implements OnDeserialization. We can return immediately
@@ -547,13 +547,13 @@ namespace Collections.Pooled
 
                 var array = (T[])_siInfo.GetValue(s_elementsName, typeof(T[]));
 
-                if (array == null)
+                if (array is null)
                 {
                     ThrowHelper.ThrowSerializationException(ExceptionResource.Serialization_MissingKeys);
                 }
 
                 // there are no resizes here because we already set capacity above
-                for (int i = 0; i < array.Length; i++)
+                for (int i = 0; i < array!.Length; i++)
                 {
                     AddIfNotPresent(array[i]);
                 }
@@ -618,12 +618,12 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to add</param>
         public void UnionWith(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
-            foreach (T item in other)
+            foreach (T item in other!)
             {
                 AddIfNotPresent(item);
             }
@@ -665,7 +665,7 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to add </param>
         public void IntersectWith(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -760,7 +760,7 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to remove</param>
         public void ExceptWith(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -779,7 +779,7 @@ namespace Collections.Pooled
             }
 
             // remove every element in other from this
-            foreach (T element in other)
+            foreach (T element in other!)
             {
                 Remove(element);
             }
@@ -797,11 +797,6 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to remove</param>
         public void ExceptWith(ReadOnlySpan<T> other)
         {
-            if (other == null)
-            {
-                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
-            }
-
             // this is already the empty set; return
             if (_count == 0)
             {
@@ -821,7 +816,7 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to XOR</param>
         public void SymmetricExceptWith(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -829,7 +824,7 @@ namespace Collections.Pooled
             // if set is empty, then symmetric difference is other
             if (_count == 0)
             {
-                UnionWith(other);
+                UnionWith(other!);
                 return;
             }
 
@@ -898,7 +893,7 @@ namespace Collections.Pooled
         /// <returns>true if this is a subset of other; false if not</returns>
         public bool IsSubsetOf(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -989,7 +984,7 @@ namespace Collections.Pooled
         /// <returns>true if this is a proper subset of other; false if not</returns>
         public bool IsProperSubsetOf(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -1099,7 +1094,7 @@ namespace Collections.Pooled
         /// <returns>true if this is a superset of other; false if not</returns>
         public bool IsSupersetOf(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -1137,7 +1132,7 @@ namespace Collections.Pooled
                 }
             }
 
-            return ContainsAllElements(other);
+            return ContainsAllElements(other!);
         }
 
         /// <summary>
@@ -1198,7 +1193,7 @@ namespace Collections.Pooled
         /// <returns>true if this is a proper superset of other; false if not</returns>
         public bool IsProperSupersetOf(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -1309,7 +1304,7 @@ namespace Collections.Pooled
         /// <returns>true if these have at least one common element; false if disjoint</returns>
         public bool Overlaps(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -1325,7 +1320,7 @@ namespace Collections.Pooled
                 return true;
             }
 
-            foreach (T element in other)
+            foreach (T element in other!)
             {
                 if (Contains(element))
                 {
@@ -1372,7 +1367,7 @@ namespace Collections.Pooled
         /// <returns></returns>
         public bool SetEquals(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
@@ -1462,7 +1457,7 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex, int count)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
@@ -1482,12 +1477,12 @@ namespace Collections.Pooled
             // will array, starting at arrayIndex, be able to hold elements? Note: not
             // checking arrayIndex >= array.Length (consistency with list of allowing
             // count of 0; subsequent check takes care of the rest)
-            if (arrayIndex > array.Length || count > array.Length - arrayIndex)
+            if (arrayIndex > array!.Length || count > array.Length - arrayIndex)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
 
-            if (_slots == null || _count == 0)
+            if (_slots is null || _count == 0)
                 return;
 
             int numCopied = 0;
@@ -1537,12 +1532,12 @@ namespace Collections.Pooled
         /// <returns></returns>
         public int RemoveWhere(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
-            if (_slots == null || _count == 0)
+            if (_slots is null || _count == 0)
                 return 0;
 
             int numRemoved = 0;
@@ -1552,7 +1547,7 @@ namespace Collections.Pooled
                 {
                     // cache value in case delegate removes it
                     T value = _slots[i].value;
-                    if (match(value))
+                    if (match!(value))
                     {
                         // check again that remove actually removed it
                         if (Remove(value))
@@ -1578,10 +1573,10 @@ namespace Collections.Pooled
         {
             if (capacity < 0)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-            int currentCapacity = _slots == null ? 0 : _size;
+            int currentCapacity = _slots is null ? 0 : _size;
             if (currentCapacity >= capacity)
                 return currentCapacity;
-            if (_buckets == null)
+            if (_buckets is null)
                 return Initialize(capacity);
 
             int newSize = HashHelpers.GetPrime(capacity);
@@ -1680,7 +1675,7 @@ namespace Collections.Pooled
         /// <param name="capacity"></param>
         private int Initialize(int capacity)
         {
-            Debug.Assert(_buckets == null, "Initialize was called but _buckets was non-null");
+            Debug.Assert(_buckets is null, "Initialize was called but _buckets was non-null");
 
             _size = HashHelpers.GetPrime(capacity);
             _buckets = s_bucketPool.Rent(_size);
@@ -1726,7 +1721,7 @@ namespace Collections.Pooled
 
             // Because ArrayPool might have given us larger arrays than we asked for, see if we can 
             // use the existing capacity without actually resizing.
-            if (_buckets?.Length >= newSize && _slots?.Length >= newSize)
+            if (_buckets != null && _buckets.Length >= newSize && _slots?.Length >= newSize)
             {
                 Array.Clear(_buckets, 0, _buckets.Length);
                 Array.Clear(_slots, _size, newSize - _size);
@@ -1814,7 +1809,7 @@ namespace Collections.Pooled
         /// <returns></returns>
         private bool AddIfNotPresent(T value)
         {
-            if (_buckets == null)
+            if (_buckets is null)
             {
                 Initialize(0);
             }
@@ -2543,11 +2538,11 @@ namespace Collections.Pooled
         internal static bool PooledSetEquals(PooledSet<T> set1, PooledSet<T> set2, IEqualityComparer<T> comparer)
         {
             // handle null cases first
-            if (set1 == null)
+            if (set1 is null)
             {
-                return (set2 == null);
+                return (set2 is null);
             }
-            else if (set2 == null)
+            else if (set2 is null)
             {
                 // set1 != null
                 return false;
@@ -2619,7 +2614,7 @@ namespace Collections.Pooled
         /// <returns>hash code</returns>
         private int InternalGetHashCode(T item)
         {
-            if (item == null)
+            if (item is null)
             {
                 return 0;
             }

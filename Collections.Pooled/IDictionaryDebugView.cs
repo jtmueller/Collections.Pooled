@@ -22,7 +22,7 @@ namespace Collections.Pooled
         {
             get
             {
-                KeyValuePair<K, V>[] items = new KeyValuePair<K, V>[_dict.Count];
+                var items = new KeyValuePair<K, V>[_dict.Count];
                 _dict.CopyTo(items, 0);
                 return items;
             }
@@ -43,7 +43,7 @@ namespace Collections.Pooled
         {
             get
             {
-                TKey[] items = new TKey[_collection.Count];
+                var items = new TKey[_collection.Count];
                 _collection.CopyTo(items, 0);
                 return items;
             }
@@ -64,7 +64,7 @@ namespace Collections.Pooled
         {
             get
             {
-                TValue[] items = new TValue[_collection.Count];
+                var items = new TValue[_collection.Count];
                 _collection.CopyTo(items, 0);
                 return items;
             }

@@ -242,7 +242,7 @@ namespace Collections.Pooled
 #nullable disable
             get
             {
-                if (_syncRoot == null)
+                if (_syncRoot is null)
                 {
                     Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
@@ -284,12 +284,12 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if ((uint)arrayIndex > (uint)array.Length)
+            if ((uint)arrayIndex > (uint)array!.Length)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex,
                     ExceptionResource.ArgumentOutOfRange_Index);
@@ -315,12 +315,12 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int index)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if (array.Rank != 1)
+            if (array!.Rank != 1)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Rank_MultiDimNotSupported,
                     ExceptionArgument.array);
@@ -503,7 +503,7 @@ namespace Collections.Pooled
         /// </summary>
         public int RemoveWhere(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             if (_size == 0)
@@ -517,7 +517,7 @@ namespace Collections.Pooled
                 int copyIdx = 0;
                 for (int i = _head; i < _size; i++)
                 {
-                    if (match(_array[i]))
+                    if (match!(_array[i]))
                         removeCount++;
                     else
                         newArray[copyIdx++] = _array[i];
@@ -528,7 +528,7 @@ namespace Collections.Pooled
                 int copyIdx = 0;
                 for (int i = _head; i < _array.Length - _head; i++)
                 {
-                    if (match(_array[i]))
+                    if (match!(_array[i]))
                         removeCount++;
                     else
                         newArray[copyIdx++] = _array[i];
@@ -536,7 +536,7 @@ namespace Collections.Pooled
 
                 for (int i = 0; i < _tail; i++)
                 {
-                    if (match(_array[i]))
+                    if (match!(_array[i]))
                         removeCount++;
                     else
                         newArray[copyIdx++] = _array[i];
