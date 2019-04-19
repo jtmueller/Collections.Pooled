@@ -1385,7 +1385,7 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Inserts the given number of items at the given index, increasing the
-        /// capacity if required, then returns a Span representing the set of items
+        /// capacity if required, then returns a <see cref="System.Span{T}"/> representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
         /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
@@ -1398,7 +1398,7 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Inserts the given number of items at the given index, increasing the
-        /// capacity if required, then returns a Span representing the set of items
+        /// capacity if required, then returns a <see cref="System.Span{T}"/> representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
         /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
