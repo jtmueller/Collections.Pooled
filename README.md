@@ -20,7 +20,7 @@ An extensive set of unit tests and benchmarks have been ported from [corefx](htt
 ```
 Total tests: 27986. Passed: 27986. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 10.4201 Seconds
+Test execution time: 10.2806 Seconds
 ```
 
 ## Installation

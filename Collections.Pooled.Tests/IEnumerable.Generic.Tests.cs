@@ -100,10 +100,10 @@ namespace Collections.Pooled.Tests
             Action<IEnumerator<T>, T[], int> testCode,
             int iters = 3)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(32);
-            T[] items = enumerable.ToArray();
-            IEnumerator<T> enumerator = enumerable.GetEnumerator();
-            for (var i = 0; i < iters; i++)
+            var enumerable = GenericIEnumerableFactory(32);
+            var items = enumerable.ToArray();
+            var enumerator = enumerable.GetEnumerator();
+            for (int i = 0; i < iters; i++)
             {
                 testCode(enumerator, items, i);
                 if (!ResetImplemented)
@@ -119,10 +119,7 @@ namespace Collections.Pooled.Tests
 
         private void RepeatTest(
             Action<IEnumerator<T>, T[]> testCode,
-            int iters = 3)
-        {
-            RepeatTest((e, i, it) => testCode(e, i), iters);
-        }
+            int iters = 3) => RepeatTest((e, i, it) => testCode(e, i), iters);
 
         private void VerifyModifiedEnumerator(
             IEnumerator<T> enumerator,
@@ -138,7 +135,7 @@ namespace Collections.Pooled.Tests
             else
             {
                 object current = enumerator.Current;
-                for (var i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     Assert.Equal(expectedCurrent, current);
                     current = enumerator.Current;
@@ -179,7 +176,7 @@ namespace Collections.Pooled.Tests
             bool needToMatchAllExpectedItems = count - startIndex == expectedItems.Length;
             if (validateStart)
             {
-                for (var i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     if (Enumerator_Current_UndefinedOperation_Throws)
                     {
@@ -206,8 +203,8 @@ namespace Collections.Pooled.Tests
                      iterations++)
                 {
                     object currentItem = enumerator.Current;
-                    var itemFound = false;
-                    for (var i = 0; i < itemsVisited.Length; ++i)
+                    bool itemFound = false;
+                    for (int i = 0; i < itemsVisited.Length; ++i)
                     {
                         if (!itemsVisited[i]
                             && Equals(
@@ -225,7 +222,7 @@ namespace Collections.Pooled.Tests
                     }
                     Assert.True(itemFound, "itemFound");
 
-                    for (var i = 0; i < 3; i++)
+                    for (int i = 0; i < 3; i++)
                     {
                         object tempItem = enumerator.Current;
                         Assert.Equal(currentItem, tempItem);
@@ -233,15 +230,15 @@ namespace Collections.Pooled.Tests
                 }
                 if (needToMatchAllExpectedItems)
                 {
-                    for (var i = 0; i < itemsVisited.Length; i++)
+                    for (int i = 0; i < itemsVisited.Length; i++)
                     {
                         Assert.True(itemsVisited[i]);
                     }
                 }
                 else
                 {
-                    var visitedItemCount = 0;
-                    for (var i = 0; i < itemsVisited.Length; i++)
+                    int visitedItemCount = 0;
+                    for (int i = 0; i < itemsVisited.Length; i++)
                     {
                         if (itemsVisited[i])
                         {
@@ -259,7 +256,7 @@ namespace Collections.Pooled.Tests
                 {
                     object currentItem = enumerator.Current;
                     Assert.Equal(expectedItems[iterations], currentItem);
-                    for (var i = 0; i < 3; i++)
+                    for (int i = 0; i < 3; i++)
                     {
                         object tempItem = enumerator.Current;
                         Assert.Equal(currentItem, tempItem);
@@ -275,7 +272,7 @@ namespace Collections.Pooled.Tests
 
             if (validateEnd)
             {
-                for (var i = 0; i < 3; i++)
+                for (int i = 0; i < 3; i++)
                 {
                     Assert.False(enumerator.MoveNext(), "enumerator.MoveNext() returned true past the expected end.");
 
@@ -299,7 +296,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_GetEnumerator_NoExceptionsWhileGetting(int count)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            var enumerable = GenericIEnumerableFactory(count);
             enumerable.GetEnumerator().Dispose();
         }
 
@@ -308,12 +305,19 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_Generic_GetEnumerator_ReturnsUniqueEnumerator(int count)
         {
             //Tests that the enumerators returned by GetEnumerator operate independently of one another
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            var enumerable = GenericIEnumerableFactory(count);
             int iterations = 0;
-            foreach (T item in enumerable)
-                foreach (T item2 in enumerable)
-                    foreach (T item3 in enumerable)
+            foreach (var item in enumerable)
+            {
+                foreach (var item2 in enumerable)
+                {
+                    foreach (var item3 in enumerable)
+                    {
                         iterations++;
+                    }
+                }
+            }
+
             Assert.Equal(count * count * count, iterations);
         }
 
@@ -326,13 +330,14 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_Generic_Enumerator_MoveNext_FromStartToFinish(int count)
         {
             int iterations = 0;
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                while (enumerator.MoveNext())
-                    iterations++;
-                Assert.Equal(count, iterations);
+                iterations++;
             }
+
+            Assert.Equal(count, iterations);
         }
 
         /// <summary>
@@ -344,10 +349,13 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void Enumerator_MoveNext_AfterDisposal(int count)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            IEnumerator<T> enumerator = enumerable.GetEnumerator();
+            var enumerable = GenericIEnumerableFactory(count);
+            var enumerator = enumerable.GetEnumerator();
             for (int i = 0; i < count; i++)
+            {
                 enumerator.MoveNext();
+            }
+
             enumerator.Dispose();
             Assert.False(enumerator.MoveNext());
         }
@@ -356,14 +364,15 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_MoveNext_AfterEndOfCollection(int count)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using var enumerator = enumerable.GetEnumerator();
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
-                    enumerator.MoveNext();
-                Assert.False(enumerator.MoveNext());
-                Assert.False(enumerator.MoveNext());
+                enumerator.MoveNext();
             }
+
+            Assert.False(enumerator.MoveNext());
+            Assert.False(enumerator.MoveNext());
         }
 
         [Theory]
@@ -372,8 +381,8 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
@@ -396,8 +405,8 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
@@ -416,11 +425,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     for (int i = 0; i < count / 2; i++)
+                    {
                         enumerator.MoveNext();
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         if (Enumerator_ModifiedDuringEnumeration_ThrowsInvalidOperationException)
@@ -442,11 +454,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     for (int i = 0; i < count / 2; i++)
+                    {
                         enumerator.MoveNext();
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         enumerator.MoveNext();
@@ -461,10 +476,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
-                    while (enumerator.MoveNext()) ;
+                    while (enumerator.MoveNext())
+                    {
+                        ;
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         if (Enumerator_ModifiedDuringEnumeration_ThrowsInvalidOperationException)
@@ -486,11 +505,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     while (enumerator.MoveNext())
+                    {
                         ;
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         enumerator.MoveNext();
@@ -505,7 +527,7 @@ namespace Collections.Pooled.Tests
             RepeatTest(
                 (enumerator, items) =>
                 {
-                    var iterations = 0;
+                    int iterations = 0;
                     while (enumerator.MoveNext())
                     {
                         iterations++;
@@ -560,12 +582,12 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_Current_ReturnsSameValueOnRepeatedCalls(int count)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using (var enumerator = enumerable.GetEnumerator())
             {
                 while (enumerator.MoveNext())
                 {
-                    T current = enumerator.Current;
+                    var current = enumerator.Current;
                     Assert.Equal(current, enumerator.Current);
                     Assert.Equal(current, enumerator.Current);
                     Assert.Equal(current, enumerator.Current);
@@ -579,16 +601,24 @@ namespace Collections.Pooled.Tests
         {
             // Ensures that the elements returned from enumeration are exactly the same collection of
             // elements returned from a previous enumeration
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            Dictionary<T, int> firstValues = new Dictionary<T, int>(count);
-            Dictionary<T, int> secondValues = new Dictionary<T, int>(count);
-            foreach (T item in enumerable)
+            var enumerable = GenericIEnumerableFactory(count);
+            var firstValues = new Dictionary<T, int>(count);
+            var secondValues = new Dictionary<T, int>(count);
+            foreach (var item in enumerable)
+            {
                 firstValues[item] = firstValues.ContainsKey(item) ? firstValues[item]++ : 1;
-            foreach (T item in enumerable)
+            }
+
+            foreach (var item in enumerable)
+            {
                 secondValues[item] = secondValues.ContainsKey(item) ? secondValues[item]++ : 1;
+            }
+
             Assert.Equal(firstValues.Count, secondValues.Count);
-            foreach (T key in firstValues.Keys)
+            foreach (var key in firstValues.Keys)
+            {
                 Assert.Equal(firstValues[key], secondValues[key]);
+            }
         }
 
         [Theory]
@@ -596,13 +626,17 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_Generic_Enumerator_Current_BeforeFirstMoveNext_UndefinedBehavior(int count)
         {
             T current;
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using (var enumerator = enumerable.GetEnumerator())
             {
                 if (Enumerator_Current_UndefinedOperation_Throws)
+                {
                     Assert.Throws<InvalidOperationException>(() => enumerator.Current);
+                }
                 else
+                {
                     current = enumerator.Current;
+                }
             }
         }
 
@@ -611,14 +645,22 @@ namespace Collections.Pooled.Tests
         public void IEnumerable_Generic_Enumerator_Current_AfterEndOfEnumerable_UndefinedBehavior(int count)
         {
             T current;
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using (var enumerator = enumerable.GetEnumerator())
             {
-                while (enumerator.MoveNext()) ;
+                while (enumerator.MoveNext())
+                {
+                    ;
+                }
+
                 if (Enumerator_Current_UndefinedOperation_Throws)
+                {
                     Assert.Throws<InvalidOperationException>(() => enumerator.Current);
+                }
                 else
+                {
                     current = enumerator.Current;
+                }
             }
         }
 
@@ -629,15 +671,19 @@ namespace Collections.Pooled.Tests
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
                 T current;
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
                         if (Enumerator_Current_UndefinedOperation_Throws)
+                        {
                             Assert.Throws<InvalidOperationException>(() => enumerator.Current);
+                        }
                         else
+                        {
                             current = enumerator.Current;
+                        }
                     }
                 }
             });
@@ -650,8 +696,8 @@ namespace Collections.Pooled.Tests
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
                 T current;
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
@@ -669,13 +715,17 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Enumerator_Reset_BeforeIteration_Support(int count)
         {
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-            using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+            var enumerable = GenericIEnumerableFactory(count);
+            using (var enumerator = enumerable.GetEnumerator())
             {
                 if (ResetImplemented)
+                {
                     enumerator.Reset();
+                }
                 else
+                {
                     Assert.Throws<NotSupportedException>(() => enumerator.Reset());
+                }
             }
         }
 
@@ -685,8 +735,8 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
@@ -709,8 +759,8 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     if (ModifyEnumerable(enumerable))
                     {
@@ -726,11 +776,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     for (int i = 0; i < count / 2; i++)
+                    {
                         enumerator.MoveNext();
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         if (Enumerator_ModifiedDuringEnumeration_ThrowsInvalidOperationException)
@@ -752,11 +805,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     for (int i = 0; i < count / 2; i++)
+                    {
                         enumerator.MoveNext();
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         enumerator.Reset();
@@ -771,10 +827,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
-                    while (enumerator.MoveNext()) ;
+                    while (enumerator.MoveNext())
+                    {
+                        ;
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         if (Enumerator_ModifiedDuringEnumeration_ThrowsInvalidOperationException)
@@ -796,11 +856,14 @@ namespace Collections.Pooled.Tests
         {
             Assert.All(GetModifyEnumerables(ModifyEnumeratorAllowed), ModifyEnumerable =>
             {
-                IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
-                using (IEnumerator<T> enumerator = enumerable.GetEnumerator())
+                var enumerable = GenericIEnumerableFactory(count);
+                using (var enumerator = enumerable.GetEnumerator())
                 {
                     while (enumerator.MoveNext())
+                    {
                         ;
+                    }
+
                     if (ModifyEnumerable(enumerable))
                     {
                         enumerator.Reset();
@@ -832,7 +895,7 @@ namespace Collections.Pooled.Tests
                                 items.Length / 2,
                                 true,
                                 false);
-                            for (var i = 0; i < 3; i++)
+                            for (int i = 0; i < 3; i++)
                             {
                                 Assert.Throws<NotSupportedException>(
                                     () => enumerator.Reset());
@@ -848,7 +911,7 @@ namespace Collections.Pooled.Tests
                         else if (iter == 2)
                         {
                             VerifyEnumerator(enumerator, items);
-                            for (var i = 0; i < 3; i++)
+                            for (int i = 0; i < 3; i++)
                             {
                                 Assert.Throws<NotSupportedException>(
                                     () => enumerator.Reset());
@@ -907,9 +970,12 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IEnumerable_Generic_Serialize_Deserialize(int count)
         {
-            if (!SupportsSerialization) return;
+            if (!SupportsSerialization)
+            {
+                return;
+            }
 
-            IEnumerable<T> enumerable = GenericIEnumerableFactory(count);
+            var enumerable = GenericIEnumerableFactory(count);
             var formatter = new BinaryFormatter();
             using (var stream = new MemoryStream())
             {

@@ -19,16 +19,11 @@ namespace Collections.Pooled.Tests.PooledStack
 
         #region IGenericSharedAPI<T> Helper Methods
 
-        protected PooledStack<T> GenericStackFactory()
-        {
-            var stack = new PooledStack<T>();
-            RegisterForDispose(stack);
-            return stack;
-        }
+        protected PooledStack<T> GenericStackFactory() => RegisterForDispose(new PooledStack<T>());
 
         protected PooledStack<T> GenericStackFactory(int count)
         {
-            using var stack = new PooledStack<T>(count);
+            var stack = RegisterForDispose(new PooledStack<T>(count));
             int seed = count * 34;
             for (int i = 0; i < count; i++)
             {
