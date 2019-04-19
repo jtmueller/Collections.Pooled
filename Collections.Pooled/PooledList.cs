@@ -311,11 +311,19 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
 
         /// <summary>
         /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         ReadOnlySpan<T> IReadOnlyPooledList<T>.Span => Span;
 
@@ -446,7 +454,11 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Gets a span for the given range.
+        /// Gets a <see cref="System.Span{T}"/> for the given range.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> this[Range range] => Span[range];
 #endif
@@ -554,9 +566,13 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Advances the <see cref="Count"/> by the number of items specified,
-        /// increasing the capacity if required, then returns a Span representing
+        /// increasing the capacity if required, then returns a <see cref="System.Span{T}"/> representing
         /// the set of items to be added, allowing direct writes to that section
         /// of the collection.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         /// <param name="count">The number of items to add.</param>
         public Span<T> AddSpan(int count)
@@ -1084,7 +1100,11 @@ namespace Collections.Pooled
             => new Enumerator(this);
 
         /// <summary>
-        /// Equivalent to PooledList.Span.Slice(index, count).
+        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> GetRange(int index, int count)
         {
@@ -1107,7 +1127,11 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Gets a range starting from the given index and going to the end of the list.
+        /// Gets a <see cref="System.Span{T}"/> starting from the given index and going to the end of the list.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> GetRange(int index)
         {
@@ -1119,12 +1143,20 @@ namespace Collections.Pooled
 
 #if NETSTANDARD2_1
         /// <summary>
-        /// Equivalent to PooledList[range]
+        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> GetRange(Range range) => Span[range];
 
         /// <summary>
-        /// Gets a range starting from the given index and going to the end of the list.
+        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> GetRange(Index startIndex) => Span.Slice(startIndex);
 #endif
@@ -1355,6 +1387,10 @@ namespace Collections.Pooled
         /// Inserts the given number of items at the given index, increasing the
         /// capacity if required, then returns a Span representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> InsertSpan(Index index, int count)
             => InsertSpan(index.GetOffset(_size), count, true);
@@ -1364,6 +1400,10 @@ namespace Collections.Pooled
         /// Inserts the given number of items at the given index, increasing the
         /// capacity if required, then returns a Span representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
+        /// WARNING: Be careful not to modify the list until you're finished with the returned 
+        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
+        /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> InsertSpan(int index, int count)
             => InsertSpan(index, count, true);
