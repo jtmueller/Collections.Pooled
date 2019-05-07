@@ -1158,7 +1158,7 @@ namespace Collections.Pooled
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
-        public Span<T> GetRange(Index startIndex) => Span.Slice(startIndex);
+        public Span<T> GetRange(Index startIndex) => Span[startIndex..];
 #endif
 
         /// <summary>

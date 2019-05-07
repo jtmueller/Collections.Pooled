@@ -35,6 +35,7 @@ namespace Collections.Pooled
     }
 
 #pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
+#pragma warning disable CS8619 // Nullability of reference types in value of type '(TKey key, TValue value)' doesn't match target type 'TKey'.
 
     /// <remarks>
     /// A <see cref="PooledDictionary{TKey,TValue}"/> can support multiple readers concurrently, as long as the collection is not modified. 
@@ -2151,5 +2152,6 @@ namespace Collections.Pooled
             }
         }
     }
+#pragma warning restore CS8619 // Nullability of reference types in value of type '(TKey key, TValue value)' doesn't match target type 'TKey'.
 #pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
 }
