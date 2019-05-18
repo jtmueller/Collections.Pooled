@@ -428,7 +428,7 @@ namespace Collections.Pooled
                 var newArray = _pool.Rent(_size);
                 if (newArray.Length < _array.Length)
                 {
-                    Array.Copy(_array, newArray, _size);
+                    Array.Copy(_array, 0, newArray, 0, _size);
                     ReturnArray(replaceWith: newArray);
                     _version++;
                 }
@@ -547,7 +547,7 @@ namespace Collections.Pooled
         private void PushWithResize(T item)
         {
             var newArray = _pool.Rent((_array.Length == 0) ? s_defaultCapacity : 2 * _array.Length);
-            Array.Copy(_array, newArray, _size);
+            Array.Copy(_array, 0, newArray, 0, _size);
             ReturnArray(replaceWith: newArray);
             _array[_size] = item;
             _version++;

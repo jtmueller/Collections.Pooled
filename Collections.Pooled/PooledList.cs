@@ -350,7 +350,7 @@ namespace Collections.Pooled
                         var newItems = _pool.Rent(value);
                         if (_size > 0)
                         {
-                            Array.Copy(_items, newItems, _size);
+                            Array.Copy(_items, 0, newItems, 0, _size);
                         }
                         ReturnArray();
                         _items = newItems;
