@@ -3,11 +3,7 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     [MemoryDiagnoser]
     public class Set_Intersect : SetBase
     {

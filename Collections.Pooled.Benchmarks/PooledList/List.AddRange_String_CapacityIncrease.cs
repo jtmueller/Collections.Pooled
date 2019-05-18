@@ -4,11 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     [MemoryDiagnoser]
     public class List_AddRange_String_CapacityIncrease : ListBase
     {

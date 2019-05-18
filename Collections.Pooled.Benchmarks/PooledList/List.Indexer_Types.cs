@@ -1,130 +1,119 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     [MemoryDiagnoser]
     public class List_Indexer_Types : ListBase
     {
         [Benchmark(Baseline = true)]
         public void ListIndexer_Int()
         {
-            int item;
             for (int j = 0; j < N; ++j)
             {
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
-                item = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
+                _ = listInt[j];
             }
         }
 
         [Benchmark]
         public void PooledIndexer_Int()
         {
-            int item;
             for (int j = 0; j < N; ++j)
             {
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
-                item = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
+                _ = pooledInt[j];
             }
         }
 
         [Benchmark]
         public void PooledIndexer_Span_Int()
         {
-            int item;
             var span = pooledInt.Span;
             for (int j = 0; j < N; ++j)
             {
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
             }
         }
 
         [Benchmark]
         public void ListIndexer_String()
         {
-            string item;
             for (int j = 0; j < N; ++j)
             {
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
-                item = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
+                _ = listString[j];
             }
         }
 
         [Benchmark]
         public void PooledIndexer_String()
         {
-            string item;
             for (int j = 0; j < N; ++j)
             {
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
-                item = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
+                _ = pooledString[j];
             }
         }
 
         [Benchmark]
         public void PooledIndexer_Span_String()
         {
-            string item;
             var span = pooledString.Span;
             for (int j = 0; j < N; ++j)
             {
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
-                item = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
+                _ = span[j];
             }
         }
 

@@ -8,11 +8,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
     // prevents us from running CoreJob with a CLR host, or ClrJob with a Core host.
     // When this is resolved, should change all the tests to run both job types at the same time.
 
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     [MemoryDiagnoser]
     public class List_Add : ListBase
     {
@@ -41,7 +37,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
         private PooledList<int> list;
 
-        [Params(10_000, 100_000, 1_000_000)]
+        [Params(100, 1000, 10_000, 100_000)]
         public int N;
 
         [GlobalSetup]

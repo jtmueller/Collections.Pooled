@@ -4,11 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledStack
 {
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     [MemoryDiagnoser]
     public class Stack_TryPeek : StackBase
     {
@@ -17,20 +13,16 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         {
             if (Type == StackType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intStack.TryPeek(out result);
+                    _ = intStack.TryPeek(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringStack.TryPeek(out result);
+                    _ = stringStack.TryPeek(out _);
                 }
             }
         }
@@ -40,20 +32,16 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         {
             if (Type == StackType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intPooled.TryPeek(out result);
+                    _ = intPooled.TryPeek(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringPooled.TryPeek(out result);
+                    _ = stringPooled.TryPeek(out _);
                 }
             }
         }

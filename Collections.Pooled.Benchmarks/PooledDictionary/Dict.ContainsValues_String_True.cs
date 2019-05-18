@@ -5,11 +5,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-#if NETCOREAPP3_0
-    [CoreJob]
-#elif NET472
-    [ClrJob]
-#endif
+    [CoreJob, ClrJob]
     public class Dict_ContainsValue_String_True : DictContainsBase<string>
     {
         [Benchmark(Baseline = true)]
