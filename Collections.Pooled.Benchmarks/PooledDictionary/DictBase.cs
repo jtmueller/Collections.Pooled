@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,7 +11,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 
         protected static Dictionary<int, int> CreateDictionary(int size)
         {
-            Random rand = new Random(RAND_SEED);
+            var rand = new Random(RAND_SEED);
             var dict = new Dictionary<int, int>();
             while (dict.Count < size)
             {
@@ -27,7 +28,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 
         protected static PooledDictionary<int, int> CreatePooled(int size)
         {
-            Random rand = new Random(RAND_SEED);
+            var rand = new Random(RAND_SEED);
             var dict = new PooledDictionary<int, int>();
             while (dict.Count < size)
             {

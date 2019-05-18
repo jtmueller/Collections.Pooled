@@ -4,12 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    // TODO: some assembly-binding redirect bug related to System.Buffers
-    // prevents us from running CoreJob with a CLR host, or ClrJob with a Core host.
-    // When this is resolved, should change all the tests to run both job types at the same time.
-
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Add : ListBase
     {
         [Benchmark(Baseline = true)]

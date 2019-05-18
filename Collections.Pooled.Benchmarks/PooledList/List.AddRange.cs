@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_AddRange : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListAddRangeICollection()
+        public void List_ICollection()
         {
             for (int i = 0; i < 5000; i++)
             {
@@ -19,7 +18,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRangeICollection()
+        public void Pooled_ICollection()
         {
             for (int i = 0; i < 5000; i++)
             {
@@ -30,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void ListAddRangeIEnumerable()
+        public void List_IEnumerable()
         {
             for (int i = 0; i < 5000; i++)
             {
@@ -40,7 +39,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRangeIEnumerable()
+        public void Pooled_IEnumerable()
         {
             for (int i = 0; i < 5000; i++)
             {

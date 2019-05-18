@@ -4,17 +4,16 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
+    [Config(typeof(BenchmarkConfig))]
     public class StringHashing : DictBase
     {
         [Benchmark(Baseline = true)]
         public void DefaultStringHash()
         {
             var comparer = EqualityComparer<string>.Default;
-            int hash;
             for (int i = 0; i < N; i++)
             {
-                hash = comparer.GetHashCode(strings[i]);
+                _ = comparer.GetHashCode(strings[i]);
             }
         }
 
@@ -22,10 +21,9 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         public void NonRandomizedStringHash()
         {
             var comparer = NonRandomizedStringEqualityComparer.Default;
-            int hash;
             for (int i = 0; i < N; i++)
             {
-                hash = comparer.GetHashCode(strings[i]);
+                _ = comparer.GetHashCode(strings[i]);
             }
         }
 
@@ -48,7 +46,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         private string CreateString(int seed)
         {
             int stringLength = seed % 10 + 5;
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             var bytes = new byte[stringLength];
             rand.NextBytes(bytes);
             return Convert.ToBase64String(bytes);

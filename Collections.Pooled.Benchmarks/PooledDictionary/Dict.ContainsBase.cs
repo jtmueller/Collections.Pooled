@@ -4,7 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public abstract class DictContainsBase<T> : DictBase
     {
         protected PooledDictionary<T, T> pooled;

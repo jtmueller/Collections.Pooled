@@ -4,11 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
+    [Config(typeof(BenchmarkConfig))]
     public class Dict_ContainsValue_Int_True : DictContainsBase<int>
     {
         [Benchmark(Baseline = true)]
-        public void DictContainsValue_Int_True()
+        public void Dict_Contains()
         {
             bool result = false;
             for (int j = 0; j < N; j++)
@@ -16,7 +16,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledContainsValue_Int_True()
+        public void Pooled_Contains()
         {
             bool result = false;
             for (int j = 0; j < N; j++)

@@ -4,8 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Dict_Add : DictBase
     {
         [IterationSetup(Target = nameof(DictAdd))]

@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Dict_Enumeration_ValueType : DictBase
     {
         [Benchmark(Baseline = true)]
-        public void DictEnumeration_ValueType()
+        public void Dict_Enum()
         {
             int? key;
             int? value;
@@ -21,7 +20,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledEnumeration_ValueType()
+        public void Pooled_Enum()
         {
             int? key;
             int? value;

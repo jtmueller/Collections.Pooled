@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
-    public class Dict_Indexer_get_ValueType : DictBase
+    [Config(typeof(BenchmarkConfig))]
+    public class Dict_Indexer_Get_ValueType : DictBase
     {
         [Benchmark(Baseline = true)]
-        public void DictIndexer_get_ValueType()
+        public void Dict_Int()
         {
             int? item;
             for (int i = 0; i < N; ++i)
@@ -28,7 +27,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledIndexer_get_ValueType()
+        public void Pooled_Int()
         {
             int? item;
             for (int i = 0; i < N; ++i)

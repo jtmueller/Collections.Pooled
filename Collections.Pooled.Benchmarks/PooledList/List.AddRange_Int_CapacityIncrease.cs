@@ -1,15 +1,14 @@
-﻿using System;
+﻿using BenchmarkDotNet.Attributes;
 using System.Collections.Generic;
-using BenchmarkDotNet.Attributes;
+using System.Linq;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_AddRange_Int_CapacityIncrease : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListAddRange_Int_CapacityIncrease()
+        public void List_Array()
         {
             var list = new List<int>();
 
@@ -36,7 +35,35 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRange_Int_CapacityIncrease_Array()
+        public void List_Enumerable()
+        {
+            var list = new List<int>();
+            var enumerable = sampleSet.AsEnumerable();
+
+            for (int j = 0; j < addLoops; j++)
+            {
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+            }
+        }
+
+        [Benchmark]
+        public void Pooled_Array()
         {
             var pooled = new PooledList<int>();
 
@@ -65,11 +92,11 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRange_Int_CapacityIncrease_Enumerable()
+        public void Pooled_Enumerable()
         {
             var pooled = new PooledList<int>();
 
-            var enumerable = (IEnumerable<int>)sampleSet;
+            var enumerable = sampleSet.AsEnumerable();
 
             for (int j = 0; j < addLoops; j++)
             {
@@ -103,8 +130,8 @@ namespace Collections.Pooled.Benchmarks.PooledList
                 return SMALL_SAMPLE_LENGTH;
         }
 
-        private const int LARGE_SAMPLE_LENGTH = 10000;
-        private const int SMALL_LOOPS = 1000;
+        private const int LARGE_SAMPLE_LENGTH = 10_000;
+        private const int SMALL_LOOPS = 1_000;
         private const int SMALL_SAMPLE_LENGTH = LARGE_SAMPLE_LENGTH / SMALL_LOOPS;
 
         [Params(true, false)]

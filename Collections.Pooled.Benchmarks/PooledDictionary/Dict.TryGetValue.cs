@@ -1,36 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Dict_TryGetValue : DictBase
     {
         [Benchmark(Baseline = true)]
         public void DictTryGetValue()
         {
-            int retrieved;
             for (int i = 0; i <= 1000; i++)
             {
-                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
-                dict.TryGetValue(key, out retrieved); dict.TryGetValue(key, out retrieved);
+                dict.TryGetValue(key, out _); dict.TryGetValue(key, out _);
+                dict.TryGetValue(key, out _); dict.TryGetValue(key, out _);
+                dict.TryGetValue(key, out _); dict.TryGetValue(key, out _);
+                dict.TryGetValue(key, out _); dict.TryGetValue(key, out _);
             }
         }
 
         [Benchmark]
         public void PooledTryGetValue()
         {
-            int retrieved;
             for (int i = 0; i <= 1000; i++)
             {
-                pooled.TryGetValue(key, out retrieved); pooled.TryGetValue(key, out retrieved);
-                pooled.TryGetValue(key, out retrieved); pooled.TryGetValue(key, out retrieved);
-                pooled.TryGetValue(key, out retrieved); pooled.TryGetValue(key, out retrieved);
-                pooled.TryGetValue(key, out retrieved); pooled.TryGetValue(key, out retrieved);
+                pooled.TryGetValue(key, out _); pooled.TryGetValue(key, out _);
+                pooled.TryGetValue(key, out _); pooled.TryGetValue(key, out _);
+                pooled.TryGetValue(key, out _); pooled.TryGetValue(key, out _);
+                pooled.TryGetValue(key, out _); pooled.TryGetValue(key, out _);
             }
         }
 

@@ -4,11 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
-    [CoreJob, ClrJob]
+    [Config(typeof(BenchmarkConfig))]
     public class Dict_ContainsValue_String_False : DictContainsBase<string>
     {
         [Benchmark(Baseline = true)]
-        public void DictContainsValue_String_False()
+        public void Dict_Contains()
         {
             bool result = false;
             string missingValue = N.ToString();   //The value N is not present in the dictionary.
@@ -17,7 +17,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         }
 
         [Benchmark]
-        public void PooledContainsValue_String_False()
+        public void Pooled_Contains()
         {
             bool result = false;
             string missingValue = N.ToString();   //The value N is not present in the dictionary.
