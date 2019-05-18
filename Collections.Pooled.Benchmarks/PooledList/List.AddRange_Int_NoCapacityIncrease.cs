@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_AddRange_Int_NoCapacityIncrease : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListAddRange_Int_NoCapacityIncrease()
+        public void List_Array()
         {
             //Clear the list without changing its capacity, so that when more data is added to the list its
             //capacity will not need to increase.
@@ -38,7 +38,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRange_Int_NoCapacityIncrease_Array()
+        public void Pooled_Array()
         {
             //Clear the list without changing its capacity, so that when more data is added to the list its
             //capacity will not need to increase.
@@ -67,13 +67,44 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledAddRange_Int_NoCapacityIncrease_Enumerable()
+        public void List_Enumerable()
+        {
+            //Clear the list without changing its capacity, so that when more data is added to the list its
+            //capacity will not need to increase.
+            list.RemoveRange(0, startingCapacity);
+
+            var enumerable = sampleSet.AsEnumerable();
+
+            for (int j = 0; j < addLoops; j++)
+            {
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+                list.AddRange(enumerable);
+            }
+        }
+
+        [Benchmark]
+        public void Pooled_Enumerable()
         {
             //Clear the list without changing its capacity, so that when more data is added to the list its
             //capacity will not need to increase.
             pooled.RemoveRange(0, startingCapacity);
 
-            var enumerable = (IEnumerable<int>)sampleSet;
+            var enumerable = sampleSet.AsEnumerable();
 
             for (int j = 0; j < addLoops; j++)
             {

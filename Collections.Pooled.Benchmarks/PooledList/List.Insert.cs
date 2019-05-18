@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Insert : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListInsert_Int()
+        public void List_Int()
         {
             var list = new List<int>();
             for (int j = 0; j < N; ++j)
@@ -21,7 +20,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledInsert_Int()
+        public void Pooled_Int()
         {
             var list = new PooledList<int>();
             for (int j = 0; j < N; ++j)
@@ -34,7 +33,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void ListInsert_String()
+        public void List_String()
         {
             var list = new List<string>();
             for (int j = 0; j < N; ++j)
@@ -46,7 +45,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledInsert_String()
+        public void Pooled_String()
         {
             var list = new PooledList<string>();
             for (int j = 0; j < N; ++j)

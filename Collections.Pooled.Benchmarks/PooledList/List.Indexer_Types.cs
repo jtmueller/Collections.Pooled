@@ -3,12 +3,11 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Indexer_Types : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListIndexer_Int()
+        public void List_Int()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -26,7 +25,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledIndexer_Int()
+        public void Pooled_Int()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -44,7 +43,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledIndexer_Span_Int()
+        public void Pooled_Span_Int()
         {
             var span = pooledInt.Span;
             for (int j = 0; j < N; ++j)
@@ -63,7 +62,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void ListIndexer_String()
+        public void List_String()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -81,7 +80,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledIndexer_String()
+        public void Pooled_String()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -99,7 +98,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledIndexer_Span_String()
+        public void Pooled_Span_String()
         {
             var span = pooledString.Span;
             for (int j = 0; j < N; ++j)

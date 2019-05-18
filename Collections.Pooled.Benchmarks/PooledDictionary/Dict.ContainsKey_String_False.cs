@@ -10,19 +10,17 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         [Benchmark(Baseline = true)]
         public void Dict_ContainsKey()
         {
-            bool result = false;
             string missingKey = N.ToString();   //The value N is not present in the dictionary.
             for (int j = 0; j < N; j++)
-                result = dict.ContainsKey(missingKey);
+                _ = dict.ContainsKey(missingKey);
         }
 
         [Benchmark]
         public void Pooled_ContainsKey()
         {
-            bool result = false;
             string missingKey = N.ToString();   //The value N is not present in the dictionary.
             for (int j = 0; j < N; j++)
-                result = pooled.ContainsKey(missingKey);
+                _ = pooled.ContainsKey(missingKey);
         }
 
         protected override string GetT(int i) => i.ToString();

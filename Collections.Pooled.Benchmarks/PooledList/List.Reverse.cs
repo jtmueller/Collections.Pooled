@@ -4,56 +4,67 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Reverse : ListBase
     {
-        [IterationSetup(Target = nameof(ListReverse_Int))]
+        [IterationSetup(Target = nameof(List_Int))]
         public void SetupListInt()
             => listInt = new List<int>(intItems);
 
         [Benchmark(Baseline = true)]
-        public void ListReverse_Int()
+        public void List_Int()
         {
             listInt.Reverse();
         }
 
-        [IterationSetup(Target = nameof(PooledReverse_Int))]
+        [IterationSetup(Targets = new[] { nameof(Pooled_Int), nameof(Pooled_Span_Int) })]
         public void SetupPooledInt()
             => pooledInt = new PooledList<int>(intItems);
 
-        [IterationCleanup(Target = nameof(PooledReverse_Int))]
+        [IterationCleanup(Targets = new[] { nameof(Pooled_Int), nameof(Pooled_Span_Int) })]
         public void CleanupPooledInt()
             => pooledInt?.Dispose();
 
         [Benchmark]
-        public void PooledReverse_Int()
+        public void Pooled_Int()
         {
             pooledInt.Reverse();
         }
 
-        [IterationSetup(Target = nameof(ListReverse_String))]
+        [Benchmark]
+        public void Pooled_Span_Int()
+        {
+            pooledInt.Span.Reverse();
+        }
+
+        [IterationSetup(Target = nameof(List_String))]
         public void SetupListString()
             => listString = new List<string>(stringItems);
 
         [Benchmark]
-        public void ListReverse_String()
+        public void List_String()
         {
             listString.Reverse();
         }
 
-        [IterationSetup(Target = nameof(PooledReverse_String))]
+        [IterationSetup(Targets = new[] { nameof(Pooled_String), nameof(Pooled_Span_String) })]
         public void SetupPooledString()
             => pooledString = new PooledList<string>(stringItems);
 
-        [IterationCleanup(Target = nameof(PooledReverse_String))]
+        [IterationCleanup(Targets = new[] { nameof(Pooled_String), nameof(Pooled_Span_String) })]
         public void CleanupPooledString()
             => pooledString?.Dispose();
 
         [Benchmark]
-        public void PooledReverse_String()
+        public void Pooled_String()
         {
             pooledString.Reverse();
+        }
+
+        [Benchmark]
+        public void Pooled_Span_String()
+        {
+            pooledString.Span.Reverse();
         }
 
         private List<int> listInt;

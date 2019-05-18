@@ -4,22 +4,21 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_ToArray : ListBase
     {
         [Benchmark(Baseline = true)]
         public void ListToArray()
         {
             for (int i = 0; i < 10000; i++)
-                list.ToArray();
+                _ = list.ToArray();
         }
 
         [Benchmark]
         public void PooledToArray()
         {
             for (int i = 0; i < 10000; i++)
-                pooled.ToArray();
+                _ = pooled.ToArray();
         }
 
         private List<int> list;

@@ -4,40 +4,35 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_BinarySearch : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListBinarySearch_Int()
+        public void List_Int()
         {
-            int result = 0;
             for (int j = 0; j < N; j++)
-                result = listInt.BinarySearch(listInt[j], intComparer);
+                _ = listInt.BinarySearch(listInt[j], intComparer);
         }
 
         [Benchmark]
-        public void PooledBinarySearch_Int()
+        public void Pooled_Int()
         {
-            int result = 0;
             for (int j = 0; j < N; j++)
-                result = pooledInt.BinarySearch(pooledInt[j], intComparer);
+                _ = pooledInt.BinarySearch(pooledInt[j], intComparer);
         }
 
         [Benchmark]
-        public void ListBinarySearch_String()
+        public void List_String()
         {
-            int result = 0;
             for (int j = 0; j < N; j++)
-                result = listString.BinarySearch(listString[j], stringComparer);
+                _ = listString.BinarySearch(listString[j], stringComparer);
         }
 
         [Benchmark]
-        public void PooledBinarySearch_String()
+        public void Pooled_String()
         {
-            int result = 0;
             for (int j = 0; j < N; j++)
-                result = pooledString.BinarySearch(pooledString[j], stringComparer);
+                _ = pooledString.BinarySearch(pooledString[j], stringComparer);
         }
 
         private List<int> listInt;

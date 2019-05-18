@@ -4,16 +4,15 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Remove : ListBase
     {
-        [IterationSetup(Target = nameof(ListRemove_Int))]
+        [IterationSetup(Target = nameof(List_Int))]
         public void SetupListInt()
             => listInt = new List<int>(intItems);
 
         [Benchmark(Baseline = true)]
-        public void ListRemove_Int()
+        public void List_Int()
         {
             int start = 0;
             int middle = N / 3;
@@ -32,16 +31,16 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
-        [IterationSetup(Target = nameof(PooledRemove_Int))]
+        [IterationSetup(Target = nameof(Pooled_Int))]
         public void SetupPooledInt()
             => pooledInt = new PooledList<int>(intItems);
 
-        [IterationCleanup(Target = nameof(PooledRemove_Int))]
+        [IterationCleanup(Target = nameof(Pooled_Int))]
         public void CleanupPooledInt()
             => pooledInt?.Dispose();
 
         [Benchmark]
-        public void PooledRemove_Int()
+        public void Pooled_Int()
         {
             int start = 0;
             int middle = N / 3;
@@ -60,12 +59,12 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
-        [IterationSetup(Target = nameof(ListRemove_String))]
+        [IterationSetup(Target = nameof(List_String))]
         public void SetupListString()
             => listString = new List<string>(stringItems);
 
         [Benchmark]
-        public void ListRemove_String()
+        public void List_String()
         {
             int start = 0;
             int middle = N / 3;
@@ -84,16 +83,16 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
-        [IterationSetup(Target = nameof(PooledRemove_String))]
+        [IterationSetup(Target = nameof(Pooled_String))]
         public void SetupPooledString()
             => pooledString = new PooledList<string>(stringItems);
 
-        [IterationCleanup(Target = nameof(PooledRemove_String))]
+        [IterationCleanup(Target = nameof(Pooled_String))]
         public void CleanupPooledString()
             => pooledString?.Dispose();
 
         [Benchmark]
-        public void PooledRemove_String()
+        public void Pooled_String()
         {
             int start = 0;
             int middle = N / 3;

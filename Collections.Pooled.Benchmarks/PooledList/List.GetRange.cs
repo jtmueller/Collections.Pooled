@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_GetRange : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListGetRange()
+        public void List_Range()
         {
             int item;
             for (int i = 0; i < 5000; i++)
@@ -27,7 +26,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledGetRange()
+        public void Pooled_Range()
         {
             int item;
             for (int i = 0; i < 5000; i++)

@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Contains_Types : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListContains_Int()
+        public void List_Int()
         {
             listInt.Contains(nonexistentInt);
             listInt.Contains(firstInt);
@@ -18,7 +17,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledContains_Int()
+        public void Pooled_Int()
         {
             pooledInt.Contains(nonexistentInt);
             pooledInt.Contains(firstInt);
@@ -27,7 +26,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void ListContains_String()
+        public void List_String()
         {
             listString.Contains(nonexistentStr);
             listString.Contains(firstStr);
@@ -36,7 +35,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledContains_String()
+        public void Pooled_String()
         {
             pooledString.Contains(nonexistentStr);
             pooledString.Contains(firstStr);

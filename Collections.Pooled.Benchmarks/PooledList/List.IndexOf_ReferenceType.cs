@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_IndexOf_ReferenceType : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListIndexOf_ReferenceType()
+        public void List_IndexOf()
         {
             list.IndexOf(nonexistentItem);
             list.IndexOf(firstItem);
@@ -18,7 +17,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void PooledIndexOf_ReferenceType()
+        public void Pooled_IndexOf()
         {
             pooled.IndexOf(nonexistentItem);
             pooled.IndexOf(firstItem);

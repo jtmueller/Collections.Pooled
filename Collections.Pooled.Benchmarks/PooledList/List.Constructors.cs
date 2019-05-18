@@ -4,33 +4,30 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class List_Constructors : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void ListICollectionConstructor()
+        public void List_ICollection()
         {
             if (Type == ListType.Int)
             {
-                List<int> list;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<int>(intList);
+                    _ = new List<int>(intList);
                 }
             }
             else
             {
-                List<string> list;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<string>(stringList);
+                    _ = new List<string>(stringList);
                 }
             }
         }
 
         [Benchmark]
-        public void PooledICollectionConstructor()
+        public void Pooled_ICollection()
         {
             if (Type == ListType.Int)
             {
@@ -53,22 +50,20 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void ListIEnumerableConstructor()
+        public void List_IEnumerable()
         {
             if (Type == ListType.Int)
             {
-                List<int> list;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<int>(IntEnumerable());
+                    _ = new List<int>(IntEnumerable());
                 }
             }
             else
             {
-                List<string> list;
                 for (int i = 0; i < 1000; i++)
                 {
-                    list = new List<string>(StringEnumerable());
+                    _ = new List<string>(StringEnumerable());
                 }
             }
         }
