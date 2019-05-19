@@ -4,18 +4,17 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Clear : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Clear()
+        public void HashSet()
         {
             hashSet.Clear();
         }
 
         [Benchmark]
-        public void PooledSet_Clear()
+        public void PooledSet()
         {
             pooledSet.Clear();
         }
@@ -27,13 +26,13 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         [Params(SetSize_Small)]
         public int InitialSetSize;
 
-        [IterationSetup(Target = nameof(HashSet_Clear))]
+        [IterationSetup(Target = nameof(HashSet))]
         public void HashIterationSetup()
         {
             hashSet.UnionWith(startingElements);
         }
 
-        [IterationSetup(Target = nameof(PooledSet_Clear))]
+        [IterationSetup(Target = nameof(PooledSet))]
         public void PooledIterationSetup()
         {
             pooledSet.UnionWith(startingElements);

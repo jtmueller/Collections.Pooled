@@ -3,42 +3,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_IsSubset : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_IsSubset_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.IsSubsetOf(hashSetToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.IsSubsetOf(pooledSetToCheck);
         }
 
         [Benchmark]
-        public void HashSet_IsSubset_Enum()
+        public void HashSet_Enum()
         {
             hashSet.IsSubsetOf(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.IsSubsetOf(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_IsSubset_Array()
+        public void HashSet_Array()
         {
             hashSet.IsSubsetOf(stuffToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSubset_Array()
+        public void PooledSet__Array()
         {
             pooledSet.IsSubsetOf(stuffToCheck);
         }

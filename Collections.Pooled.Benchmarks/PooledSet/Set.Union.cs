@@ -4,42 +4,41 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Union : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Union_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.UnionWith(hashSetToUnion);
         }
 
         [Benchmark]
-        public void PooledSet_Union_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.UnionWith(pooledSetToUnion);
         }
 
         [Benchmark]
-        public void HashSet_Union_Enum()
+        public void HashSet_Enum()
         {
             hashSet.UnionWith(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_Union_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.UnionWith(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_Union_Array()
+        public void HashSet_Array()
         {
             hashSet.UnionWith(stuffToUnion);
         }
 
         [Benchmark]
-        public void PooledSet_Union_Array()
+        public void PooledSet_Array()
         {
             pooledSet.UnionWith(stuffToUnion);
         }

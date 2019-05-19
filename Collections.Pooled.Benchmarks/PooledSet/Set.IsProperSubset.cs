@@ -4,42 +4,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_IsProperSubset : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_IsProperSubset_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.IsProperSubsetOf(hashSetToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsProperSubset_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.IsProperSubsetOf(pooledSetToCheck);
         }
 
         [Benchmark]
-        public void HashSet_IsProperSubset_Enum()
+        public void HashSet_Enum()
         {
             hashSet.IsProperSubsetOf(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_IsProperSubset_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.IsProperSubsetOf(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_IsProperSubset_Array()
+        public void HashSet_Array()
         {
             hashSet.IsProperSubsetOf(stuffToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsProperSubset_Array()
+        public void PooledSet_Array()
         {
             pooledSet.IsProperSubsetOf(stuffToCheck);
         }

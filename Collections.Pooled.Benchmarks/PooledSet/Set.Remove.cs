@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Remove : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Remove()
+        public void HashSet()
         {
             foreach (int thing in stuffToRemove)
             {
@@ -18,7 +17,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         }
 
         [Benchmark]
-        public void PooledSet_Remove()
+        public void PooledSet()
         {
             foreach (int thing in stuffToRemove)
             {
@@ -37,19 +36,19 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         [Params(SetSize_Large)]
         public int InitialSetSize;
 
-        [IterationSetup(Target = nameof(HashSet_Remove))]
+        [IterationSetup(Target = nameof(HashSet))]
         public void HashIterationSetup()
         {
             hashSet = new HashSet<int>(startingElements);
         }
 
-        [IterationSetup(Target = nameof(PooledSet_Remove))]
+        [IterationSetup(Target = nameof(PooledSet))]
         public void PooledIterationSetup()
         {
             pooledSet = new PooledSet<int>(startingElements);
         }
 
-        [IterationCleanup(Target = nameof(PooledSet_Remove))]
+        [IterationCleanup(Target = nameof(PooledSet))]
         public void PooledIterationCleanup()
         {
             pooledSet?.Dispose();

@@ -4,52 +4,43 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledQueue
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Queue_TryDequeue : QueueBase
     {
         [Benchmark(Baseline = true)]
-        public void QueueTryDequeue()
+        public void Queue()
         {
             if (Type == QueueType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intQueue.TryDequeue(out result);
+                    _ = intQueue.TryDequeue(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringQueue.TryDequeue(out result);
+                    _ = stringQueue.TryDequeue(out _);
                 }
             }
         }
 
         [Benchmark]
-        public void PooledTryDequeue()
+        public void Pooled()
         {
             if (Type == QueueType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intPooled.TryDequeue(out result);
+                    _ = intPooled.TryDequeue(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringPooled.TryDequeue(out result);
+                    _ = stringPooled.TryDequeue(out _);
                 }
             }
         }

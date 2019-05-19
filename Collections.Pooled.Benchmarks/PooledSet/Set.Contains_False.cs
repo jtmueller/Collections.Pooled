@@ -4,27 +4,24 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Contains_False : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Contains_False()
+        public void HashSet()
         {
-            bool present;
             for (int i = 0; i < CountToCheck; i++)
             {
-                present = hashSet.Contains(missingValue);
+                _ = hashSet.Contains(missingValue);
             }
         }
 
         [Benchmark]
-        public void PooledSet_Contains_False()
+        public void PooledSet()
         {
-            bool present;
             for (int i = 0; i < CountToCheck; i++)
             {
-                present = pooledSet.Contains(missingValue);
+                _ = pooledSet.Contains(missingValue);
             }
         }
 

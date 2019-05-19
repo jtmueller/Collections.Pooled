@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledQueue
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Queue_Enqueue : QueueBase
     {
         [Benchmark(Baseline = true)]
-        public void QueueEnqueue()
+        public void Queue()
         {
             if (Type == QueueType.Int)
             {
@@ -30,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         }
 
         [Benchmark]
-        public void PooledEnqueue()
+        public void Pooled()
         {
             if (Type == QueueType.Int)
             {

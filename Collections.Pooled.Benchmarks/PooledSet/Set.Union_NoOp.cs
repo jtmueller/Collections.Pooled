@@ -4,18 +4,17 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Union_NoOp : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Union_NoOp()
+        public void HashSet()
         {
             hashSet.UnionWith(stuffToUnion);
         }
 
         [Benchmark]
-        public void PooledSet_Union_NoOp()
+        public void PooledSet()
         {
             pooledSet.UnionWith(stuffToUnion);
         }

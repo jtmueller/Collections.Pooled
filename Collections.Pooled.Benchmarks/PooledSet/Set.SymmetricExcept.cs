@@ -3,42 +3,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_SymmetricExcept : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_SymmetricExcept_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.SymmetricExceptWith(hashSetToExcept);
         }
 
         [Benchmark]
-        public void PooledSet_SymmetricExcept_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.SymmetricExceptWith(pooledSetToExcept);
         }
 
         [Benchmark]
-        public void HashSet_SymmetricExcept_Enum()
+        public void HashSet_Enum()
         {
             hashSet.SymmetricExceptWith(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_SymmetricExcept_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.SymmetricExceptWith(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_SymmetricExcept_Array()
+        public void HashSet_Array()
         {
             hashSet.SymmetricExceptWith(stuffToExcept);
         }
 
         [Benchmark]
-        public void PooledSet_SymmetricExcept_Array()
+        public void PooledSet_Array()
         {
             pooledSet.SymmetricExceptWith(stuffToExcept);
         }

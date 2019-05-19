@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledStack
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Stack_Constructors : StackBase
     {
         [Benchmark(Baseline = true)]
-        public void StackICollectionConstructor()
+        public void Stack_ICollection()
         {
             if (Type == StackType.Int)
             {
@@ -30,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         }
 
         [Benchmark]
-        public void PooledICollectionConstructor()
+        public void Pooled_ICollection()
         {
             if (Type == StackType.Int)
             {
@@ -53,7 +52,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         }
 
         [Benchmark]
-        public void StackIEnumerableConstructor()
+        public void Stack_IEnumerable()
         {
             if (Type == StackType.Int)
             {
@@ -74,7 +73,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         }
 
         [Benchmark]
-        public void PooledIEnumerableConstructor()
+        public void Pooled_IEnumerable()
         {
             if (Type == StackType.Int)
             {

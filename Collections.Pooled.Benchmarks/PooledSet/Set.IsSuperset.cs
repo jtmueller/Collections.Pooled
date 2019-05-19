@@ -3,42 +3,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_IsSuperset : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_IsSuperset_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.IsSupersetOf(hashSetToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSuperset_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.IsSupersetOf(pooledSetToCheck);
         }
 
         [Benchmark]
-        public void HashSet_IsSuperset_Enum()
+        public void HashSet_Enum()
         {
             hashSet.IsSupersetOf(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_IsSuperset_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.IsSupersetOf(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_IsSuperset_Array()
+        public void HashSet_Array()
         {
             hashSet.IsSupersetOf(stuffToCheck);
         }
 
         [Benchmark]
-        public void PooledSet_IsSuperset_Array()
+        public void PooledSet_Array()
         {
             pooledSet.IsSupersetOf(stuffToCheck);
         }

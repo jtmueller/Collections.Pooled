@@ -3,42 +3,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Intersect : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Intersect_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.IntersectWith(hashSetToIntersect);
         }
 
         [Benchmark]
-        public void PooledSet_Intersect_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.IntersectWith(pooledSetToIntersect);
         }
 
         [Benchmark]
-        public void HashSet_Intersect_Enum()
+        public void HashSet_Enum()
         {
             hashSet.IntersectWith(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_Intersect_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.IntersectWith(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_Intersect_Array()
+        public void HashSet_Array()
         {
             hashSet.IntersectWith(stuffToIntersect);
         }
 
         [Benchmark]
-        public void PooledSet_Intersect_Array()
+        public void PooledSet_Array()
         {
             pooledSet.IntersectWith(stuffToIntersect);
         }

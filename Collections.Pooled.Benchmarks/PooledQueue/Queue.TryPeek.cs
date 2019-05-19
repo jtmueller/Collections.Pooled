@@ -4,8 +4,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledQueue
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Queue_TryPeek : QueueBase
     {
         [Benchmark(Baseline = true)]
@@ -13,20 +12,16 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         {
             if (Type == QueueType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intQueue.TryPeek(out result);
+                    _ = intQueue.TryPeek(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringQueue.TryPeek(out result);
+                    _ = stringQueue.TryPeek(out _);
                 }
             }
         }
@@ -36,20 +31,16 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         {
             if (Type == QueueType.Int)
             {
-                int result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = intPooled.TryPeek(out result);
+                    _ = intPooled.TryPeek(out _);
                 }
             }
             else
             {
-                string result;
-                bool found;
                 for (int i = 0; i <= N; i++)
                 {
-                    found = stringPooled.TryPeek(out result);
+                    _ = stringPooled.TryPeek(out _);
                 }
             }
         }

@@ -4,12 +4,11 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Contains_True : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Contains_True()
+        public void HashSet()
         {
             bool present;
             foreach (int thing in subsetToCheck)
@@ -19,7 +18,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         }
 
         [Benchmark]
-        public void PooledSet_Contains_True()
+        public void PooledSet()
         {
             bool present;
             foreach (int thing in subsetToCheck)

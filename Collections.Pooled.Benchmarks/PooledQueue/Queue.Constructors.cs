@@ -4,33 +4,30 @@ using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledQueue
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Queue_Constructors : QueueBase
     {
         [Benchmark(Baseline = true)]
-        public void QueueICollectionConstructor()
+        public void Queue_ICollection()
         {
             if (Type == QueueType.Int)
             {
-                Queue<int> queue;
                 for (int i = 0; i < 1000; i++)
                 {
-                    queue = new Queue<int>(intList);
+                    _ = new Queue<int>(intList);
                 }
             }
             else
             {
-                Queue<string> queue;
                 for (int i = 0; i < 1000; i++)
                 {
-                    queue = new Queue<string>(stringList);
+                    _ = new Queue<string>(stringList);
                 }
             }
         }
 
         [Benchmark]
-        public void PooledICollectionConstructor()
+        public void Pooled_ICollection()
         {
             if (Type == QueueType.Int)
             {
@@ -53,28 +50,26 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
         }
 
         [Benchmark]
-        public void QueueIEnumerableConstructor()
+        public void Queue_IEnumerable()
         {
             if (Type == QueueType.Int)
             {
-                Queue<int> queue;
                 for (int i = 0; i < 1000; i++)
                 {
-                    queue = new Queue<int>(IntEnumerable());
+                    _ = new Queue<int>(IntEnumerable());
                 }
             }
             else
             {
-                Queue<string> queue;
                 for (int i = 0; i < 1000; i++)
                 {
-                    queue = new Queue<string>(StringEnumerable());
+                    _ = new Queue<string>(StringEnumerable());
                 }
             }
         }
 
         [Benchmark]
-        public void PooledIEnumerableConstructor()
+        public void Pooled_IEnumerable()
         {
             if (Type == QueueType.Int)
             {

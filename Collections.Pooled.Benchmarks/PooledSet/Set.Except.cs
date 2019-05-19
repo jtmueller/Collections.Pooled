@@ -3,42 +3,41 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
-    [CoreJob, ClrJob]
-    [MemoryDiagnoser]
+    [Config(typeof(BenchmarkConfig))]
     public class Set_Except : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Except_Hashset()
+        public void HashSet_Hashset()
         {
             hashSet.ExceptWith(hashSetToExcept);
         }
 
         [Benchmark]
-        public void PooledSet_Except_PooledSet()
+        public void PooledSet_PooledSet()
         {
             pooledSet.ExceptWith(pooledSetToExcept);
         }
 
         [Benchmark]
-        public void HashSet_Except_Enum()
+        public void HashSet_Enum()
         {
             hashSet.ExceptWith(GetEnum());
         }
 
         [Benchmark]
-        public void PooledSet_Except_Enum()
+        public void PooledSet_Enum()
         {
             pooledSet.ExceptWith(GetEnum());
         }
 
         [Benchmark]
-        public void HashSet_Except_Array()
+        public void HashSet_Array()
         {
             hashSet.ExceptWith(stuffToExcept);
         }
 
         [Benchmark]
-        public void PooledSet_Except_Array()
+        public void PooledSet_Array()
         {
             pooledSet.ExceptWith(stuffToExcept);
         }
