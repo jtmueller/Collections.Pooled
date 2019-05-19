@@ -34,11 +34,10 @@ using (var process = Process.Start(start))
 
 var pngs = artifactDir.EnumerateFiles("*.png");
 var csvs = artifactDir.EnumerateFiles("*report.csv");
-var htmls = artifactDir.EnumerateFiles("*.html");
 var mds = artifactDir.EnumerateFiles("*.md");
 var pdfs = artifactDir.EnumerateFiles("*.pdf");
 
-var allFiles = Enumerable.Concat(pngs, csvs).Concat(htmls).Concat(mds).Concat(pdfs);
+var allFiles = pngs.Concat(csvs).Concat(mds).Concat(pdfs);
 
 Console.Write("Copying Files");
 foreach (var file in allFiles)
