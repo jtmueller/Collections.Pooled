@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
+    <NullableContextOptions>enable</NullableContextOptions>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Joel Mueller</Authors>
     <Company />

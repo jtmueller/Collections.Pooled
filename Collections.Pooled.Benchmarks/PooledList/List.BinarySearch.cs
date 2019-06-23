@@ -8,42 +8,60 @@ namespace Collections.Pooled.Benchmarks.PooledList
     public class List_BinarySearch : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void List_Int()
+        public void List()
         {
-            for (int j = 0; j < N; j++)
-                _ = listInt.BinarySearch(listInt[j], intComparer);
+            if (Type == ListType.Int)
+            {
+                for (int j = 0; j < N; j++)
+                    _ = listInt.BinarySearch(listInt[j]);
+            }
+            else
+            {
+                for (int j = 0; j < N; j++)
+                    _ = listString.BinarySearch(listString[j]);
+            }
         }
 
         [Benchmark]
-        public void Pooled_Int()
+        public void PooledList()
         {
-            for (int j = 0; j < N; j++)
-                _ = pooledInt.BinarySearch(pooledInt[j], intComparer);
+            if (Type == ListType.Int)
+            {
+                for (int j = 0; j < N; j++)
+                    _ = pooledInt.BinarySearch(pooledInt[j]);
+            }
+            else
+            {
+                for (int j = 0; j < N; j++)
+                    _ = pooledString.BinarySearch(pooledString[j]);
+            }
         }
 
         [Benchmark]
-        public void List_String()
+        public void PooledList_Span()
         {
-            for (int j = 0; j < N; j++)
-                _ = listString.BinarySearch(listString[j], stringComparer);
-        }
-
-        [Benchmark]
-        public void Pooled_String()
-        {
-            for (int j = 0; j < N; j++)
-                _ = pooledString.BinarySearch(pooledString[j], stringComparer);
+            if (Type == ListType.Int)
+            {
+                for (int j = 0; j < N; j++)
+                    _ = pooledInt.Span.BinarySearch(pooledInt[j]);
+            }
+            else
+            {
+                for (int j = 0; j < N; j++)
+                    _ = pooledString.Span.BinarySearch(pooledString[j]);
+            }
         }
 
         private List<int> listInt;
         private List<string> listString;
         private PooledList<int> pooledInt;
         private PooledList<string> pooledString;
-        private readonly IComparer<int> intComparer = Comparer<int>.Default;
-        private readonly IComparer<string> stringComparer = Comparer<string>.Default;
 
         [Params(100, 1000)]
         public int N;
+
+        [Params(ListType.Int, ListType.String)]
+        public ListType Type;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -55,8 +73,10 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
 
             listString = listInt.ConvertAll(i => i.ToString());
+            listString.Sort();
             pooledInt = new PooledList<int>(listInt);
             pooledString = pooledInt.ConvertAll(i => i.ToString());
+            pooledString.Sort();
         }
 
         [GlobalCleanup]

@@ -35,7 +35,7 @@ paket add Collections.Pooled
 
 ## Benchmarks
 
-  * [Summary Charts](./docs/benchmarks/RPlots.pdf) (pdf)
+  * [Summary Charts](./docs/benchmarks/Rplots.pdf) (pdf)
 
 ## `PooledList<T>`
 

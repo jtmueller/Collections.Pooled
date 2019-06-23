@@ -36,5 +36,10 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
             return output;
         }
+
+        public enum ListType
+        {
+            Int, String
+        }
     }
 }
