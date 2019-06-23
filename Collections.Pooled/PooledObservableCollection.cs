@@ -22,7 +22,9 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     public class PooledObservableCollection<T> : PooledCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
+#pragma warning disable IDE0069 // Disposable fields should be disposed
         private SimpleMonitor? _monitor; // Lazily allocated only when a subclass calls BlockReentrancy() or during serialization. Do not rename (binary serialization)
+#pragma warning restore IDE0069
 
         [NonSerialized]
         private int _blockReentrancyCount;
@@ -47,21 +49,6 @@ namespace Collections.Pooled
         /// <exception cref="ArgumentNullException"> collection is a null reference </exception>
         [SuppressMessage("Code Quality", "IDE0067:Dispose objects before losing scope", Justification = "Handled by base class.")]
         public PooledObservableCollection(IEnumerable<T> collection) : base(CreateCopy(collection, nameof(collection)))
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the ObservableCollection class
-        /// that contains elements copied from the specified list
-        /// </summary>
-        /// <param name="list">The list whose elements are copied to the new list.</param>
-        /// <remarks>
-        /// The elements are copied onto the ObservableCollection in the
-        /// same order they are read by the enumerator of the list.
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"> list is a null reference </exception>
-        [SuppressMessage("Code Quality", "IDE0067:Dispose objects before losing scope", Justification = "Handled by base class.")]
-        public PooledObservableCollection(List<T> list) : base(CreateCopy(list, nameof(list)))
         {
         }
 
@@ -125,7 +112,7 @@ namespace Collections.Pooled
 
             OnCountPropertyChanged();
             OnIndexerPropertyChanged();
-            OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem!, index);
+            OnCollectionChanged(NotifyCollectionChangedAction.Remove, removedItem, index);
         }
 
         /// <summary>
@@ -139,7 +126,28 @@ namespace Collections.Pooled
 
             OnCountPropertyChanged();
             OnIndexerPropertyChanged();
-            OnCollectionChanged(NotifyCollectionChangedAction.Add, item!, index);
+            OnCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
+        }
+
+        /// <summary>
+        /// Adds the items to the collection all at once, then fires change events to any listeners.
+        /// </summary>
+        /// <param name="items">The items to add. This collection will be iterated twice.</param>
+        public override void AddRange(IEnumerable<T> items)
+        {
+            CheckReentrancy();
+            int curIndex = Count;
+            base.AddRange(items);
+
+            if (Count > curIndex)
+            {
+                OnCountPropertyChanged();
+                OnIndexerPropertyChanged();
+                foreach (var item in items)
+                {
+                    OnCollectionChanged(NotifyCollectionChangedAction.Add, item, curIndex++);
+                }
+            }
         }
 
         /// <summary>
@@ -153,7 +161,7 @@ namespace Collections.Pooled
             base.SetItem(index, item);
 
             OnIndexerPropertyChanged();
-            OnCollectionChanged(NotifyCollectionChangedAction.Replace, originalItem!, item!, index);
+            OnCollectionChanged(NotifyCollectionChangedAction.Replace, originalItem, item, index);
         }
 
         /// <summary>
@@ -170,7 +178,7 @@ namespace Collections.Pooled
             base.InsertItem(newIndex, removedItem);
 
             OnIndexerPropertyChanged();
-            OnCollectionChanged(NotifyCollectionChangedAction.Move, removedItem!, newIndex, oldIndex);
+            OnCollectionChanged(NotifyCollectionChangedAction.Move, removedItem, newIndex, oldIndex);
         }
 
         /// <summary>
@@ -261,19 +269,19 @@ namespace Collections.Pooled
         /// <summary>
         /// Helper to raise CollectionChanged event to any listeners
         /// </summary>
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index) 
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item, int index) 
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index));
 
         /// <summary>
         /// Helper to raise CollectionChanged event to any listeners
         /// </summary>
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object item, int index, int oldIndex) 
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, object? item, int index, int oldIndex) 
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, item, index, oldIndex));
 
         /// <summary>
         /// Helper to raise CollectionChanged event to any listeners
         /// </summary>
-        private void OnCollectionChanged(NotifyCollectionChangedAction action, object oldItem, object newItem, int index) 
+        private void OnCollectionChanged(NotifyCollectionChangedAction action, object? oldItem, object? newItem, int index) 
             => OnCollectionChanged(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
 
         /// <summary>
@@ -298,15 +306,6 @@ namespace Collections.Pooled
                 _blockReentrancyCount = _monitor._busyCount;
                 _monitor._collection = this;
             }
-        }
-
-        /// <summary>
-        /// Returns the underlying storage to the array pool, sets the Count to zero.
-        /// </summary>
-        public override void Dispose()
-        {
-            base.Dispose();
-            _monitor?.Dispose();
         }
 
         // this class helps prevent reentrant calls

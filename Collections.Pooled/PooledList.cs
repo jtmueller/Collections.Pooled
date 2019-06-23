@@ -33,7 +33,6 @@ namespace Collections.Pooled
         // internal constant copied from Array.MaxArrayLength
         private const int s_maxArrayLength = 0x7FEFFFFF;
         private const int s_defaultCapacity = 4;
-        private static readonly T[] s_emptyArray = Array.Empty<T>();
 
         [NonSerialized]
         private ArrayPool<T> _pool;
@@ -81,7 +80,7 @@ namespace Collections.Pooled
         /// </summary>
         public PooledList(ClearMode clearMode, ArrayPool<T> customPool)
         {
-            _items = s_emptyArray;
+            _items = Array.Empty<T>();
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
         }
@@ -154,7 +153,7 @@ namespace Collections.Pooled
 
             if (capacity == 0)
             {
-                _items = s_emptyArray;
+                _items = Array.Empty<T>();
             }
             else
             {
@@ -233,7 +232,7 @@ namespace Collections.Pooled
             int count = span.Length;
             if (count == 0)
             {
-                _items = s_emptyArray;
+                _items = Array.Empty<T>();
             }
             else
             {
@@ -278,14 +277,14 @@ namespace Collections.Pooled
             {
                 case null:
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-                    _items = s_emptyArray;
+                    _items = Array.Empty<T>();
                     break;
 
                 case ICollection<T> c:
                     int count = c.Count;
                     if (count == 0)
                     {
-                        _items = s_emptyArray;
+                        _items = Array.Empty<T>();
                     }
                     else
                     {
@@ -297,7 +296,7 @@ namespace Collections.Pooled
 
                 default:
                     _size = 0;
-                    _items = s_emptyArray;
+                    _items = Array.Empty<T>();
                     using (var en = collection.GetEnumerator())
                     {
                         while (en.MoveNext())
@@ -1824,7 +1823,7 @@ namespace Collections.Pooled
         {
             if (_size == 0)
             {
-                return s_emptyArray;
+                return Array.Empty<T>();
             }
 
             return Span.ToArray();
@@ -1887,7 +1886,7 @@ namespace Collections.Pooled
                 // oh well, the array pool didn't like our array
             }
 
-            _items = s_emptyArray;
+            _items = Array.Empty<T>();
         }
 
         private static bool ShouldClear(ClearMode mode)

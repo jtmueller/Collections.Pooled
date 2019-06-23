@@ -117,6 +117,31 @@ namespace Collections.Pooled
         }
 
         /// <summary>
+        /// Adds a set of objects to the end of the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        public virtual void AddRange(IEnumerable<T> collection)
+        {
+            if (collection is null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+
+            switch (_items)
+            {
+                case PooledList<T> pl:
+                    pl.AddRange(collection!);
+                    break;
+                case List<T> list:
+                    list.AddRange(collection!);
+                    break;
+                default:
+                    foreach (var item in collection!)
+                    {
+                        _items.Add(item);
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Removes all elements from the <see cref="PooledCollection{T}"/>.
         /// </summary>
         public void Clear()
