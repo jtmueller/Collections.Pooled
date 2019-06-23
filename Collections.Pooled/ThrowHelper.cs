@@ -43,6 +43,9 @@ using System.Runtime.Serialization;
 
 namespace Collections.Pooled
 {
+    // TODO: corefx version uses System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute
+    // for nullability support, does not appear to be public currently.
+
     internal static class ThrowHelper
     {
         internal static void ThrowArrayTypeMismatchException()
