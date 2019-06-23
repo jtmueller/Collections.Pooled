@@ -136,17 +136,18 @@ namespace Collections.Pooled
         public override void AddRange(IEnumerable<T> items)
         {
             CheckReentrancy();
-            int curIndex = Count;
-            base.AddRange(items);
 
-            if (Count > curIndex)
+            // We have to change our input of new items into an IList since that is what the
+            // event args require.
+            var changedItems = new List<T>(items);
+            if (changedItems.Count > 0)
             {
+                int startingIndex = Count;
+                base.AddRange(changedItems);
+
                 OnCountPropertyChanged();
                 OnIndexerPropertyChanged();
-                foreach (var item in items)
-                {
-                    OnCollectionChanged(NotifyCollectionChangedAction.Add, item, curIndex++);
-                }
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, changedItems, startingIndex));
             }
         }
 
@@ -294,8 +295,7 @@ namespace Collections.Pooled
         [OnSerializing]
         private void OnSerializing(StreamingContext context)
         {
-            EnsureMonitorInitialized();
-            _monitor!._busyCount = _blockReentrancyCount;
+            EnsureMonitorInitialized()._busyCount = _blockReentrancyCount;
         }
 
         [OnDeserialized]
