@@ -328,10 +328,10 @@ namespace Collections.Pooled
             return (value is T) || (value == null && default(T)! == null);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
-            if (items is PooledList<T> list)
-                list.Dispose();
+            if (items is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 }

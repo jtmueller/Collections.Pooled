@@ -586,6 +586,8 @@ namespace Collections.Pooled
                     return "Multi-dimensional arrays are not supported.";
                 case ExceptionResource.Arg_TypeNotSupported:
                     return "Type not supported.";
+                case ExceptionResource.ObservableCollectionReentrancyNotAllowed:
+                    return "Re-entrancy not allowed in an observable collection.";
                 default:
                     Debug.Assert(false,
                         "The enum value is not defined, please check the ExceptionResource Enum.");
@@ -696,5 +698,6 @@ namespace Collections.Pooled
         NotSupported_FixedSizeCollection,
         Rank_MultiDimNotSupported,
         Arg_TypeNotSupported,
+        ObservableCollectionReentrancyNotAllowed,
     }
 }
