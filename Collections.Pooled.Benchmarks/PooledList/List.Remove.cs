@@ -119,7 +119,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private int[] intItems;
         private string[] stringItems;
 
-        [Params(3000, 10000)]
+        [Params(100, 1000)]
         public int N;
 
         [GlobalSetup]

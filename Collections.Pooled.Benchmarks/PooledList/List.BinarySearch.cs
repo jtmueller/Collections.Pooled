@@ -42,7 +42,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private readonly IComparer<int> intComparer = Comparer<int>.Default;
         private readonly IComparer<string> stringComparer = Comparer<string>.Default;
 
-        [Params(1000, 10000)]
+        [Params(100, 1000)]
         public int N;
 
         [GlobalSetup]

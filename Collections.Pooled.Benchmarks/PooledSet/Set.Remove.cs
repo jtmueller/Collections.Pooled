@@ -30,11 +30,10 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000)]
+        [Params(1, 100, 1000)]
         public int CountToRemove;
 
-        [Params(SetSize_Large)]
-        public int InitialSetSize;
+        public const int InitialSetSize = SetSize_Large;
 
         [IterationSetup(Target = nameof(HashSet))]
         public void HashIterationSetup()

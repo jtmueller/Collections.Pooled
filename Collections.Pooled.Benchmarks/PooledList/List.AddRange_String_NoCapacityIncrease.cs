@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledList
@@ -73,27 +71,25 @@ namespace Collections.Pooled.Benchmarks.PooledList
             //capacity will not need to increase.
             pooled.RemoveRange(0, startingCapacity);
 
-            var enumerable = sampleSet.AsEnumerable();
-
             for (int j = 0; j < addLoops; j++)
             {
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
             }
         }
 
@@ -104,27 +100,25 @@ namespace Collections.Pooled.Benchmarks.PooledList
             //capacity will not need to increase.
             pooled.RemoveRange(0, startingCapacity);
 
-            var enumerable = sampleSet.AsEnumerable();
-
             for (int j = 0; j < addLoops; j++)
             {
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
             }
         }
 
@@ -147,6 +141,14 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private List<string> list;
         private PooledList<string> pooled;
         private int addLoops, startingCapacity;
+
+        private IEnumerable<string> SampleEnumerable()
+        {
+            for (int i = 0; i < sampleSet.Length; i++)
+            {
+                yield return sampleSet[i];
+            }
+        }
 
         [GlobalSetup]
         public void GlobalSetup()

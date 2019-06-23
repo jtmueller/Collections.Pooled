@@ -69,27 +69,25 @@ namespace Collections.Pooled.Benchmarks.PooledList
         {
             var list = new List<string>();
 
-            var enumerable = sampleSet.AsEnumerable();
-
             for (int j = 0; j < addLoops; j++)
             {
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
-                list.AddRange(enumerable);
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
+                list.AddRange(SampleEnumerable());
             }
         }
 
@@ -98,27 +96,25 @@ namespace Collections.Pooled.Benchmarks.PooledList
         {
             var pooled = new PooledList<string>();
 
-            var enumerable = sampleSet.AsEnumerable();
-
             for (int j = 0; j < addLoops; j++)
             {
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
-                pooled.AddRange(enumerable);
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
+                pooled.AddRange(SampleEnumerable());
             }
 
             pooled.Dispose();
@@ -141,6 +137,14 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
         private string[] sampleSet;
         private int addLoops;
+
+        private IEnumerable<string> SampleEnumerable()
+        {
+            for (int i = 0; i < sampleSet.Length; i++)
+            {
+                yield return sampleSet[i];
+            }
+        }
 
         [GlobalSetup]
         public void GlobalSetup()

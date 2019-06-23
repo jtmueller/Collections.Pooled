@@ -48,7 +48,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         private PooledDictionary<int?, int?> pooled;
         private Dictionary<int?, int?> dict;
 
-        [Params(1024, 8192, 16384)]
+        [Params(256, 1024, 8192)]
         public int N;
 
         [GlobalSetup]

@@ -31,7 +31,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private List<int> listInt;
         private PooledList<int> pooledInt;
 
-        [Params(64, 256, 1024)]
+        [Params(256, 1024)]
         public int N;
 
         [Params(true, false)]

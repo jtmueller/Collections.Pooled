@@ -59,7 +59,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
         private readonly string stringToAdd = "foo";
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(1_000, 10_000)]
         public int N;
     }
 }

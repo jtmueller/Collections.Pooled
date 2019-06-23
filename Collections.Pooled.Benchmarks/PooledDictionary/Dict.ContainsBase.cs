@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         protected abstract T GetT(int i);
         protected virtual IEqualityComparer<T> Comparer => null;
 
-        [Params(1000, 10000, 100000)]
+        [Params(100, 1_000, 10_000)]
         public int N;
 
         [GlobalSetup]

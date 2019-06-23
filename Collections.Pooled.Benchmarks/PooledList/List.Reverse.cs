@@ -7,62 +7,62 @@ namespace Collections.Pooled.Benchmarks.PooledList
     [Config(typeof(BenchmarkConfig))]
     public class List_Reverse : ListBase
     {
-        [IterationSetup(Target = nameof(List_Int))]
+        [IterationSetup(Target = nameof(L_Int))]
         public void SetupListInt()
             => listInt = new List<int>(intItems);
 
         [Benchmark(Baseline = true)]
-        public void List_Int()
+        public void L_Int()
         {
             listInt.Reverse();
         }
 
-        [IterationSetup(Targets = new[] { nameof(Pooled_Int), nameof(Pooled_Span_Int) })]
+        [IterationSetup(Targets = new[] { nameof(P_Int), nameof(P_Span_Int) })]
         public void SetupPooledInt()
             => pooledInt = new PooledList<int>(intItems);
 
-        [IterationCleanup(Targets = new[] { nameof(Pooled_Int), nameof(Pooled_Span_Int) })]
+        [IterationCleanup(Targets = new[] { nameof(P_Int), nameof(P_Span_Int) })]
         public void CleanupPooledInt()
             => pooledInt?.Dispose();
 
         [Benchmark]
-        public void Pooled_Int()
+        public void P_Int()
         {
             pooledInt.Reverse();
         }
 
         [Benchmark]
-        public void Pooled_Span_Int()
+        public void P_Span_Int()
         {
             pooledInt.Span.Reverse();
         }
 
-        [IterationSetup(Target = nameof(List_String))]
+        [IterationSetup(Target = nameof(L_Str))]
         public void SetupListString()
             => listString = new List<string>(stringItems);
 
         [Benchmark]
-        public void List_String()
+        public void L_Str()
         {
             listString.Reverse();
         }
 
-        [IterationSetup(Targets = new[] { nameof(Pooled_String), nameof(Pooled_Span_String) })]
+        [IterationSetup(Targets = new[] { nameof(P_Str), nameof(P_Span_Str) })]
         public void SetupPooledString()
             => pooledString = new PooledList<string>(stringItems);
 
-        [IterationCleanup(Targets = new[] { nameof(Pooled_String), nameof(Pooled_Span_String) })]
+        [IterationCleanup(Targets = new[] { nameof(P_Str), nameof(P_Span_Str) })]
         public void CleanupPooledString()
             => pooledString?.Dispose();
 
         [Benchmark]
-        public void Pooled_String()
+        public void P_Str()
         {
             pooledString.Reverse();
         }
 
         [Benchmark]
-        public void Pooled_Span_String()
+        public void P_Span_Str()
         {
             pooledString.Span.Reverse();
         }
@@ -75,8 +75,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private int[] intItems;
         private string[] stringItems;
 
-        [Params(100_000, 200_000)]
-        public int N;
+        public const int N = 100_000;
 
         [GlobalSetup]
         public void GlobalSetup()

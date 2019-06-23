@@ -49,7 +49,7 @@ namespace Collections.Pooled.Benchmarks.PooledQueue
             }
         }
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(1_000, 10_000)]
         public int N;
 
         [Params(QueueType.Int, QueueType.String)]

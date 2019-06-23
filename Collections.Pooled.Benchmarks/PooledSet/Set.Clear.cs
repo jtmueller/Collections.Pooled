@@ -23,8 +23,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(SetSize_Small)]
-        public int InitialSetSize;
+        public int N = SetSize_Small;
 
         [IterationSetup(Target = nameof(HashSet))]
         public void HashIterationSetup()
@@ -42,7 +41,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         public void GlobalSetup()
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
-            startingElements = intGenerator.MakeNewTs(InitialSetSize);
+            startingElements = intGenerator.MakeNewTs(N);
 
             hashSet = new HashSet<int>();
             pooledSet = new PooledSet<int>();

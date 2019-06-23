@@ -32,7 +32,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
 
         private PooledList<int> list;
 
-        [Params(100, 1000, 10_000, 100_000)]
+        [Params(100, 1000, 10_000)]
         public int N;
 
         [GlobalSetup]

@@ -1,5 +1,6 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
 using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
@@ -7,39 +8,27 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public class Set_Intersect : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Hashset()
+        public void HashSet()
         {
-            hashSet.IntersectWith(hashSetToIntersect);
+            hashSet.IntersectWith(Kind switch
+            {
+                CollectionType.Set => hashSetToIntersect,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToIntersect,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         [Benchmark]
-        public void PooledSet_PooledSet()
+        public void PooledSet()
         {
-            pooledSet.IntersectWith(pooledSetToIntersect);
-        }
-
-        [Benchmark]
-        public void HashSet_Enum()
-        {
-            hashSet.IntersectWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void PooledSet_Enum()
-        {
-            pooledSet.IntersectWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void HashSet_Array()
-        {
-            hashSet.IntersectWith(stuffToIntersect);
-        }
-
-        [Benchmark]
-        public void PooledSet_Array()
-        {
-            pooledSet.IntersectWith(stuffToIntersect);
+            pooledSet.IntersectWith(Kind switch
+            {
+                CollectionType.Set => hashSetToIntersect,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToIntersect,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         private IEnumerable<int> GetEnum()
@@ -57,11 +46,11 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private PooledSet<int> pooledSet;
         private PooledSet<int> pooledSetToIntersect;
 
-        [Params(MaxStartSize, SetSize_Small)]
-        public int CountToIntersect;
+        public const int N = MaxStartSize;
+        public const int InitialSetSize = SetSize_Large;
 
-        [Params(SetSize_Large)]
-        public int InitialSetSize;
+        [Params(CollectionType.Set, CollectionType.Enumerable, CollectionType.Array)]
+        public CollectionType Kind;
 
         [IterationSetup]
         public void IterationSetup()
@@ -82,7 +71,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, CountToIntersect);
+            stuffToIntersect = intGenerator.GenerateMixedSelection(startingElements, N);
 
             hashSet = new HashSet<int>();
             hashSetToIntersect = new HashSet<int>(stuffToIntersect);

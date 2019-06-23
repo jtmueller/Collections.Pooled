@@ -51,7 +51,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
             }
         }
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(1_000, 10_000)]
         public int N;
 
         [Params(StackType.Int, StackType.String)]
@@ -65,10 +65,9 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         {
             intArray = CreateArray(N);
 
-            stringArray = new string[N];
-            for (int i = 0; i < N; i++)
+            if (Type == StackType.String)
             {
-                stringArray[i] = intArray[i].ToString();
+                stringArray = Array.ConvertAll(intArray, x => x.ToString());
             }
         }
     }

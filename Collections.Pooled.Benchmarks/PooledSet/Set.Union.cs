@@ -8,39 +8,27 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public class Set_Union : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Hashset()
+        public void HashSet()
         {
-            hashSet.UnionWith(hashSetToUnion);
+            hashSet.UnionWith(Kind switch
+            {
+                CollectionType.Set => hashSetToUnion,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToUnion,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         [Benchmark]
-        public void PooledSet_PooledSet()
+        public void PooledSet()
         {
-            pooledSet.UnionWith(pooledSetToUnion);
-        }
-
-        [Benchmark]
-        public void HashSet_Enum()
-        {
-            hashSet.UnionWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void PooledSet_Enum()
-        {
-            pooledSet.UnionWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void HashSet_Array()
-        {
-            hashSet.UnionWith(stuffToUnion);
-        }
-
-        [Benchmark]
-        public void PooledSet_Array()
-        {
-            pooledSet.UnionWith(stuffToUnion);
+            pooledSet.UnionWith(Kind switch
+            {
+                CollectionType.Set => pooledSetToUnion,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToUnion,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         private IEnumerable<int> GetEnum()
@@ -58,11 +46,11 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private PooledSet<int> pooledSet;
         private PooledSet<int> pooledSetToUnion;
 
-        [Params(SetSize_Small, MaxStartSize)]
-        public int CountToUnion;
+        public const int N = MaxStartSize;
+        public const int InitialSetSize = SetSize_Large;
 
-        [Params(SetSize_Small, SetSize_Large)]
-        public int InitialSetSize;
+        [Params(CollectionType.Set, CollectionType.Enumerable, CollectionType.Array)]
+        public CollectionType Kind;
 
         [IterationSetup]
         public void IterationSetup()
@@ -83,7 +71,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, CountToUnion);
+            stuffToUnion = intGenerator.GenerateMixedSelection(startingElements, N);
 
             hashSet = new HashSet<int>();
             hashSetToUnion = new HashSet<int>(stuffToUnion);

@@ -34,7 +34,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         private int containedList;
         private int containedPooled;
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(1_000, 10_000)]
         public int N;
 
         [GlobalSetup]

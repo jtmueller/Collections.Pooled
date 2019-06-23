@@ -1,5 +1,6 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
 using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
@@ -7,39 +8,27 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public class Set_IsSuperset : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Hashset()
+        public void HashSet()
         {
-            hashSet.IsSupersetOf(hashSetToCheck);
+            hashSet.IsSupersetOf(Kind switch
+            {
+                CollectionType.Set => hashSetToCheck,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToCheck,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         [Benchmark]
-        public void PooledSet_PooledSet()
+        public void PooledSet()
         {
-            pooledSet.IsSupersetOf(pooledSetToCheck);
-        }
-
-        [Benchmark]
-        public void HashSet_Enum()
-        {
-            hashSet.IsSupersetOf(GetEnum());
-        }
-
-        [Benchmark]
-        public void PooledSet_Enum()
-        {
-            pooledSet.IsSupersetOf(GetEnum());
-        }
-
-        [Benchmark]
-        public void HashSet_Array()
-        {
-            hashSet.IsSupersetOf(stuffToCheck);
-        }
-
-        [Benchmark]
-        public void PooledSet_Array()
-        {
-            pooledSet.IsSupersetOf(stuffToCheck);
+            pooledSet.IsSupersetOf(Kind switch
+            {
+                CollectionType.Set => pooledSetToCheck,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToCheck,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         private IEnumerable<int> GetEnum()
@@ -56,8 +45,10 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private PooledSet<int> pooledSet;
         private PooledSet<int> pooledSetToCheck;
 
-        [Params(MaxStartSize, SetSize_Small)]
-        public int InitialSetSize;
+        public const int InitialSetSize = SetSize_Small;
+
+        [Params(CollectionType.Set, CollectionType.Enumerable, CollectionType.Array)]
+        public CollectionType Kind;
 
         [GlobalSetup]
         public void GlobalSetup()

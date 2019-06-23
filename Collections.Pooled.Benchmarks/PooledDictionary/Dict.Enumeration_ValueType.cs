@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledDictionary
@@ -12,7 +11,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         {
             int? key;
             int? value;
-            foreach (KeyValuePair<int?, int?> tempItem in dict)
+            foreach (var tempItem in dict)
             {
                 key = tempItem.Key;
                 value = tempItem.Value;
@@ -24,7 +23,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         {
             int? key;
             int? value;
-            foreach (KeyValuePair<int?, int?> tempItem in pooled)
+            foreach (var tempItem in pooled)
             {
                 key = tempItem.Key;
                 value = tempItem.Value;
@@ -34,7 +33,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         private PooledDictionary<int?, int?> pooled;
         private Dictionary<int?, int?> dict;
 
-        [Params(1024, 8192, 16384)]
+        [Params(256, 1024, 8192)]
         public int N;
 
         [GlobalSetup]

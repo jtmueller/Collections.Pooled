@@ -41,5 +41,11 @@ namespace Collections.Pooled.Benchmarks.PooledStack
         {
             Int, String
         }
+
+        public enum CollectionType
+        {
+            Collection,
+            Enumerable
+        }
     }
 }

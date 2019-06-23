@@ -31,18 +31,17 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000)]
-        public int CountToCheck;
+        [Params(100, 1_000, 10_000)]
+        public int N;
 
-        [Params(SetSize_Large)]
-        public int InitialSetSize;
+        public const int InitialSetSize = SetSize_Large;
 
         [GlobalSetup]
         public void GlobalSetup()
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             int[] startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            subsetToCheck = intGenerator.GenerateSelectionSubset(startingElements, CountToCheck);
+            subsetToCheck = intGenerator.GenerateSelectionSubset(startingElements, N);
 
             hashSet = new HashSet<int>(startingElements);
             pooledSet = new PooledSet<int>(startingElements);

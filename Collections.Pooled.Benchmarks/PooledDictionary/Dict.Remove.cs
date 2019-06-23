@@ -29,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         private Dictionary<long?, long?> dict;
         private long?[] items;
 
-        [Params(10, 100, 10000)]
+        [Params(10, 100, 1000)]
         public int N;
 
         [GlobalSetup]

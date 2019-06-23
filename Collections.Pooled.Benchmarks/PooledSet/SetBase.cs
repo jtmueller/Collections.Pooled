@@ -39,5 +39,12 @@ namespace Collections.Pooled.Benchmarks.PooledSet
             }
             return output;
         }
+
+        public enum CollectionType
+        {
+            Set,
+            Enumerable,
+            Array
+        }
     }
 }

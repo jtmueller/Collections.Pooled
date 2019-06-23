@@ -29,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
 
         private string[] strings;
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(100, 1_000, 10_000)]
         public int N;
 
         [GlobalSetup]

@@ -1,5 +1,6 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System;
 using System.Collections.Generic;
+using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
 {
@@ -7,39 +8,27 @@ namespace Collections.Pooled.Benchmarks.PooledSet
     public class Set_Except : SetBase
     {
         [Benchmark(Baseline = true)]
-        public void HashSet_Hashset()
+        public void HashSet()
         {
-            hashSet.ExceptWith(hashSetToExcept);
+            hashSet.ExceptWith(Kind switch
+            {
+                CollectionType.Set => hashSetToExcept,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToExcept,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         [Benchmark]
-        public void PooledSet_PooledSet()
+        public void PooledSet()
         {
-            pooledSet.ExceptWith(pooledSetToExcept);
-        }
-
-        [Benchmark]
-        public void HashSet_Enum()
-        {
-            hashSet.ExceptWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void PooledSet_Enum()
-        {
-            pooledSet.ExceptWith(GetEnum());
-        }
-
-        [Benchmark]
-        public void HashSet_Array()
-        {
-            hashSet.ExceptWith(stuffToExcept);
-        }
-
-        [Benchmark]
-        public void PooledSet_Array()
-        {
-            pooledSet.ExceptWith(stuffToExcept);
+            pooledSet.ExceptWith(Kind switch
+            {
+                CollectionType.Set => pooledSetToExcept,
+                CollectionType.Enumerable => GetEnum(),
+                CollectionType.Array => stuffToExcept,
+                _ => throw new InvalidOperationException("Not a valid collection type")
+            });
         }
 
         private IEnumerable<int> GetEnum()
@@ -57,11 +46,12 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private PooledSet<int> pooledSet;
         private PooledSet<int> pooledSetToExcept;
 
-        [Params(MaxStartSize, SetSize_Small)]
-        public int CountToIntersect;
+        public const int N = MaxStartSize;
 
-        [Params(SetSize_Large)]
-        public int InitialSetSize;
+        public const int InitialSetSize = SetSize_Large;
+
+        [Params(CollectionType.Set, CollectionType.Enumerable, CollectionType.Array)]
+        public CollectionType Kind;
 
         [IterationSetup]
         public void IterationSetup()
@@ -82,7 +72,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         {
             var intGenerator = new RandomTGenerator<int>(InstanceCreators.IntGenerator);
             startingElements = intGenerator.MakeNewTs(InitialSetSize);
-            stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, CountToIntersect);
+            stuffToExcept = intGenerator.GenerateMixedSelection(startingElements, N);
 
             hashSet = new HashSet<int>();
             hashSetToExcept = new HashSet<int>(stuffToExcept);

@@ -32,7 +32,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         private PooledDictionary<int, int> pooled;
         private Dictionary<int, int> dict;
 
-        [Params(1_000, 10_000, 100_000)]
+        [Params(100, 1_000, 10_000)]
         public int N;
 
         [GlobalSetup]

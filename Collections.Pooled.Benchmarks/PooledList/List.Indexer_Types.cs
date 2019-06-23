@@ -7,7 +7,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
     public class List_Indexer_Types : ListBase
     {
         [Benchmark(Baseline = true)]
-        public void List_Int()
+        public void L_Int()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -25,7 +25,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void Pooled_Int()
+        public void P_Int()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -43,7 +43,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void Pooled_Span_Int()
+        public void P_Span_Int()
         {
             var span = pooledInt.Span;
             for (int j = 0; j < N; ++j)
@@ -62,7 +62,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void List_String()
+        public void L_Str()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -80,7 +80,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void Pooled_String()
+        public void P_Str()
         {
             for (int j = 0; j < N; ++j)
             {
@@ -98,7 +98,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
         }
 
         [Benchmark]
-        public void Pooled_Span_String()
+        public void P_Span_Str()
         {
             var span = pooledString.Span;
             for (int j = 0; j < N; ++j)

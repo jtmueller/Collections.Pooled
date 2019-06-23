@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BenchmarkDotNet.Attributes;
 
 namespace Collections.Pooled.Benchmarks.PooledSet
@@ -10,7 +9,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         [Benchmark(Baseline = true)]
         public void HashSet()
         {
-            for (int i = 0; i < CountToCheck; i++)
+            for (int i = 0; i < N; i++)
             {
                 _ = hashSet.Contains(missingValue);
             }
@@ -19,7 +18,7 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         [Benchmark]
         public void PooledSet()
         {
-            for (int i = 0; i < CountToCheck; i++)
+            for (int i = 0; i < N; i++)
             {
                 _ = pooledSet.Contains(missingValue);
             }
@@ -29,11 +28,10 @@ namespace Collections.Pooled.Benchmarks.PooledSet
         private HashSet<int> hashSet;
         private PooledSet<int> pooledSet;
 
-        [Params(1, 100, 10000)]
-        public int CountToCheck;
+        [Params(100, 1_000, 10_000)]
+        public int N;
 
-        [Params(SetSize_Large)]
-        public int InitialSetSize;
+        public const int InitialSetSize = SetSize_Large;
 
         [GlobalSetup]
         public void GlobalSetup()

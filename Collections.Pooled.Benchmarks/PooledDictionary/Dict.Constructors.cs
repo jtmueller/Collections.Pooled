@@ -29,7 +29,7 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
             }
         }
 
-        [Params(0, 1024, 4096, 16384)]
+        [Params(0, 256, 1024, 4096)]
         public int N;
     }
 }

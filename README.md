@@ -20,12 +20,13 @@ An extensive set of unit tests and benchmarks have been ported from [corefx](htt
 ```
 Total tests: 27986. Passed: 27986. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 10.2806 Seconds
+Test execution time: 9.7915 Seconds
 ```
 
 ## Installation
 
-[![NuGet Version](https://img.shields.io/nuget/v/Collections.Pooled.svg?style=flat)](https://www.nuget.org/packages/Collections.Pooled/) 
+[![Collections.Pooled on fuget.org](https://www.fuget.org/packages/Collections.Pooled/badge.svg)](https://www.fuget.org/packages/Collections.Pooled)
+
 ```
 Install-Package Collections.Pooled
 dotnet add package Collections.Pooled
@@ -34,8 +35,7 @@ paket add Collections.Pooled
 
 ## Benchmarks
 
-  * [.NET Core](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/netcoreapp2.2)
-  * [.NET Framework](https://github.com/jtmueller/Collections.Pooled/tree/master/docs/benchmarks/net472)
+  * [Summary Charts](./docs/benchmarks/RPlots.pdf) (pdf)
 
 ## `PooledList<T>`
 
@@ -91,7 +91,7 @@ There are some API changes worth noting:
 #### Performance
 
 Adding items to a list is one area where ArrayPool helps us quite a bit:
-![List Add Benchmarks](./docs/benchmarks/netcoreapp2.2/List_Add.svg) 
+![List Add Time](./docs/benchmarks/PooledList.List_Add-timeplot.png) 
 
 ## `PooledDictionary<TKey, TValue>`
 
@@ -114,7 +114,7 @@ There are some API changes worth noting:
 #### Performance
 
 Adding to dictionaries is where using ArrayPool really has an impact:
-![Dictionary Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Dict_Add.svg) 
+![Dictionary Add Benchmarks](./docs/benchmarks/PooledDictionary.Dict_Add-timeplot.png) 
 
 ## `PooledSet<T>`
 
@@ -137,7 +137,7 @@ modified to use ArrayPool for internal storage allocation, and to support `ReadO
 
 Here's what pooling does for us when adding to a PooledSet. 
 
-![Set Add Benchmarks](./docs/benchmarks/netcoreapp2.2/Set_Add.svg) 
+![Set Add Benchmarks](./docs/benchmarks/PooledSet.Set_Union-timeplot.png) 
 
 ## `PooledStack<T>`
 
@@ -157,11 +157,6 @@ modified to use ArrayPool for internal storage allocation.
   * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
 
-#### Performance
-
-Once again, pushing to a stack shows off some of the advantages of using ArrayPool:
-![Stack Push Benchmarks](./docs/benchmarks/netcoreapp2.2/Stack_Push.svg) 
-
 ## `PooledQueue<T>`
 
 `PooledQueue<T>` is based on the corefx source code for `System.Generic.Collections.Queue<T>`, 
@@ -179,7 +174,3 @@ modified to use ArrayPool for internal storage allocation.
     default `ArrayPool<T>.Shared` pool.
   * The `ClearMode` constructor parameter gives you control over whether data is cleared before returning
     arrays to the ArrayPool.
-
-#### Performance
-
-![Queue Enqueue Benchmarks](./docs/benchmarks/netcoreapp2.2/Queue_Enqueue.svg)

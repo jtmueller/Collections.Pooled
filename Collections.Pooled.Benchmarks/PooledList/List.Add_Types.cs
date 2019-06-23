@@ -85,7 +85,7 @@ namespace Collections.Pooled.Benchmarks.PooledList
             list.Dispose();
         }
 
-        [Params(256, 512, 2048)]
+        [Params(256, 1024)]
         public int N;
 
         private readonly string stringToAdd = "foo";

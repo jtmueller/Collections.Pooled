@@ -45,7 +45,7 @@ namespace Collections.Pooled.Benchmarks.PooledStack
             }
         }
 
-        [Params(10000, 100000, 1000000)]
+        [Params(10_000, 100_000)]
         public int N;
 
         [Params(StackType.Int, StackType.String)]
