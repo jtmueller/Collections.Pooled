@@ -9,42 +9,64 @@ using System.Diagnostics;
 
 namespace Collections.Pooled
 {
+    /// <summary>
+    /// Provides the base class for a generic collection.
+    /// Uses ArrayPool for the backing store.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [Serializable]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     public class PooledCollection<T> : IList<T>, IList, IReadOnlyList<T>, IDisposable
     {
-        private readonly IList<T> items; // Do not rename (binary serialization)
+        private readonly IList<T> _items; // Do not rename (binary serialization)
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledCollection{T}"/> class that is empty.
+        /// </summary>
         public PooledCollection()
         {
-            items = new PooledList<T>();
+            _items = new PooledList<T>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PooledCollection{T}"/> class as a wrapper for the specified list.
+        /// </summary>
+        /// <param name="list">The list that is wrapped by the new collection.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="list"/> is null.</exception>
         public PooledCollection(IList<T> list)
         {
             if (list == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.list);
             }
-            items = list!;  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+            _items = list!;  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
         }
 
-        public int Count => items.Count;
+        /// <summary>
+        /// Gets the number of elements actually contained in the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        public int Count => _items.Count;
 
-        protected IList<T> Items => items;
+        /// <summary>
+        /// Gets an <see cref="IList{T}"/> wrapper around the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        protected IList<T> Items => _items;
 
+        /// <summary>
+        /// Gets or sets the element at the specified index.
+        /// </summary>
         public T this[int index]
         {
-            get => items[index];
+            get => _items[index];
             set
             {
-                if (items.IsReadOnly)
+                if (_items.IsReadOnly)
                 {
                     ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
                 }
 
-                if ((uint)index >= (uint)items.Count)
+                if ((uint)index >= (uint)_items.Count)
                 {
                     ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
@@ -53,20 +75,53 @@ namespace Collections.Pooled
             }
         }
 
+#if NETSTANDARD2_1
+        /// <summary>
+        /// Gets or sets the element at the given index.
+        /// </summary>
+        public T this[Index index]
+        {
+            get
+            {
+                int offset = index.GetOffset(_items.Count);
+                if ((uint)offset >= (uint)_items.Count)
+                {
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+                }
+                return _items[offset];
+            }
+            set
+            {
+                int offset = index.GetOffset(_items.Count);
+                if ((uint)offset >= (uint)_items.Count)
+                {
+                    ThrowHelper.ThrowArgumentOutOfRange_IndexException();
+                }
+                SetItem(offset, value);
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Adds an object to the end of the <see cref="PooledCollection{T}"/>.
+        /// </summary>
         public void Add(T item)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
 
-            int index = items.Count;
+            int index = _items.Count;
             InsertItem(index, item);
         }
 
+        /// <summary>
+        /// Removes all elements from the <see cref="PooledCollection{T}"/>.
+        /// </summary>
         public void Clear()
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
@@ -74,22 +129,57 @@ namespace Collections.Pooled
             ClearItems();
         }
 
-        public void CopyTo(T[] array, int index) => items.CopyTo(array, index);
+        /// <summary>
+        /// Copies the entire <see cref="PooledCollection{T}"/> to a compatible one-dimensional Array, starting at the specified index of the target array.
+        /// </summary>
+        /// <param name="array">The destination array.</param>
+        /// <param name="index">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+        public void CopyTo(T[] array, int index) => _items.CopyTo(array, index);
 
-        public bool Contains(T item) => items.Contains(item);
+        /// <summary>
+        /// Copies the entire <see cref="PooledCollection{T}"/> to a compatible <see cref="Span{T}"/>.
+        /// </summary>
+        /// <param name="span"></param>
+        public void CopyTo(Span<T> span)
+        {
+            if (_items.Count > span.Length)
+            {
+                ThrowHelper.ThrowArgumentException_DestinationTooShort();
+            }
 
-        public IEnumerator<T> GetEnumerator() => items.GetEnumerator();
+            for (int i = 0; i < _items.Count; i++)
+            {
+                span[i] = _items[i];
+            }
+        }
 
-        public int IndexOf(T item) => items.IndexOf(item);
+        /// <summary>
+        /// Determines whether an element is in the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        public bool Contains(T item) => _items.Contains(item);
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+
+        /// <summary>
+        /// Searches for the specified object and returns the zero-based index of the first occurrence within the entire <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        public int IndexOf(T item) => _items.IndexOf(item);
+
+        /// <summary>
+        /// Inserts an element into the <see cref="PooledCollection{T}"/> at the specified index.
+        /// </summary>
         public void Insert(int index, T item)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
 
-            if ((uint)index > (uint)items.Count)
+            if ((uint)index > (uint)_items.Count)
             {
                 ThrowHelper.ThrowArgumentOutOfRange_IndexException();
             }
@@ -97,14 +187,17 @@ namespace Collections.Pooled
             InsertItem(index, item);
         }
 
+        /// <summary>
+        /// Removes the first occurrence of a specific object from the <see cref="PooledCollection{T}"/>.
+        /// </summary>
         public bool Remove(T item)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
 
-            int index = items.IndexOf(item);
+            int index = _items.IndexOf(item);
             if (index < 0)
             {
                 return false;
@@ -114,14 +207,18 @@ namespace Collections.Pooled
             return true;
         }
 
+        /// <summary>
+        /// Removes the element at the specified index of the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        /// <param name="index"></param>
         public void RemoveAt(int index)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
 
-            if ((uint)index >= (uint)items.Count)
+            if ((uint)index >= (uint)_items.Count)
             {
                 ThrowHelper.ThrowArgumentOutOfRange_IndexException();
             }
@@ -129,21 +226,34 @@ namespace Collections.Pooled
             RemoveItem(index);
         }
 
-        protected virtual void ClearItems() => items.Clear();
+        /// <summary>
+        /// Removes all elements from the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        protected virtual void ClearItems() => _items.Clear();
 
-        protected virtual void InsertItem(int index, T item) => items.Insert(index, item);
+        /// <summary>
+        /// Inserts an element into the <see cref="PooledCollection{T}"/> at the specified index.
+        /// </summary>
+        protected virtual void InsertItem(int index, T item) => _items.Insert(index, item);
 
-        protected virtual void RemoveItem(int index) => items.RemoveAt(index);
+        /// <summary>
+        /// Removes the element at the specified index of the <see cref="PooledCollection{T}"/>.
+        /// </summary>
+        /// <param name="index"></param>
+        protected virtual void RemoveItem(int index) => _items.RemoveAt(index);
 
-        protected virtual void SetItem(int index, T item) => items[index] = item;
+        /// <summary>
+        /// Replaces the element at the specified index.
+        /// </summary>
+        protected virtual void SetItem(int index, T item) => _items[index] = item;
 
-        bool ICollection<T>.IsReadOnly => items.IsReadOnly;
+        bool ICollection<T>.IsReadOnly => _items.IsReadOnly;
 
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)items).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_items).GetEnumerator();
 
         bool ICollection.IsSynchronized => false;
 
-        object ICollection.SyncRoot => (items is ICollection coll) ? coll.SyncRoot : this;
+        object ICollection.SyncRoot => (_items is ICollection coll) ? coll.SyncRoot : this;
 
         void ICollection.CopyTo(Array array, int index)
         {
@@ -174,7 +284,7 @@ namespace Collections.Pooled
 
             if (array is T[] tArray)
             {
-                items.CopyTo(tArray, index);
+                _items.CopyTo(tArray, index);
             }
             else
             {
@@ -201,12 +311,12 @@ namespace Collections.Pooled
                     ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                 }
 
-                int count = items.Count;
+                int count = _items.Count;
                 try
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        objects![index++] = items[i];  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+                        objects![index++] = _items[i];  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
                     }
                 }
                 catch (ArrayTypeMismatchException)
@@ -218,7 +328,7 @@ namespace Collections.Pooled
 
         object? IList.this[int index]
         {
-            get => items[index];
+            get => _items[index];
             set
             {
                 ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(value, ExceptionArgument.value);
@@ -234,7 +344,7 @@ namespace Collections.Pooled
             }
         }
 
-        bool IList.IsReadOnly => items.IsReadOnly;
+        bool IList.IsReadOnly => _items.IsReadOnly;
 
         bool IList.IsFixedSize
         {
@@ -244,17 +354,17 @@ namespace Collections.Pooled
                 // readonly collections are fixed size, if our internal item 
                 // collection does not implement IList.  Note that Array implements
                 // IList, and therefore T[] and U[] will be fixed-size.
-                if (items is IList list)
+                if (_items is IList list)
                 {
                     return list.IsFixedSize;
                 }
-                return items.IsReadOnly;
+                return _items.IsReadOnly;
             }
         }
 
         int IList.Add(object? value)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
@@ -292,7 +402,7 @@ namespace Collections.Pooled
 
         void IList.Insert(int index, object? value)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
@@ -310,7 +420,7 @@ namespace Collections.Pooled
 
         void IList.Remove(object? value)
         {
-            if (items.IsReadOnly)
+            if (_items.IsReadOnly)
             {
                 ThrowHelper.ThrowNotSupportedException(ExceptionResource.NotSupported_ReadOnlyCollection);
             }
@@ -328,9 +438,12 @@ namespace Collections.Pooled
             return (value is T) || (value == null && default(T)! == null);
         }
 
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets the Count to zero.
+        /// </summary>
         public virtual void Dispose()
         {
-            if (items is IDisposable disposable)
+            if (_items is IDisposable disposable)
                 disposable.Dispose();
         }
     }

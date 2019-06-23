@@ -310,18 +310,18 @@ namespace Collections.Pooled
         #endregion
 
         /// <summary>
-        /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.
+        /// Gets a <see cref="Span{T}"/> for the items currently in the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
 
         /// <summary>
-        /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+        /// Gets a <see cref="ReadOnlySpan{T}"/> for the items currently in the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="ReadOnlySpan{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
