@@ -11,7 +11,7 @@ namespace Collections.Pooled
     public interface IReadOnlyPooledList<T> : IReadOnlyList<T>
     {
         /// <summary>
-        /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+        /// Gets a <see cref="ReadOnlySpan{T}"/> for the items currently in the collection.
         /// </summary>
         ReadOnlySpan<T> Span { get; }
     }
