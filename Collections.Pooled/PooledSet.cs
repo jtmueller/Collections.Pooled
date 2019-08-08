@@ -300,9 +300,9 @@ namespace Collections.Pooled
             {
                 _buckets = s_bucketPool.Rent(capacity);
                 Array.Clear(_buckets, 0, _buckets.Length);
-                Array.Copy(source._buckets, _buckets, capacity);
+                Array.Copy(source._buckets!, _buckets, capacity);
                 _slots = s_slotPool.Rent(capacity);
-                Array.Copy(source._slots, _slots, capacity);
+                Array.Copy(source._slots!, _slots, capacity);
 
                 _lastIndex = source._lastIndex;
                 _freeList = source._freeList;
@@ -352,7 +352,7 @@ namespace Collections.Pooled
 
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to _lastIndex for _slots 
-                Array.Clear(_slots, 0, _lastIndex);
+                Array.Clear(_slots!, 0, _lastIndex);
                 Array.Clear(_buckets, 0, _buckets.Length);
                 _lastIndex = 0;
                 _count = 0;
@@ -527,7 +527,7 @@ namespace Collections.Pooled
         /// <summary>
         /// Deserialization callback.
         /// </summary>
-        public virtual void OnDeserialization(object sender)
+        public virtual void OnDeserialization(object? sender)
         {
             if (_siInfo is null)
             {
@@ -538,14 +538,14 @@ namespace Collections.Pooled
             }
 
             int capacity = _siInfo.GetInt32(s_capacityName);
-            _comparer = (IEqualityComparer<T>)_siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<T>));
+            _comparer = (IEqualityComparer<T>)_siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<T>))!;
             _freeList = -1;
 
             if (capacity != 0)
             {
                 Initialize(capacity);
 
-                var array = (T[])_siInfo.GetValue(s_elementsName, typeof(T[]));
+                var array = (T[])_siInfo.GetValue(s_elementsName, typeof(T[]))!;
 
                 if (array is null)
                 {
@@ -2639,15 +2639,15 @@ namespace Collections.Pooled
         // used for set checking operations (using enumerables) that rely on counting
         internal struct ElementCount
         {
-            internal int uniqueCount;
-            internal int unfoundCount;
+            public int uniqueCount;
+            public int unfoundCount;
         }
 
         internal struct Slot
         {
-            internal int hashCode;      // Lower 31 bits of hash code, -1 if unused
-            internal int next;          // Index of next entry, -1 if last
-            internal T value;
+            public int hashCode;      // Lower 31 bits of hash code, -1 if unused
+            public int next;          // Index of next entry, -1 if last
+            public T value;
         }
 
         /// <summary>

@@ -48,6 +48,7 @@ namespace Collections.Pooled
     [Serializable]
     public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
         ISerializable, IDeserializationCallback, IDisposable
+        where TKey : notnull
     {
         private struct Entry
         {
@@ -1064,7 +1065,7 @@ namespace Collections.Pooled
             return true;
         }
 
-        public virtual void OnDeserialization(object sender)
+        public virtual void OnDeserialization(object? sender)
         {
             HashHelpers.SerializationInfoTable.TryGetValue(this, out var siInfo);
 
@@ -1077,14 +1078,13 @@ namespace Collections.Pooled
 
             int realVersion = siInfo.GetInt32(s_versionName);
             int hashsize = siInfo.GetInt32(s_hashSizeName);
-            _comparer = (IEqualityComparer<TKey>)siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<TKey>));
+            _comparer = (IEqualityComparer<TKey>)siInfo.GetValue(s_comparerName, typeof(IEqualityComparer<TKey>))!;
 
             if (hashsize != 0)
             {
                 Initialize(hashsize);
 
-                var array = (KeyValuePair<TKey, TValue>[])
-                    siInfo.GetValue(s_keyValuePairsName, typeof(KeyValuePair<TKey, TValue>[]));
+                var array = (KeyValuePair<TKey, TValue>[])siInfo.GetValue(s_keyValuePairsName, typeof(KeyValuePair<TKey, TValue>[]))!;
 
                 if (array is null)
                 {
@@ -1601,7 +1601,7 @@ namespace Collections.Pooled
             return key is TKey;
         }
 
-        void IDictionary.Add(object key, object value)
+        void IDictionary.Add(object key, object? value)
         {
             if (key is null)
             {
@@ -1615,7 +1615,7 @@ namespace Collections.Pooled
 
                 try
                 {
-                    Add(tempKey, (TValue)value);
+                    Add(tempKey, (TValue)value!);
                 }
                 catch (InvalidCastException)
                 {
@@ -1753,7 +1753,7 @@ namespace Collections.Pooled
                 }
             }
 
-            object? IDictionaryEnumerator.Key
+            object IDictionaryEnumerator.Key
             {
                 get
                 {

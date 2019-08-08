@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace Collections.Pooled
 {
-    internal sealed class IDictionaryDebugView<K, V>
+    internal sealed class IDictionaryDebugView<K, V> where K : notnull
     {
         private readonly IDictionary<K, V> _dict;
 
