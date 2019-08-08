@@ -50,7 +50,7 @@ namespace Collections.Pooled.Tests.PooledList
         {
             var list = GenericListFactory(count);
             var beforeList = list.ToPooledList();
-            bool EqualsDefaultElement(T value) => default(T) == null ? value == null : default(T).Equals(value);
+            static bool EqualsDefaultElement(T value) => default(T) == null ? value == null : default(T).Equals(value);
             int expectedCount = beforeList.Count((value) => EqualsDefaultElement(value));
             int removedCount = list.RemoveAll(EqualsDefaultElement);
             Assert.Equal(expectedCount, removedCount);
@@ -81,7 +81,11 @@ namespace Collections.Pooled.Tests.PooledList
             var list = GenericListFactory(listLength);
             using var beforeList = list.ToPooledList();
 
+#if NETCOREAPP3_0
             list.RemoveRange((Index)index, count);
+#else
+            list.RemoveRange(index, count);
+#endif
             Assert.Equal(list.Count, listLength - count); //"Expected them to be the same."
             for (int i = 0; i < index; i++)
             {
@@ -94,6 +98,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#if NETCOREAPP3_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void Remove_Range_Range(int listLength)
@@ -110,6 +115,7 @@ namespace Collections.Pooled.Tests.PooledList
             Assert.Equal(beforeList[0], list[0]);
             Assert.Equal(beforeList[^1], list[^1]);
         }
+#endif
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
@@ -168,6 +174,6 @@ namespace Collections.Pooled.Tests.PooledList
             });
         }
 
-        #endregion
+#endregion
     }
 }

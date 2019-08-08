@@ -28,8 +28,10 @@ namespace Collections.Pooled.Tests.PooledList
             {
                 Assert.Equal(index, list.BinarySearch(beforeList[index]));
                 Assert.Equal(index, list.BinarySearch(beforeList[index], GetIComparer()));
+#if NETCOREAPP3_0
                 Assert.Equal(index, list.BinarySearch(.., beforeList[index]));
                 Assert.Equal(index, list.BinarySearch(.., beforeList[index], GetIComparer()));
+#endif
                 Assert.Equal(beforeList[index], list[index]);
             });
             beforeList.Dispose();
@@ -51,8 +53,10 @@ namespace Collections.Pooled.Tests.PooledList
                 {
                     Assert.True(list.BinarySearch(beforeList[index]) >= 0);
                     Assert.True(list.BinarySearch(beforeList[index], GetIComparer()) >= 0);
+#if NETCOREAPP3_0
                     Assert.True(list.BinarySearch(.., beforeList[index]) >= 0);
                     Assert.True(list.BinarySearch(.., beforeList[index], GetIComparer()) >= 0);
+#endif
                     Assert.Equal(beforeList[index], list[index]);
                 });
                 beforeList.Dispose();

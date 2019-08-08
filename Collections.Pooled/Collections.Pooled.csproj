@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
-    <LangVersion>preview</LangVersion>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;netcoreapp3.0</TargetFrameworks>
+    <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
-    <NullableContextOptions>enable</NullableContextOptions>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <Authors>Joel Mueller</Authors>
     <Company />
     <Description>Includes PooledList, PooledDictionary, PooledSet, PooledStack, and PooledQueue: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
@@ -18,18 +19,20 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <FileVersion>2.0.0.0</FileVersion>
     <Version>2.0.0-preview</Version>
-    <PackageReleaseNotes>Now targeting .NET Standard 2.0 and 2.1, adding support for Index, Range types in .NET Standard 2.1.
-Because this release drops support for .NET Core 2.1 in order to support .NET Standard, the major version number has been incremented to prevent auto-updating for projects targeting .NET Core 2.x.</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      Now targeting .NET Standard 2.0 and 2.1, adding support for Index, Range types in .NET Standard 2.1.
+      Because this release drops support for .NET Core 2.1 in order to support .NET Standard, the major version number has been incremented to prevent auto-updating for projects targeting .NET Core 2.x.
+    </PackageReleaseNotes>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Collections.Pooled.xml</DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DocumentationFile></DocumentationFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>

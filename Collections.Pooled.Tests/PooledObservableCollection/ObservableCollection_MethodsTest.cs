@@ -280,7 +280,7 @@ namespace Collections.Pooled.Tests.PooledObservableCollection
             // inserting item at the end.
             var g3 = Guid.NewGuid();
             col3.Insert(col3.Count, g3);
-            Assert.Equal(g3, col3[^1]);
+            Assert.Equal(g3, col3[col3.Count - 1]);
 
             string[] anArrayString = new string[] { "one", "two", "three", "four" };
             using var collection = new PooledObservableCollection<string>(anArrayString);
@@ -556,7 +556,7 @@ namespace Collections.Pooled.Tests.PooledObservableCollection
             else
             {
                 collection.Add(itemToAdd);
-                Assert.Equal(itemToAdd, collection[^1]);
+                Assert.Equal(itemToAdd, collection[collection.Count - 1]);
             }
 
             Assert.Equal(expectedCount, collection.Count);

@@ -1791,7 +1791,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClear(ClearMode mode)
         {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else

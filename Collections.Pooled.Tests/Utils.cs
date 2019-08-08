@@ -63,5 +63,16 @@ namespace Collections.Pooled.Tests
                 list[n] = value;
             }
         }
+
+#if !NETCOREAPP3_0
+        public static bool TryAdd<TKey, TVal>(this IDictionary<TKey, TVal> dict, TKey key, TVal value)
+        {
+            if (dict.ContainsKey(key))
+                return false;
+
+            dict.Add(key, value);
+            return true;
+        }
+#endif
     }
 }

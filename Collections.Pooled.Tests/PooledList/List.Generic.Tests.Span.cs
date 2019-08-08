@@ -23,7 +23,7 @@ namespace Collections.Pooled.Tests.PooledList
             if (length > 0)
             {
                 Assert.Equal(arr[0], list[0]);
-                Assert.Equal(arr[^1], list[^1]);
+                Assert.Equal(arr[arr.Length - 1], list[list.Count - 1]);
             }
         }
 
@@ -37,7 +37,7 @@ namespace Collections.Pooled.Tests.PooledList
             if (length > 0)
             {
                 Assert.Equal(span[0], list[0]);
-                Assert.Equal(span[^1], list[^1]);
+                Assert.Equal(span[span.Length - 1], list[list.Count - 1]);
             }
         }
 
@@ -51,7 +51,7 @@ namespace Collections.Pooled.Tests.PooledList
             if (length > 0)
             {
                 Assert.Equal(memory.Span[0], list[0]);
-                Assert.Equal(memory.Span[^1], list[^1]);
+                Assert.Equal(memory.Span[memory.Length - 1], list[list.Count - 1]);
             }
         }
 
@@ -65,7 +65,7 @@ namespace Collections.Pooled.Tests.PooledList
             if (length > 0)
             {
                 Assert.Equal(list[0], span[0]);
-                Assert.Equal(list[^1], span[^1]);
+                Assert.Equal(list[list.Count - 1], span[span.Length - 1]);
             }
         }
 
@@ -80,7 +80,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             Assert.Equal(origCount + newSpan.Length, list.Count);
             Assert.Equal(newSpan[0], list[origCount]);
-            Assert.Equal(newSpan[^1], list[^1]);
+            Assert.Equal(newSpan[newSpan.Length - 1], list[list.Count - 1]);
         }
 
         [Theory]
@@ -95,7 +95,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             Assert.Equal(origCount + newSpan.Length, list.Count);
             Assert.Equal(newSpan[0], list[insertIndex]);
-            Assert.Equal(newSpan[^1], list[insertIndex + newSpan.Length - 1]);
+            Assert.Equal(newSpan[newSpan.Length - 1], list[insertIndex + newSpan.Length - 1]);
         }
     }
 }

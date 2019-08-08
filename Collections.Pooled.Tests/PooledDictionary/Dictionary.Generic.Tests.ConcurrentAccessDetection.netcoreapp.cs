@@ -11,24 +11,25 @@ using Xunit;
 
 namespace Collections.Pooled.Tests.PooledDictionary
 {
+#if NETCOREAPP3_0
     public class DictionaryConcurrentAccessDetectionTests
     {
         private async Task DictionaryConcurrentAccessDetection<TKey, TValue>(PooledDictionary<TKey, TValue> dictionary, bool isValueType, object comparer, Action<PooledDictionary<TKey, TValue>> add, Action<PooledDictionary<TKey, TValue>> get, Action<PooledDictionary<TKey, TValue>> remove, Action<PooledDictionary<TKey, TValue>> removeOutParam)
         {
-            Task task = Task.Factory.StartNew(() =>
+            var task = Task.Factory.StartNew(() =>
             {
                 // Get the Dictionary into a corrupted state, as if it had been corrupted by concurrent access.
                 // We this deterministically by clearing the _entries array using reflection;
                 // this means that every Entry struct has a 'next' field of zero, which causes the infinite loop
                 // that we want Dictionary to break out of
-                FieldInfo entriesField = dictionary.GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
-                Array entriesInstance = (Array)entriesField.GetValue(dictionary);
-                Array entryArray = (Array)Activator.CreateInstance(entriesInstance.GetType(), new object[] { ((ICollection)entriesInstance).Count });
+                var entriesField = dictionary.GetType().GetField("_entries", BindingFlags.NonPublic | BindingFlags.Instance);
+                var entriesInstance = (Array)entriesField.GetValue(dictionary);
+                var entryArray = (Array)Activator.CreateInstance(entriesInstance.GetType(), new object[] { ((ICollection)entriesInstance).Count });
                 entriesField.SetValue(dictionary, entryArray);
 
                 Assert.Equal(comparer, dictionary.GetType().GetField("_comparer", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(dictionary));
                 Assert.Equal(isValueType, dictionary.GetType().GetGenericArguments()[0].IsValueType);
-                var tsn = Assert.Throws<InvalidOperationException>(() => add(dictionary)).TargetSite.Name;
+                string tsn = Assert.Throws<InvalidOperationException>(() => add(dictionary)).TargetSite.Name;
                 Assert.Throws<InvalidOperationException>(() => add(dictionary));
                 Assert.Throws<InvalidOperationException>(() => get(dictionary));
                 Assert.Throws<InvalidOperationException>(() => remove(dictionary));
@@ -46,7 +47,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<int> customComparer = null;
 
-            PooledDictionary<int, int> dic = comparerType == null ?
+            using var dic = comparerType == null ?
                 new PooledDictionary<int, int>() :
                 new PooledDictionary<int, int>((customComparer = (IEqualityComparer<int>)Activator.CreateInstance(comparerType)));
 
@@ -56,7 +57,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
                 typeof(int).IsValueType,
                 customComparer,
                 add: d => d.Add(1, 1),
-                get: d => { var v = d[1]; },
+                get: d => { int v = d[1]; },
                 remove: d => d.Remove(1),
                 removeOutParam: d => d.Remove(1, out int value));
         }
@@ -68,7 +69,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             IEqualityComparer<DummyRefType> customComparer = null;
 
-            PooledDictionary<DummyRefType, DummyRefType> dic = comparerType == null ?
+            using var dic = comparerType == null ?
                 new PooledDictionary<DummyRefType, DummyRefType>() :
                 new PooledDictionary<DummyRefType, DummyRefType>((customComparer = (IEqualityComparer<DummyRefType>)Activator.CreateInstance(comparerType)));
 
@@ -82,49 +83,32 @@ namespace Collections.Pooled.Tests.PooledDictionary
                 add: d => d.Add(keyValueSample, keyValueSample),
                 get: d => { var v = d[keyValueSample]; },
                 remove: d => d.Remove(keyValueSample),
-                removeOutParam: d => d.Remove(keyValueSample, out DummyRefType value));
+                removeOutParam: d => d.Remove(keyValueSample, out var value));
         }
     }
 
     // We use a custom type instead of string because string use optimized comparer https://github.com/dotnet/coreclr/blob/master/src/System.Private.CoreLib/shared/System/Collections/Generic/Dictionary.cs#L79
     // We want to test case with _comparer = null
-    class DummyRefType
+    internal class DummyRefType
     {
         public int Value { get; set; }
-        public override bool Equals(object obj)
-        {
-            return ((DummyRefType)obj).Equals(this.Value);
-        }
+        public override bool Equals(object obj) => ((DummyRefType)obj).Equals(Value);
 
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
+        public override int GetHashCode() => Value.GetHashCode();
     }
 
-    class CustomEqualityComparerDummyRefType : EqualityComparer<DummyRefType>
+    internal class CustomEqualityComparerDummyRefType : EqualityComparer<DummyRefType>
     {
-        public override bool Equals(DummyRefType x, DummyRefType y)
-        {
-            return x.Value == y.Value;
-        }
+        public override bool Equals(DummyRefType x, DummyRefType y) => x.Value == y.Value;
 
-        public override int GetHashCode(DummyRefType obj)
-        {
-            return obj.GetHashCode();
-        }
+        public override int GetHashCode(DummyRefType obj) => obj.GetHashCode();
     }
 
-    class CustomEqualityComparerInt32ValueType : EqualityComparer<int>
+    internal class CustomEqualityComparerInt32ValueType : EqualityComparer<int>
     {
-        public override bool Equals(int x, int y)
-        {
-            return EqualityComparer<int>.Default.Equals(x, y);
-        }
+        public override bool Equals(int x, int y) => Default.Equals(x, y);
 
-        public override int GetHashCode(int obj)
-        {
-            return EqualityComparer<int>.Default.GetHashCode(obj);
-        }
+        public override int GetHashCode(int obj) => Default.GetHashCode(obj);
     }
+#endif
 }

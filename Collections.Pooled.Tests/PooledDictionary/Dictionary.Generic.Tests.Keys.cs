@@ -37,17 +37,26 @@ namespace Collections.Pooled.Tests.PooledDictionary
             return dict.Keys;
         }
 
+#if NETCOREAPP3_0
         protected override string CreateT(int seed)
         {
             int stringLength = seed % 10 + 5;
-            Random rand = new Random(seed);
-            using (var bytesHandle = MemoryPool<byte>.Shared.Rent(stringLength))
-            {
-                var bytes = bytesHandle.Memory.Span.Slice(0, stringLength);
-                rand.NextBytes(bytes);
-                return Convert.ToBase64String(bytes);
-            }
+            var rand = new Random(seed);
+            using var bytesHandle = MemoryPool<byte>.Shared.Rent(stringLength);
+            var bytes = bytesHandle.Memory.Span[..stringLength];
+            rand.NextBytes(bytes);
+            return Convert.ToBase64String(bytes);
         }
+#else
+        protected override string CreateT(int seed)
+        {
+            int stringLength = seed % 10 + 5;
+            var rand = new Random(seed);
+            var bytes = new byte[stringLength];
+            rand.NextBytes(bytes);
+            return Convert.ToBase64String(bytes);
+        }
+#endif
 
         protected override Type ICollection_Generic_CopyTo_IndexLargerThanArrayCount_ThrowType => typeof(ArgumentOutOfRangeException);
 

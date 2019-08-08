@@ -1574,7 +1574,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClearKey(ClearMode mode)
         {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TKey>());
 #else
@@ -1584,7 +1584,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClearValue(ClearMode mode)
         {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
 #else

@@ -19,7 +19,7 @@ variables:
 steps:
 - task: DotNetCoreInstaller@0
   inputs:
-    version: '3.0.100-preview6-012264'
+    version: '3.0.100-preview7-012821'
     
 - script: dotnet build -c $(buildConfiguration) Collections.Pooled/Collections.Pooled.csproj /p:Version=$(Major).$(Minor)-preview.$(Patch)
   displayName: 'dotnet build $(buildConfiguration)'

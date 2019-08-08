@@ -249,7 +249,7 @@ namespace Collections.Pooled.Tests.PooledList
             list.Add(default);
             list.TryFind((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
-            list.RemoveAt(^1);
+            list.RemoveAt(list.Count - 1);
         }
 
         [Theory]
@@ -327,7 +327,7 @@ namespace Collections.Pooled.Tests.PooledList
             list.Add(default);
             list.TryFindLast((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }, out foundItem);
             Assert.Equal(default, foundItem); //"Err_541848ajodi Verify with default(T) FAILED\n"
-            list.RemoveAt(^1);
+            list.RemoveAt(list.Count - 1);
         }
 
         [Theory]
@@ -532,7 +532,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindIndex(Index, pred<T>)
-
+#if NETCOREAPP3_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindIndexIndex_VerifyVanilla(int count)
@@ -627,6 +627,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#endif
         #endregion
 
         #region FindIndex(int, int, pred<T>)
@@ -753,7 +754,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindIndex(Range, pred<T>)
-
+#if NETCOREAPP3_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindIndexRange_VerifyVanilla(int count)
@@ -875,6 +876,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#endif
         #endregion
 
         #region FindLastIndex
@@ -1039,7 +1041,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindLastIndex(Index, pred<T>)
-
+#if NETCOREAPP3_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindLastIndexIndex_VerifyVanilla(int count)
@@ -1133,6 +1135,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#endif
         #endregion
 
         #region FindLastIndex(int, int, pred<T>)
@@ -1252,6 +1255,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindLastIndex(Range, pred<T>)
+#if NETCOREAPP3_0
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
@@ -1295,12 +1299,12 @@ namespace Collections.Pooled.Tests.PooledList
 
                 //[] Verify NEG FindLastIndex uses the index
                 expectedItem = beforeList[count - 1];
-                index = list.FindLastIndex(..count - 2, equalsDelegate);
+                index = list.FindLastIndex(..(count - 2), equalsDelegate);
                 Assert.Equal(-1, index); //"Err_548797ahjid Verify NEG FindLastIndex uses the index"
 
                 //[] Verify POS FindLastIndex uses the index
                 expectedItem = beforeList[count - 2];
-                index = list.FindLastIndex(..count - 2, equalsDelegate);
+                index = list.FindLastIndex(..(count - 2), equalsDelegate);
                 Assert.Equal(count - 2, index); //"Err_68797ahid Verify POS FindLastIndex uses the index"
 
                 //[] Verify POS FindLastIndex uses the count
@@ -1361,6 +1365,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#endif
         #endregion
 
         #region FindAll

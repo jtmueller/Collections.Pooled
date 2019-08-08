@@ -23,7 +23,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             for (int i = 0; i < listBefore.Count; i++)
             {
-                Assert.Equal(list[i], listBefore[^(i + 1)]); //"Expect them to be the same."
+                Assert.Equal(list[i], listBefore[listBefore.Count - (i + 1)]); //"Expect them to be the same."
             }
         }
 
@@ -62,6 +62,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
+#if NETCOREAPP3_0
         [Theory]
         [InlineData(10, 0, 10)]
         [InlineData(10, 3, 3)]
@@ -96,6 +97,7 @@ namespace Collections.Pooled.Tests.PooledList
                 Assert.Equal(list[i], listBefore[i]); //"Expect them to be the same."
             }
         }
+#endif
 
         [Theory]
         [InlineData(10, 3, 3)]

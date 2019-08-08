@@ -45,7 +45,7 @@ namespace Collections.Pooled.Tests
         /// <returns>An instance of an IDictionary that can be used for testing.</returns>
         protected virtual IDictionary NonGenericIDictionaryFactory(int count)
         {
-            IDictionary collection = NonGenericIDictionaryFactory();
+            var collection = NonGenericIDictionaryFactory();
             AddToCollection(collection, count);
             return collection;
         }
@@ -97,7 +97,7 @@ namespace Collections.Pooled.Tests
         {
             Assert.False(IsReadOnly);
             int seed = 12353;
-            IDictionary casted = (IDictionary)collection;
+            var casted = (IDictionary)collection;
             int initialCount = casted.Count;
             while ((casted.Count - initialCount) < numberOfItemsToAdd)
             {
@@ -118,7 +118,7 @@ namespace Collections.Pooled.Tests
             {
                 yield return (IEnumerable enumerable) =>
                 {
-                    IDictionary casted = ((IDictionary)enumerable);
+                    var casted = ((IDictionary)enumerable);
                     casted.Add(CreateTKey(12), CreateTValue(5123));
                     return true;
                 };
@@ -127,7 +127,7 @@ namespace Collections.Pooled.Tests
             {
                 yield return (IEnumerable enumerable) =>
                 {
-                    IDictionary casted = ((IDictionary)enumerable);
+                    var casted = ((IDictionary)enumerable);
                     casted[CreateTKey(541)] = CreateTValue(12);
                     return true;
                 };
@@ -136,7 +136,7 @@ namespace Collections.Pooled.Tests
             {
                 yield return (IEnumerable enumerable) =>
                 {
-                    IDictionary casted = ((IDictionary)enumerable);
+                    var casted = ((IDictionary)enumerable);
                     if (casted.Count > 0)
                     {
                         var keys = casted.Keys.GetEnumerator();
@@ -151,7 +151,7 @@ namespace Collections.Pooled.Tests
             {
                 yield return (IEnumerable enumerable) =>
                 {
-                    IDictionary casted = ((IDictionary)enumerable);
+                    var casted = ((IDictionary)enumerable);
                     if (casted.Count > 0)
                     {
                         casted.Clear();
@@ -177,7 +177,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_IsFixedSize_Validity(int count)
         {
-            IDictionary collection = NonGenericIDictionaryFactory(count);
+            var collection = NonGenericIDictionaryFactory(count);
             Assert.False(collection.IsFixedSize);
         }
 
@@ -189,7 +189,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_IsReadOnly_Validity(int count)
         {
-            IDictionary collection = NonGenericIDictionaryFactory(count);
+            var collection = NonGenericIDictionaryFactory(count);
             Assert.Equal(IsReadOnly, collection.IsReadOnly);
         }
 
@@ -201,7 +201,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemGet_NullKey(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             if (!NullAllowed)
             {
                 Assert.Throws<ArgumentNullException>(() => dictionary[null]);
@@ -218,7 +218,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemGet_MissingNonNullKey_ThrowsKeyNotFoundException(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object missingKey = GetNewKey(dictionary);
             Assert.Null(dictionary[missingKey]);
         }
@@ -229,7 +229,7 @@ namespace Collections.Pooled.Tests
         {
             if (NullAllowed)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = null;
                 if (dictionary.Contains(missingKey))
                     dictionary.Remove(missingKey);
@@ -241,7 +241,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemGet_PresenobjectReturnsCorrecobject(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             foreach (DictionaryEntry pair in dictionary)
             {
                 Assert.Equal(pair.Value, dictionary[pair.Key]);
@@ -256,7 +256,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemSet_NullKey(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             if (!NullAllowed)
             {
                 Assert.Throws<ArgumentNullException>(() => dictionary[null] = CreateTValue(3));
@@ -275,7 +275,7 @@ namespace Collections.Pooled.Tests
         {
             if (IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 Assert.Throws<NotSupportedException>(() => dictionary[missingKey] = CreateTValue(5312));
             }
@@ -285,7 +285,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemSet_AddsNewValueWhenNotPresent(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object missingKey = GetNewKey(dictionary);
             dictionary[missingKey] = CreateTValue(543);
             Assert.Equal(count + 1, dictionary.Count);
@@ -295,7 +295,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_ItemSet_ReplacesExistingValueWhenPresent(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object existingKey = GetNewKey(dictionary);
             dictionary.Add(existingKey, CreateTValue(5342));
             object newValue = CreateTValue(1234);
@@ -312,7 +312,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Keys_ContainsAllCorrectobjects(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object[] expected = new object[count];
             dictionary.Keys.CopyTo(expected, 0);
             int i = 0;
@@ -324,8 +324,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Keys_ModifyingTheDictionaryUpdatesTheCollection(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
-            ICollection keys = dictionary.Keys;
+            var dictionary = NonGenericIDictionaryFactory(count);
+            var keys = dictionary.Keys;
             int previousCount = keys.Count;
             dictionary.Clear();
             if (IDictionary_NonGeneric_Keys_Values_ModifyingTheDictionaryUpdatesTheCollection)
@@ -342,9 +342,9 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Keys_Enumeration_ParentDictionaryModifiedInvalidatesEnumerator(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
-            ICollection keys = dictionary.Keys;
-            IEnumerator keysEnum = keys.GetEnumerator();
+            var dictionary = NonGenericIDictionaryFactory(count);
+            var keys = dictionary.Keys;
+            var keysEnum = keys.GetEnumerator();
             dictionary.Add(GetNewKey(dictionary), CreateTValue(3432));
             if (IDictionary_NonGeneric_Keys_Values_ParentDictionaryModifiedInvalidates)
             {
@@ -356,7 +356,7 @@ namespace Collections.Pooled.Tests
                 keysEnum.MoveNext();
                 if (count > 0)
                 {
-                    var cur = keysEnum.Current;
+                    object cur = keysEnum.Current;
                 }
                 keysEnum.Reset();
             }
@@ -366,7 +366,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Keys_Enumeration_Reset(int count)
         {
-            IEnumerator enumerator = NonGenericIDictionaryFactory(count).Keys.GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).Keys.GetEnumerator();
             if (IDictionary_NonGeneric_Keys_Values_Enumeration_ResetImplemented)
                 enumerator.Reset();
             else
@@ -381,7 +381,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Values_ContainsAllCorrecobjects(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object[] expected = new object[count];
             dictionary.Values.CopyTo(expected, 0);
             int i = 0;
@@ -393,12 +393,12 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Values_IncludeDuplicatesMultipleTimes(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
-            List<DictionaryEntry> entries = new List<DictionaryEntry>();
+            var dictionary = NonGenericIDictionaryFactory(count);
+            var entries = new List<DictionaryEntry>();
 
             foreach (DictionaryEntry pair in dictionary)
                 entries.Add(pair);
-            foreach (DictionaryEntry pair in entries)
+            foreach (var pair in entries)
             {
                 object missingKey = GetNewKey(dictionary);
                 dictionary.Add(missingKey, (pair.Value));
@@ -410,8 +410,8 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Values_ModifyingTheDictionaryUpdatesTheCollection(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
-            ICollection values = dictionary.Values;
+            var dictionary = NonGenericIDictionaryFactory(count);
+            var values = dictionary.Values;
             int previousCount = values.Count;
             dictionary.Clear();
             if (IDictionary_NonGeneric_Keys_Values_ModifyingTheDictionaryUpdatesTheCollection)
@@ -428,9 +428,9 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public virtual void IDictionary_NonGeneric_Values_Enumeration_ParentDictionaryModifiedInvalidatesEnumerator(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
-            ICollection values = dictionary.Values;
-            IEnumerator valuesEnum = values.GetEnumerator();
+            var dictionary = NonGenericIDictionaryFactory(count);
+            var values = dictionary.Values;
+            var valuesEnum = values.GetEnumerator();
             dictionary.Add(GetNewKey(dictionary), CreateTValue(3432));
             if (IDictionary_NonGeneric_Keys_Values_ParentDictionaryModifiedInvalidates)
             {
@@ -443,7 +443,7 @@ namespace Collections.Pooled.Tests
                 valuesEnum.MoveNext();
                 if (count > 0)
                 {
-                    var cur = valuesEnum.Current;
+                    object cur = valuesEnum.Current;
                 }
                 valuesEnum.Reset();
             }
@@ -453,7 +453,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Values_Enumeration_Reset(int count)
         {
-            IEnumerator enumerator = NonGenericIDictionaryFactory(count).Values.GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).Values.GetEnumerator();
             if (IDictionary_NonGeneric_Keys_Values_Enumeration_ResetImplemented)
                 enumerator.Reset();
             else
@@ -470,7 +470,7 @@ namespace Collections.Pooled.Tests
         {
             if (IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 Assert.Throws<NotSupportedException>(() => dictionary.Add(CreateTKey(0), CreateTValue(0)));
             }
         }
@@ -479,7 +479,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Add_NullKey_NullValue(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object missingKey = null;
             object value = null;
             if (NullAllowed && !IsReadOnly)
@@ -498,7 +498,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Add_NullKey_NonNullValue(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             object missingKey = null;
             object value = CreateTValue(1456);
             if (NullAllowed && !IsReadOnly)
@@ -519,7 +519,7 @@ namespace Collections.Pooled.Tests
         {
             if (!IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 object value = null;
                 dictionary.Add(missingKey, value);
@@ -534,7 +534,7 @@ namespace Collections.Pooled.Tests
         {
             if (!IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 object value = CreateTValue(1342);
                 dictionary.Add(missingKey, value);
@@ -549,7 +549,7 @@ namespace Collections.Pooled.Tests
         {
             if (!IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 dictionary.Add(missingKey, CreateTValue(34251));
                 Assert.Throws<ArgumentException>(() => dictionary.Add(missingKey, CreateTValue(134)));
@@ -564,7 +564,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Remove_NullKey(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             if (!NullAllowed)
             {
                 Assert.Throws<ArgumentNullException>(() => dictionary.Remove(null));
@@ -586,7 +586,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Clear(int count)
         {
-            IDictionary collection = NonGenericIDictionaryFactory(count);
+            var collection = NonGenericIDictionaryFactory(count);
             if (IsReadOnly)
             {
                 Assert.Throws<NotSupportedException>(() => collection.Clear());
@@ -619,7 +619,7 @@ namespace Collections.Pooled.Tests
         {
             if (!IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 Assert.False(dictionary.Contains(missingKey));
             }
@@ -631,7 +631,7 @@ namespace Collections.Pooled.Tests
         {
             if (!IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = GetNewKey(dictionary);
                 dictionary.Add(missingKey, CreateTValue(34251));
                 Assert.True(dictionary.Contains(missingKey));
@@ -642,7 +642,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_Contains_NullKeyNotContainedInDictionary(int count)
         {
-            IDictionary dictionary = NonGenericIDictionaryFactory(count);
+            var dictionary = NonGenericIDictionaryFactory(count);
             if (NullAllowed)
             {
                 // returns false
@@ -664,7 +664,7 @@ namespace Collections.Pooled.Tests
         {
             if (NullAllowed && !IsReadOnly)
             {
-                IDictionary dictionary = NonGenericIDictionaryFactory(count);
+                var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = null;
                 if (!dictionary.Contains(missingKey))
                     dictionary.Add(missingKey, CreateTValue(5341));
@@ -680,7 +680,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_IDictionaryEnumerator_Current_FromStartToFinish(int count)
         {
-            IDictionaryEnumerator enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             for (int i = 0; i < 2; i++)
             {
                 int counter = 0;
@@ -689,7 +689,7 @@ namespace Collections.Pooled.Tests
                     object current = enumerator.Current;
                     object key = enumerator.Key;
                     object value = enumerator.Value;
-                    DictionaryEntry entry = enumerator.Entry;
+                    var entry = enumerator.Entry;
                     Assert.Equal(current, entry);
                     Assert.Equal(key, entry.Key);
                     Assert.Equal(value, entry.Value);
@@ -708,7 +708,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_IDictionaryEnumerator_Reset_BeforeIteration_Support(int count)
         {
-            IDictionaryEnumerator enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             if (ResetImplemented)
                 enumerator.Reset();
             else
@@ -719,7 +719,7 @@ namespace Collections.Pooled.Tests
         [MemberData(nameof(ValidCollectionSizes))]
         public void IDictionary_NonGeneric_IDictionaryEnumerator_Current_ReturnsSameValueOnRepeatedCalls(int count)
         {
-            IDictionaryEnumerator enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             while (enumerator.MoveNext())
             {
                 object current = enumerator.Current;
@@ -734,7 +734,7 @@ namespace Collections.Pooled.Tests
         public virtual void IDictionary_NonGeneric_IDictionaryEnumerator_Current_BeforeFirstMoveNext_UndefinedBehavior(int count)
         {
             object current, key, value, entry;
-            IDictionaryEnumerator enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             if (Enumerator_Current_UndefinedOperation_Throws)
             {
                 Assert.Throws<InvalidOperationException>(() => enumerator.Current);
@@ -756,7 +756,7 @@ namespace Collections.Pooled.Tests
         public virtual void IDictionary_NonGeneric_IDictionaryEnumerator_Current_AfterEndOfEnumerable_UndefinedBehavior(int count)
         {
             object current, key, value, entry;
-            IDictionaryEnumerator enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
+            var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             while (enumerator.MoveNext()) ;
             if (Enumerator_Current_UndefinedOperation_Throws)
             {
@@ -781,8 +781,8 @@ namespace Collections.Pooled.Tests
             Assert.All(GetModifyEnumerables(ModifyEnumeratorThrows), ModifyEnumerable =>
             {
                 object current, key, value, entry;
-                IDictionary enumerable = NonGenericIDictionaryFactory(count);
-                IDictionaryEnumerator enumerator = enumerable.GetEnumerator();
+                var enumerable = NonGenericIDictionaryFactory(count);
+                var enumerator = enumerable.GetEnumerator();
                 if (ModifyEnumerable(enumerable))
                 {
                     if (Enumerator_Current_UndefinedOperation_Throws)

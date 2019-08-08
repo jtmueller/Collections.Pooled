@@ -59,6 +59,7 @@ namespace Collections.Pooled.Tests.PooledList
                 }
             }
 
+#if NETCOREAPP3_0
             public void BasicInsert(T[] items, T item, Index index, int repeat)
             {
                 using var list = new PooledList<T>(items);
@@ -89,16 +90,15 @@ namespace Collections.Pooled.Tests.PooledList
                     Assert.Equal(list[i], items[i - repeat]); //"Expect to be the same."
                 }
             }
+#endif
 
             public void InsertValidations(T[] items)
             {
-                using (var list = new PooledList<T>(items))
+                using var list = new PooledList<T>(items);
+                int[] bad = new int[] { items.Length + 1, items.Length + 2, Int32.MaxValue, -1, -2, Int32.MinValue };
+                for (int i = 0; i < bad.Length; i++)
                 {
-                    int[] bad = new int[] { items.Length + 1, items.Length + 2, Int32.MaxValue, -1, -2, Int32.MinValue };
-                    for (int i = 0; i < bad.Length; i++)
-                    {
-                        Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(bad[i], items[0])); //"ArgumentOutOfRangeException expected."
-                    }
+                    Assert.Throws<ArgumentOutOfRangeException>(() => list.Insert(bad[i], items[0])); //"ArgumentOutOfRangeException expected."
                 }
             }
 
@@ -165,6 +165,7 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
+#if NETCOREAPP3_0
             public void InsertRangeIEnumerable(T[] itemsX, T[] itemsY, Index index, int repeat, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
                 var list = new PooledList<T>(constructIEnumerable(itemsX));
@@ -224,6 +225,7 @@ namespace Collections.Pooled.Tests.PooledList
 
                 list.Dispose();
             }
+#endif
 
             public void InsertRangeValidations(T[] items, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
@@ -253,6 +255,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             #region InsertSpan
 
+#if NETCOREAPP3_0
             public void InsertSpan(ReadOnlySpan<T> itemsX, ReadOnlySpan<T> itemsY, Index index, int repeat)
             {
                 var list = new PooledList<T>(itemsX);
@@ -313,8 +316,9 @@ namespace Collections.Pooled.Tests.PooledList
 
                 list.Dispose();
             }
+#endif
 
-            #endregion
+#endregion
 
             #region GetRange
 
@@ -324,8 +328,10 @@ namespace Collections.Pooled.Tests.PooledList
 
                 verifyRange(list.GetRange(index, count));
                 verifyRange(list.GetRange(index));
+#if NETCOREAPP3_0
                 verifyRange(list.GetRange((Index)index));
                 verifyRange(list.GetRange(index..(index + count)));
+#endif
 
                 void verifyRange(Span<T> range)
                 {
@@ -432,9 +438,9 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
-            #endregion
+#endregion
 
-            #region Exists(Pred<T>)
+#region Exists(Pred<T>)
 
             public void Exists_Verify(T[] items)
             {
@@ -477,7 +483,7 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Add(default);
                 Assert.True(list.Exists((T item) => { return item == null ? default(T) == null : item.Equals(default(T)); }),
                         "Err_541848ajodi Verify with default(T) FAILED\n");
-                list.RemoveAt(^1);
+                list.RemoveAt(list.Count - 1);
             }
 
             private void Exists_VerifyDuplicates(T[] items)
@@ -515,9 +521,9 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
-            #endregion
+#endregion
 
-            #region Contains
+#region Contains
 
             public void BasicContains(T[] items)
             {
@@ -598,9 +604,9 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
-            #endregion
+#endregion
 
-            #region Clear
+#region Clear
 
             public void ClearEmptyList()
             {
@@ -637,9 +643,9 @@ namespace Collections.Pooled.Tests.PooledList
                 }
             }
 
-            #endregion
+#endregion
 
-            #region TrueForAll
+#region TrueForAll
 
             public void TrueForAll_VerifyVanilla(T[] items)
             {
@@ -677,9 +683,9 @@ namespace Collections.Pooled.Tests.PooledList
                 Assert.Throws<ArgumentNullException>(() => list.TrueForAll(null)); //"Err_858ahia Expected null match to throw ArgumentNullException"
             }
 
-            #endregion
+#endregion
 
-            #region ToArray
+#region ToArray
 
             public void BasicToArray(T[] items)
             {
@@ -708,7 +714,7 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
-            #endregion
+#endregion
         }
 
         [Fact]
@@ -730,9 +736,11 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.BasicInsert(intArr1, 50, 0, 7);
             IntDriver.BasicInsert(intArr1, 50, 1, 8);
             IntDriver.BasicInsert(intArr1, 100, 50, 50);
+#if NETCOREAPP3_0
             IntDriver.BasicInsert(intArr1, 50, ^1, 7);
             IntDriver.BasicInsert(intArr1, 50, ^5, 8);
             IntDriver.BasicInsert(intArr1, 100, ^50, 50);
+#endif
 
             var StringDriver = new Driver<string>();
             string[] stringArr1 = new string[100];
@@ -748,9 +756,11 @@ namespace Collections.Pooled.Tests.PooledList
             StringDriver.BasicInsert(stringArr1, "strobia", 1, 5);
             StringDriver.BasicInsert(stringArr1, "strobia", 50, 51);
             StringDriver.BasicInsert(stringArr1, "strobia", 0, 100);
+#if NETCOREAPP3_0
             StringDriver.BasicInsert(stringArr1, "strobia", ^1, 5);
             StringDriver.BasicInsert(stringArr1, "strobia", ^50, 51);
             StringDriver.BasicInsert(stringArr1, "strobia", ^5, 100);
+#endif
             StringDriver.BasicInsert(new string[] { null, null, null, "strobia", null }, null, 2, 3);
             StringDriver.BasicInsert(new string[] { null, null, null, null, null }, "strobia", 0, 5);
             StringDriver.BasicInsert(new string[] { null, null, null, null, null }, "strobia", 5, 1);
@@ -772,6 +782,7 @@ namespace Collections.Pooled.Tests.PooledList
             StringDriver.InsertValidations(stringArr1);
         }
 
+#if NETCOREAPP3_0
         [Fact]
         public static void InsertSpanTests()
         {
@@ -875,6 +886,7 @@ namespace Collections.Pooled.Tests.PooledList
                 StringDriver.InsertRangeIEnumerable(new string[] { null, null, null, null }, new string[] { null, null, null, null }, 4, 50, collectionGenerator);
             }
         }
+#endif
 
         [Fact]
         public static void InsertRangeTests_Negative()

@@ -75,7 +75,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Gets or sets the element at the given index.
         /// </summary>

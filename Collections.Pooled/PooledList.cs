@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -273,36 +274,30 @@ namespace Collections.Pooled
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
 
-            switch (collection)
+            if (collection == null)
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+
+            if (collection is ICollection<T> c)
             {
-                case null:
-                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+                int count = c.Count;
+                if (count == 0)
+                {
                     _items = Array.Empty<T>();
-                    break;
-
-                case ICollection<T> c:
-                    int count = c.Count;
-                    if (count == 0)
-                    {
-                        _items = Array.Empty<T>();
-                    }
-                    else
-                    {
-                        _items = _pool.Rent(count);
-                        c.CopyTo(_items, 0);
-                        _size = count;
-                    }
-                    break;
-
-                default:
-                    _size = 0;
-                    _items = Array.Empty<T>();
-                    using (var en = collection.GetEnumerator())
-                    {
-                        while (en.MoveNext())
-                            Add(en.Current);
-                    }
-                    break;
+                }
+                else
+                {
+                    _items = _pool.Rent(count);
+                    c.CopyTo(_items, 0);
+                    _size = count;
+                }
+            }
+            else
+            {
+                _size = 0;
+                _items = Array.Empty<T>();
+                using var en = collection!.GetEnumerator();
+                while (en.MoveNext())
+                    Add(en.Current);
             }
         }
 
@@ -425,7 +420,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Gets or sets the element at the given index.
         /// </summary>
@@ -462,13 +457,11 @@ namespace Collections.Pooled
         public Span<T> this[Range range] => Span[range];
 #endif
 
-        private static bool IsCompatibleObject(object value)
+        private static bool IsCompatibleObject(object? value)
         {
             // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-#pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
-            return (value is T) || (value is null && default(T) is null);
-#pragma warning restore CS8653 // A default expression introduces a null value for a type parameter.
+            return (value is T) || (value == null && default(T)! == null);
         }
 
         object? IList.this[int index]
@@ -498,11 +491,12 @@ namespace Collections.Pooled
         public void Add(T item)
         {
             _version++;
+            var array = _items;
             int size = _size;
-            if ((uint)size < (uint)_items.Length)
+            if ((uint)size < (uint)array.Length)
             {
                 _size = size + 1;
-                _items[size] = item;
+                array[size] = item;
             }
             else
             {
@@ -520,13 +514,13 @@ namespace Collections.Pooled
             _items[size] = item;
         }
 
-        int IList.Add(object item)
+        int IList.Add(object? item)
         {
             ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(item, ExceptionArgument.item);
 
             try
             {
-                Add((T)item);
+                Add((T)item!);
             }
             catch (InvalidCastException)
             {
@@ -632,7 +626,7 @@ namespace Collections.Pooled
         public int BinarySearch(T item, IComparer<T> comparer)
             => BinarySearch(0, Count, item, comparer);
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Searches the list for a given element using a binary search
         /// algorithm. If the item implements <see cref="IComparable{T}"/>
@@ -688,11 +682,11 @@ namespace Collections.Pooled
             return _size != 0 && IndexOf(item) != -1;
         }
 
-        bool IList.Contains(object item)
+        bool IList.Contains(object? item)
         {
             if (IsCompatibleObject(item))
             {
-                return Contains((T)item);
+                return Contains((T)item!);
             }
             return false;
         }
@@ -746,7 +740,7 @@ namespace Collections.Pooled
             try
             {
                 // Array.Copy will check for NULL.
-                Array.Copy(_items, 0, array, arrayIndex, _size);
+                Array.Copy(_items, 0, array!, arrayIndex, _size);
             }
             catch (ArrayTypeMismatchException)
             {
@@ -782,12 +776,36 @@ namespace Collections.Pooled
 
         /// <summary>
         /// The first item for which the given <paramref name="match"/> function returns true
+        /// will be returned, or the default value of <typeparamref name="T"/> if no match is found.
+        /// </summary>
+        /// <param name="match"></param>
+        /// <returns></returns>
+        [return: MaybeNull]
+        public T Find(Func<T, bool> match)
+        {
+            if (match == null)
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+            }
+
+            for (int i = 0; i < _size; i++)
+            {
+                if (match!(_items[i]))
+                {
+                    return _items[i];
+                }
+            }
+            return default!;
+        }
+
+        /// <summary>
+        /// The first item for which the given <paramref name="match"/> function returns true
         /// will be returned in the <paramref name="result"/> output parameter. The method will
         /// return true if a match was found, otherwise false.
         /// </summary>
         /// <param name="match"></param>
         /// <param name="result"></param>
-        public bool TryFind(Func<T, bool> match, out T result)
+        public bool TryFind(Func<T, bool> match, [MaybeNullWhen(false)] out T result)
         {
             if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
@@ -843,7 +861,7 @@ namespace Collections.Pooled
         public int FindIndex(int startIndex, Func<T, bool> match)
             => FindIndex(startIndex, _size - startIndex, match);
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
         /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
@@ -888,7 +906,7 @@ namespace Collections.Pooled
             if (count < 0 || startIndex > _size - count)
                 ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
-            if (match is null)
+            if (match == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int endIndex = startIndex + count;
@@ -902,12 +920,35 @@ namespace Collections.Pooled
 
         /// <summary>
         /// The last item for which the given <paramref name="match"/> function returns true
+        /// will be returned. If no match is found, the default value for <typeparamref name="T"/> is returned.
+        /// </summary>
+        /// <param name="match"></param>
+        [return: MaybeNull]
+        public T FindLast(Predicate<T> match)
+        {
+            if (match == null)
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
+            }
+
+            for (int i = _size - 1; i >= 0; i--)
+            {
+                if (match!(_items[i]))
+                {
+                    return _items[i];
+                }
+            }
+            return default!;
+        }
+
+        /// <summary>
+        /// The last item for which the given <paramref name="match"/> function returns true
         /// will be returned in the <paramref name="result"/> output parameter. The method will
         /// return true if a match was found, otherwise false.
         /// </summary>
         /// <param name="match"></param>
         /// <param name="result"></param>
-        public bool TryFindLast(Func<T, bool> match, out T result)
+        public bool TryFindLast(Func<T, bool> match, [MaybeNullWhen(false)] out T result)
         {
             if (match is null)
             {
@@ -941,7 +982,7 @@ namespace Collections.Pooled
         public int FindLastIndex(int startIndex, Func<T, bool> match)
             => FindLastIndex(startIndex, startIndex + 1, match);
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
         /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
@@ -974,7 +1015,7 @@ namespace Collections.Pooled
             if (end < start || end > _size)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
 
-            if (match is null)
+            if (match == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             for (int i = end; i >= start; i--)
@@ -1039,7 +1080,7 @@ namespace Collections.Pooled
         /// <param name="action"></param>
         public void ForEach(Action<T> action)
         {
-            if (action is null)
+            if (action == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
             }
@@ -1140,7 +1181,7 @@ namespace Collections.Pooled
             return Span.Slice(index);
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Returns a <see cref="Span{T}"/> allowing read/write access to a subset of the entire list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
@@ -1167,11 +1208,11 @@ namespace Collections.Pooled
         public int IndexOf(T item)
             => Array.IndexOf(_items, item, 0, _size);
 
-        int IList.IndexOf(object item)
+        int IList.IndexOf(object? item)
         {
             if (IsCompatibleObject(item))
             {
-                return IndexOf((T)item);
+                return IndexOf((T)item!);
             }
             return -1;
         }
@@ -1204,7 +1245,7 @@ namespace Collections.Pooled
             return Array.IndexOf(_items, item, index, count);
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Returns the index of the first occurrence of a given value in a range of
         /// this list. The list is searched forwards, starting at index
@@ -1256,13 +1297,13 @@ namespace Collections.Pooled
             _version++;
         }
 
-        void IList.Insert(int index, object item)
+        void IList.Insert(int index, object? item)
         {
             ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(item, ExceptionArgument.item);
 
             try
             {
-                Insert(index, (T)item);
+                Insert(index, (T)item!);
             }
             catch (InvalidCastException)
             {
@@ -1278,52 +1319,49 @@ namespace Collections.Pooled
         /// </summary>
         public void InsertRange(int index, IEnumerable<T> collection)
         {
+            if (collection == null)
+            {
+                ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
+            }
+
             if ((uint)index > (uint)_size)
             {
                 ThrowHelper.ThrowArgumentOutOfRange_IndexException();
             }
 
-            switch (collection)
+            if (collection is ICollection<T> c)
             {
-                case null:
-                    ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-                    break;
-
-                case ICollection<T> c:
-                    int count = c.Count;
-                    if (count > 0)
+                int count = c.Count;
+                if (count > 0)
+                {
+                    EnsureCapacity(_size + count);
+                    if (index < _size)
                     {
-                        EnsureCapacity(_size + count);
-                        if (index < _size)
-                        {
-                            Array.Copy(_items, index, _items, index + count, _size - index);
-                        }
-
-                        // If we're inserting a List into itself, we want to be able to deal with that.
-                        if (this == c)
-                        {
-                            // Copy first part of _items to insert location
-                            Array.Copy(_items, 0, _items, index, index);
-                            // Copy last part of _items back to inserted location
-                            Array.Copy(_items, index + count, _items, index * 2, _size - index);
-                        }
-                        else
-                        {
-                            c.CopyTo(_items, index);
-                        }
-                        _size += count;
+                        Array.Copy(_items, index, _items, index + count, _size - index);
                     }
-                    break;
 
-                default:
-                    using (var en = collection.GetEnumerator())
+                    // If we're inserting a List into itself, we want to be able to deal with that.
+                    if (this == c)
                     {
-                        while (en.MoveNext())
-                        {
-                            Insert(index++, en.Current);
-                        }
+                        // Copy first part of _items to insert location
+                        Array.Copy(_items, 0, _items, index, index);
+                        // Copy last part of _items back to inserted location
+                        Array.Copy(_items, index + count, _items, index * 2, _size - index);
                     }
-                    break;
+                    else
+                    {
+                        c.CopyTo(_items, index);
+                    }
+                    _size += count;
+                }
+            }
+            else
+            {
+                using var en = collection!.GetEnumerator();
+                while (en.MoveNext())
+                {
+                    Insert(index++, en.Current);
+                }
             }
 
             _version++;
@@ -1354,7 +1392,7 @@ namespace Collections.Pooled
             InsertRange(index, array.AsSpan());
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Inserts the elements of the given collection at a given index. If
         /// required, the capacity of the list is increased to twice the previous
@@ -1458,7 +1496,7 @@ namespace Collections.Pooled
             return LastIndexOf(item, index, index + 1);
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Returns the index of the last occurrence of a given value in a range of
         /// this list. The list is searched backwards, starting at index
@@ -1550,11 +1588,11 @@ namespace Collections.Pooled
             return false;
         }
 
-        void IList.Remove(object item)
+        void IList.Remove(object? item)
         {
             if (IsCompatibleObject(item))
             {
-                Remove((T)item);
+                Remove((T)item!);
             }
         }
 
@@ -1621,7 +1659,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Removes the element at the given index. The size of the list is
         /// decreased by one.
@@ -1707,7 +1745,7 @@ namespace Collections.Pooled
             _version++;
         }
 
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
         /// <summary>
         /// Reverses the elements in a range of this list. Following a call to this
         /// method, an element in the range given by index and count
@@ -1891,7 +1929,7 @@ namespace Collections.Pooled
 
         private static bool ShouldClear(ClearMode mode)
         {
-#if NETSTANDARD2_1
+#if NETSTANDARD2_1 || NETCOREAPP3_0
             return mode == ClearMode.Always
                 || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
 #else
@@ -1909,7 +1947,7 @@ namespace Collections.Pooled
             _version++;
         }
 
-        void IDeserializationCallback.OnDeserialization(object sender)
+        void IDeserializationCallback.OnDeserialization(object? sender)
         {
             // We can't serialize array pools, so deserialized PooledLists will
             // have to use the shared pool, even if they were using a custom pool

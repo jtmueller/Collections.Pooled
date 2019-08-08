@@ -16,7 +16,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             Assert.Equal(list[list.Count - 1], list[^1]);
 
-            var firstHalf = list[..length / 2];
+            var firstHalf = list[..(length / 2)];
             var secondHalf = list[firstHalf.Length..];
             var wholeThing = list[..];
 
