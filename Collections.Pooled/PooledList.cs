@@ -33,7 +33,6 @@ namespace Collections.Pooled
         // internal constant copied from Array.MaxArrayLength
         private const int s_maxArrayLength = 0x7FEFFFFF;
         private const int s_defaultCapacity = 4;
-        private static readonly T[] s_emptyArray = Array.Empty<T>();
 
         [NonSerialized]
         private ArrayPool<T> _pool;
@@ -81,7 +80,7 @@ namespace Collections.Pooled
         /// </summary>
         public PooledList(ClearMode clearMode, ArrayPool<T> customPool)
         {
-            _items = s_emptyArray;
+            _items = Array.Empty<T>();
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
         }
@@ -154,7 +153,7 @@ namespace Collections.Pooled
 
             if (capacity == 0)
             {
-                _items = s_emptyArray;
+                _items = Array.Empty<T>();
             }
             else
             {
@@ -233,7 +232,7 @@ namespace Collections.Pooled
             int count = span.Length;
             if (count == 0)
             {
-                _items = s_emptyArray;
+                _items = Array.Empty<T>();
             }
             else
             {
@@ -278,14 +277,14 @@ namespace Collections.Pooled
             {
                 case null:
                     ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
-                    _items = s_emptyArray;
+                    _items = Array.Empty<T>();
                     break;
 
                 case ICollection<T> c:
                     int count = c.Count;
                     if (count == 0)
                     {
-                        _items = s_emptyArray;
+                        _items = Array.Empty<T>();
                     }
                     else
                     {
@@ -297,7 +296,7 @@ namespace Collections.Pooled
 
                 default:
                     _size = 0;
-                    _items = s_emptyArray;
+                    _items = Array.Empty<T>();
                     using (var en = collection.GetEnumerator())
                     {
                         while (en.MoveNext())
@@ -310,18 +309,18 @@ namespace Collections.Pooled
         #endregion
 
         /// <summary>
-        /// Gets a <see cref="System.Span{T}"/> for the items currently in the collection.
+        /// Gets a <see cref="Span{T}"/> for the items currently in the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> Span => _items.AsSpan(0, _size);
 
         /// <summary>
-        /// Gets a <see cref="System.ReadOnlySpan{T}"/> for the items currently in the collection.
+        /// Gets a <see cref="ReadOnlySpan{T}"/> for the items currently in the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="ReadOnlySpan{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -454,9 +453,9 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Gets a <see cref="System.Span{T}"/> for the given range.
+        /// Gets a <see cref="Span{T}"/> for the given range.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -566,11 +565,11 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Advances the <see cref="Count"/> by the number of items specified,
-        /// increasing the capacity if required, then returns a <see cref="System.Span{T}"/> representing
+        /// increasing the capacity if required, then returns a <see cref="Span{T}"/> representing
         /// the set of items to be added, allowing direct writes to that section
         /// of the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -650,7 +649,7 @@ namespace Collections.Pooled
         public int BinarySearch(Range range, T item, IComparer<T>? comparer = null)
         {
             var (offset, length) = range.GetOffsetAndLength(_size);
-            return BinarySearch(offset, length, item, comparer);
+            return Array.BinarySearch(_items, offset, length, item, comparer);
         }
 #endif
 
@@ -1100,9 +1099,9 @@ namespace Collections.Pooled
             => new Enumerator(this);
 
         /// <summary>
-        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// Returns a <see cref="Span{T}"/> allowing read/write access to a subset of the entire list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -1127,9 +1126,9 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Gets a <see cref="System.Span{T}"/> starting from the given index and going to the end of the list.
+        /// Gets a <see cref="Span{T}"/> starting from the given index and going to the end of the list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -1143,18 +1142,18 @@ namespace Collections.Pooled
 
 #if NETSTANDARD2_1
         /// <summary>
-        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// Returns a <see cref="Span{T}"/> allowing read/write access to a subset of the entire list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
         public Span<T> GetRange(Range range) => Span[range];
 
         /// <summary>
-        /// Returns a <see cref="System.Span{T}"/> allowing read/write access to a subset of the entire list.
+        /// Returns a <see cref="Span{T}"/> allowing read/write access to a subset of the entire list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -1222,7 +1221,7 @@ namespace Collections.Pooled
         public int IndexOf(T item, Range range)
         {
             var (start, count) = range.GetOffsetAndLength(_size);
-            return IndexOf(item, start, count);
+            return Array.IndexOf(_items, item, start, count);
         }
 
         /// <summary>
@@ -1385,10 +1384,10 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Inserts the given number of items at the given index, increasing the
-        /// capacity if required, then returns a <see cref="System.Span{T}"/> representing the set of items
+        /// capacity if required, then returns a <see cref="Span{T}"/> representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -1398,10 +1397,10 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Inserts the given number of items at the given index, increasing the
-        /// capacity if required, then returns a <see cref="System.Span{T}"/> representing the set of items
+        /// capacity if required, then returns a <see cref="Span{T}"/> representing the set of items
         /// to be inserted, allowing direct writes to that section of the collection.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
-        /// <see cref="System.Span{T}"/>. Actions that change the size of the list will not affect
+        /// <see cref="Span{T}"/>. Actions that change the size of the list will not affect
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
@@ -1824,7 +1823,7 @@ namespace Collections.Pooled
         {
             if (_size == 0)
             {
-                return s_emptyArray;
+                return Array.Empty<T>();
             }
 
             return Span.ToArray();
@@ -1887,7 +1886,7 @@ namespace Collections.Pooled
                 // oh well, the array pool didn't like our array
             }
 
-            _items = s_emptyArray;
+            _items = Array.Empty<T>();
         }
 
         private static bool ShouldClear(ClearMode mode)
