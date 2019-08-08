@@ -18,9 +18,9 @@ stick with Collections.Pooled 1.x until those projects can be upgraded to .NET C
 An extensive set of unit tests and benchmarks have been ported from [corefx](https://github.com/dotnet/corefx).
 
 ```
-Total tests: 27986. Passed: 27986. Failed: 0. Skipped: 0.
+Total tests: 28058. Passed: 28058. Failed: 0. Skipped: 0.
 Test Run Successful.
-Test execution time: 9.7915 Seconds
+Test execution time: 10.8860 Seconds
 ```
 
 ## Installation
