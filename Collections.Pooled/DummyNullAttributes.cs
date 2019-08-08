@@ -7,17 +7,22 @@ namespace Collections.Pooled
     // reference types are not available outside of NETCOREAPP3_0
     // so these dummies prevent compiler errors.
 
-    internal class DoesNotReturnAttribute : Attribute
+    internal sealed class DoesNotReturnAttribute : Attribute
     {
     }
 
-    internal class MaybeNullAttribute : Attribute
+    internal sealed class MaybeNullAttribute : Attribute
     {
     }
-    
-    internal class MaybeNullWhen : Attribute
+
+    internal sealed class MaybeNullWhen : Attribute
     {
-        public MaybeNullWhen(bool _) {}
+        public MaybeNullWhen(bool returnValue)
+        {
+            ReturnValue = returnValue;
+        }
+
+        public bool ReturnValue { get; private set; }
     }
 #endif
 }

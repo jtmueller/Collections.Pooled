@@ -592,7 +592,7 @@ namespace Collections.Pooled
         /// a value that has more complete data than the value you currently have, although their
         /// comparer functions indicate they are equal.
         /// </remarks>
-        public bool TryGetValue(T equalValue, out T actualValue)
+        public bool TryGetValue(T equalValue, [MaybeNullWhen(false)] out T actualValue)
         {
             if (_buckets != null)
             {
@@ -618,7 +618,7 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to add</param>
         public void UnionWith(IEnumerable<T> other)
         {
-            if (other is null)
+            if (other == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }

@@ -460,7 +460,7 @@ namespace Collections.Pooled
             return array[size];
         }
 
-        public bool TryPeek(out T result)
+        public bool TryPeek([MaybeNullWhen(false)] out T result)
         {
             int size = _size - 1;
             T[] array = _array;
@@ -501,7 +501,7 @@ namespace Collections.Pooled
             return item;
         }
 
-        public bool TryPop(out T result)
+        public bool TryPop([MaybeNullWhen(false)] out T result)
         {
             int size = _size - 1;
             T[] array = _array;

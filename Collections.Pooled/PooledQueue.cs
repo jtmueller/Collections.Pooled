@@ -425,7 +425,7 @@ namespace Collections.Pooled
             return removed;
         }
 
-        public bool TryDequeue(out T result)
+        public bool TryDequeue([MaybeNullWhen(false)] out T result)
         {
             int head = _head;
             T[] array = _array;
@@ -462,7 +462,7 @@ namespace Collections.Pooled
             return _array[_head];
         }
 
-        public bool TryPeek(out T result)
+        public bool TryPeek([MaybeNullWhen(false)] out T result)
         {
             if (_size == 0)
             {

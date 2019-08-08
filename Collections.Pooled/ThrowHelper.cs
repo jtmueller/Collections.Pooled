@@ -47,76 +47,44 @@ namespace Collections.Pooled
     internal static class ThrowHelper
     {
         [DoesNotReturn]
-        internal static void ThrowArrayTypeMismatchException()
-        {
-            throw new ArrayTypeMismatchException();
-        }
+        internal static void ThrowArrayTypeMismatchException() => throw new ArrayTypeMismatchException();
 
         [DoesNotReturn]
-        internal static void ThrowIndexOutOfRangeException()
-        {
-            throw new IndexOutOfRangeException();
-        }
+        internal static void ThrowIndexOutOfRangeException() => throw new IndexOutOfRangeException();
 
         [DoesNotReturn]
-        internal static void ThrowArgumentOutOfRangeException()
-        {
-            throw new ArgumentOutOfRangeException();
-        }
+        internal static void ThrowArgumentOutOfRangeException() => throw new ArgumentOutOfRangeException();
 
         [DoesNotReturn]
-        internal static void ThrowArgumentException_DestinationTooShort()
-        {
-            throw new ArgumentException("Destination too short.");
-        }
+        internal static void ThrowArgumentException_DestinationTooShort() => throw new ArgumentException("Destination too short.");
 
         [DoesNotReturn]
         internal static void ThrowArgumentException_OverlapAlignmentMismatch()
-        {
-            throw new ArgumentException("Overlap alignment mismatch.");
-        }
+            => throw new ArgumentException("Overlap alignment mismatch.");
 
         [DoesNotReturn]
-        internal static void ThrowArgumentOutOfRange_IndexException()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.index,
-                                                    ExceptionResource.ArgumentOutOfRange_Index);
-        }
+        internal static void ThrowArgumentOutOfRange_IndexException() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_Index);
 
         [DoesNotReturn]
-        internal static void ThrowIndexArgumentOutOfRange_NeedNonNegNumException()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.index,
-                                                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-        }
+        internal static void ThrowIndexArgumentOutOfRange_NeedNonNegNumException() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
         [DoesNotReturn]
-        internal static void ThrowValueArgumentOutOfRange_NeedNonNegNumException()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.value,
-                                                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-        }
+        internal static void ThrowValueArgumentOutOfRange_NeedNonNegNumException() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.value, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
         [DoesNotReturn]
-        internal static void ThrowLengthArgumentOutOfRange_ArgumentOutOfRange_NeedNonNegNum()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.length,
-                                                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
-        }
+        internal static void ThrowLengthArgumentOutOfRange_ArgumentOutOfRange_NeedNonNegNum() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.length, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
         [DoesNotReturn]
-        internal static void ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.startIndex,
-                                                    ExceptionResource.ArgumentOutOfRange_Index);
-        }
+        internal static void ThrowStartIndexArgumentOutOfRange_ArgumentOutOfRange_Index() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.startIndex, ExceptionResource.ArgumentOutOfRange_Index);
 
         [DoesNotReturn]
-        internal static void ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count()
-        {
-            throw GetArgumentOutOfRangeException(ExceptionArgument.count,
-                                                    ExceptionResource.ArgumentOutOfRange_Count);
-        }
+        internal static void ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count() 
+            => throw GetArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_Count);
 
         [DoesNotReturn]
         internal static void ThrowWrongKeyTypeArgumentException<T>(T key, Type targetType)
@@ -134,9 +102,7 @@ namespace Collections.Pooled
 
         [DoesNotReturn]
         private static ArgumentException GetAddingDuplicateWithKeyArgumentException(object? key)
-        {
-            return new ArgumentException($"Error adding duplicate with key: {key}.");
-        }
+            => new ArgumentException($"Error adding duplicate with key: {key}.");
 
         [DoesNotReturn]
         internal static void ThrowAddingDuplicateWithKeyArgumentException<T>(T key)
@@ -153,230 +119,147 @@ namespace Collections.Pooled
         }
 
         [DoesNotReturn]
-        internal static void ThrowArgumentException(ExceptionResource resource)
-        {
-            throw GetArgumentException(resource);
-        }
+        internal static void ThrowArgumentException(ExceptionResource resource) => throw GetArgumentException(resource);
 
         [DoesNotReturn]
-        internal static void ThrowArgumentException(ExceptionResource resource, ExceptionArgument argument)
-        {
-            throw GetArgumentException(resource, argument);
-        }
+        internal static void ThrowArgumentException(ExceptionResource resource, ExceptionArgument argument) 
+            => throw GetArgumentException(resource, argument);
 
         [DoesNotReturn]
-        private static ArgumentNullException GetArgumentNullException(ExceptionArgument argument)
-        {
-            return new ArgumentNullException(GetArgumentName(argument));
-        }
+        private static ArgumentNullException GetArgumentNullException(ExceptionArgument argument) 
+            => new ArgumentNullException(GetArgumentName(argument));
 
         [DoesNotReturn]
-        internal static void ThrowArgumentNullException(ExceptionArgument argument)
-        {
-            throw GetArgumentNullException(argument);
-        }
+        internal static void ThrowArgumentNullException(ExceptionArgument argument) 
+            => throw GetArgumentNullException(argument);
 
         [DoesNotReturn]
-        internal static void ThrowArgumentNullException(ExceptionResource resource)
-        {
-            throw new ArgumentNullException(GetResourceString(resource));
-        }
+        internal static void ThrowArgumentNullException(ExceptionResource resource) 
+            => throw new ArgumentNullException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowArgumentNullException(ExceptionArgument argument, ExceptionResource resource)
-        {
-            throw new ArgumentNullException(GetArgumentName(argument), GetResourceString(resource));
-        }
+        internal static void ThrowArgumentNullException(ExceptionArgument argument, ExceptionResource resource) 
+            => throw new ArgumentNullException(GetArgumentName(argument), GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument)
-        {
-            throw new ArgumentOutOfRangeException(GetArgumentName(argument));
-        }
+        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument) 
+            => throw new ArgumentOutOfRangeException(GetArgumentName(argument));
 
         [DoesNotReturn]
-        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument, ExceptionResource resource)
-        {
-            throw GetArgumentOutOfRangeException(argument, resource);
-        }
+        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument, ExceptionResource resource) 
+            => throw GetArgumentOutOfRangeException(argument, resource);
 
         [DoesNotReturn]
-        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument, int paramNumber, ExceptionResource resource)
-        {
-            throw GetArgumentOutOfRangeException(argument, paramNumber, resource);
-        }
+        internal static void ThrowArgumentOutOfRangeException(ExceptionArgument argument, int paramNumber, ExceptionResource resource) 
+            => throw GetArgumentOutOfRangeException(argument, paramNumber, resource);
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException(ExceptionResource resource)
-        {
-            throw GetInvalidOperationException(resource);
-        }
+        internal static void ThrowInvalidOperationException(ExceptionResource resource) => throw GetInvalidOperationException(resource);
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException(ExceptionResource resource, Exception e)
-        {
-            throw new InvalidOperationException(GetResourceString(resource), e);
-        }
+        internal static void ThrowInvalidOperationException(ExceptionResource resource, Exception e) 
+            => throw new InvalidOperationException(GetResourceString(resource), e);
 
         [DoesNotReturn]
-        internal static void ThrowSerializationException(ExceptionResource resource)
-        {
-            throw new SerializationException(GetResourceString(resource));
-        }
+        internal static void ThrowSerializationException(ExceptionResource resource) 
+            => throw new SerializationException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowSecurityException(ExceptionResource resource)
-        {
-            throw new System.Security.SecurityException(GetResourceString(resource));
-        }
+        internal static void ThrowSecurityException(ExceptionResource resource) 
+            => throw new System.Security.SecurityException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowRankException(ExceptionResource resource)
-        {
-            throw new RankException(GetResourceString(resource));
-        }
+        internal static void ThrowRankException(ExceptionResource resource) 
+            => throw new RankException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowNotSupportedException(ExceptionResource resource)
-        {
-            throw new NotSupportedException(GetResourceString(resource));
-        }
+        internal static void ThrowNotSupportedException(ExceptionResource resource) 
+            => throw new NotSupportedException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowUnauthorizedAccessException(ExceptionResource resource)
-        {
-            throw new UnauthorizedAccessException(GetResourceString(resource));
-        }
+        internal static void ThrowUnauthorizedAccessException(ExceptionResource resource) 
+            => throw new UnauthorizedAccessException(GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowObjectDisposedException(string objectName, ExceptionResource resource)
-        {
-            throw new ObjectDisposedException(objectName, GetResourceString(resource));
-        }
+        internal static void ThrowObjectDisposedException(string objectName, ExceptionResource resource) 
+            => throw new ObjectDisposedException(objectName, GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowObjectDisposedException(ExceptionResource resource)
-        {
-            throw new ObjectDisposedException(null, GetResourceString(resource));
-        }
+        internal static void ThrowObjectDisposedException(ExceptionResource resource) 
+            => throw new ObjectDisposedException(null, GetResourceString(resource));
 
         [DoesNotReturn]
-        internal static void ThrowNotSupportedException()
-        {
-            throw new NotSupportedException();
-        }
+        internal static void ThrowNotSupportedException() => throw new NotSupportedException();
 
         [DoesNotReturn]
-        internal static void ThrowAggregateException(List<Exception> exceptions)
-        {
-            throw new AggregateException(exceptions);
-        }
+        internal static void ThrowAggregateException(List<Exception> exceptions) 
+            => throw new AggregateException(exceptions);
 
         [DoesNotReturn]
-        internal static void ThrowOutOfMemoryException()
-        {
-            throw new OutOfMemoryException();
-        }
+        internal static void ThrowOutOfMemoryException() => throw new OutOfMemoryException();
 
         [DoesNotReturn]
-        internal static void ThrowArgumentException_Argument_InvalidArrayType()
-        {
-            throw new ArgumentException("Invalid array type.");
-        }
+        internal static void ThrowArgumentException_Argument_InvalidArrayType() 
+            => throw new ArgumentException("Invalid array type.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_InvalidOperation_EnumNotStarted()
-        {
-            throw new InvalidOperationException("Enumeration has not started.");
-        }
+        internal static void ThrowInvalidOperationException_InvalidOperation_EnumNotStarted() 
+            => throw new InvalidOperationException("Enumeration has not started.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_InvalidOperation_EnumEnded()
-        {
-            throw new InvalidOperationException("Enumeration has ended.");
-        }
+        internal static void ThrowInvalidOperationException_InvalidOperation_EnumEnded() 
+            => throw new InvalidOperationException("Enumeration has ended.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_EnumCurrent(int index)
-        {
-            throw GetInvalidOperationException_EnumCurrent(index);
-        }
+        internal static void ThrowInvalidOperationException_EnumCurrent(int index) 
+            => throw GetInvalidOperationException_EnumCurrent(index);
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion()
-        {
-            throw new InvalidOperationException("Collection was modified during enumeration.");
-        }
+        internal static void ThrowInvalidOperationException_InvalidOperation_EnumFailedVersion() 
+            => throw new InvalidOperationException("Collection was modified during enumeration.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen()
-        {
-            throw new InvalidOperationException("Invalid enumerator state: enumeration cannot proceed.");
-        }
+        internal static void ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen() 
+            => throw new InvalidOperationException("Invalid enumerator state: enumeration cannot proceed.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_InvalidOperation_NoValue()
-        {
-            throw new InvalidOperationException("No value provided.");
-        }
+        internal static void ThrowInvalidOperationException_InvalidOperation_NoValue() 
+            => throw new InvalidOperationException("No value provided.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_ConcurrentOperationsNotSupported()
-        {
-            throw new InvalidOperationException("Concurrent operations are not supported.");
-        }
+        internal static void ThrowInvalidOperationException_ConcurrentOperationsNotSupported() 
+            => throw new InvalidOperationException("Concurrent operations are not supported.");
 
         [DoesNotReturn]
-        internal static void ThrowInvalidOperationException_HandleIsNotInitialized()
-        {
-            throw new InvalidOperationException("Handle is not initialized.");
-        }
+        internal static void ThrowInvalidOperationException_HandleIsNotInitialized() 
+            => throw new InvalidOperationException("Handle is not initialized.");
 
         [DoesNotReturn]
-        internal static void ThrowFormatException_BadFormatSpecifier()
-        {
-            throw new FormatException("Bad format specifier.");
-        }
+        internal static void ThrowFormatException_BadFormatSpecifier() => throw new FormatException("Bad format specifier.");
 
-        private static ArgumentException GetArgumentException(ExceptionResource resource)
-        {
-            return new ArgumentException(GetResourceString(resource));
-        }
+        private static ArgumentException GetArgumentException(ExceptionResource resource) 
+            => new ArgumentException(GetResourceString(resource));
 
-        private static InvalidOperationException GetInvalidOperationException(ExceptionResource resource)
-        {
-            return new InvalidOperationException(GetResourceString(resource));
-        }
+        private static InvalidOperationException GetInvalidOperationException(ExceptionResource resource) 
+            => new InvalidOperationException(GetResourceString(resource));
 
-        private static ArgumentException GetWrongKeyTypeArgumentException(object? key, Type targetType)
-        {
-            return new ArgumentException($"Wrong key type. Expected {targetType}, got: '{key}'.", nameof(key));
-        }
+        private static ArgumentException GetWrongKeyTypeArgumentException(object? key, Type targetType) 
+            => new ArgumentException($"Wrong key type. Expected {targetType}, got: '{key}'.", nameof(key));
 
-        private static ArgumentException GetWrongValueTypeArgumentException(object? value, Type targetType)
-        {
-            return new ArgumentException($"Wrong value type. Expected {targetType}, got: '{value}'.", nameof(value));
-        }
+        private static ArgumentException GetWrongValueTypeArgumentException(object? value, Type targetType) 
+            => new ArgumentException($"Wrong value type. Expected {targetType}, got: '{value}'.", nameof(value));
 
-        private static KeyNotFoundException GetKeyNotFoundException(object? key)
-        {
-            return new KeyNotFoundException($"Key not found: {key}");
-        }
+        private static KeyNotFoundException GetKeyNotFoundException(object? key) 
+            => new KeyNotFoundException($"Key not found: {key}");
 
-        private static ArgumentOutOfRangeException GetArgumentOutOfRangeException(ExceptionArgument argument, ExceptionResource resource)
-        {
-            return new ArgumentOutOfRangeException(GetArgumentName(argument), GetResourceString(resource));
-        }
+        private static ArgumentOutOfRangeException GetArgumentOutOfRangeException(ExceptionArgument argument, ExceptionResource resource) 
+            => new ArgumentOutOfRangeException(GetArgumentName(argument), GetResourceString(resource));
 
-        private static ArgumentException GetArgumentException(ExceptionResource resource, ExceptionArgument argument)
-        {
-            return new ArgumentException(GetResourceString(resource), GetArgumentName(argument));
-        }
+        private static ArgumentException GetArgumentException(ExceptionResource resource, ExceptionArgument argument) 
+            => new ArgumentException(GetResourceString(resource), GetArgumentName(argument));
 
-        private static ArgumentOutOfRangeException GetArgumentOutOfRangeException(ExceptionArgument argument, int paramNumber, ExceptionResource resource)
-        {
-            return new ArgumentOutOfRangeException(GetArgumentName(argument) + "[" + paramNumber.ToString() + "]", GetResourceString(resource));
-        }
+        private static ArgumentOutOfRangeException GetArgumentOutOfRangeException(ExceptionArgument argument, int paramNumber, ExceptionResource resource) 
+            => new ArgumentOutOfRangeException($"{GetArgumentName(argument)} [{paramNumber}]", GetResourceString(resource));
 
         private static InvalidOperationException GetInvalidOperationException_EnumCurrent(int index)
         {
@@ -395,7 +278,9 @@ namespace Collections.Pooled
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>.
 #pragma warning disable CS8653 // A default expression introduces a null value for a type parameter.
             if (!(default(T) == null) && value == null)
+            {
                 ThrowHelper.ThrowArgumentNullException(argName);
+            }
 #pragma warning restore CS8653
 
         }
