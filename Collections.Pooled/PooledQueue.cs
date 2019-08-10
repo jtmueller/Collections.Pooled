@@ -284,7 +284,7 @@ namespace Collections.Pooled
         /// </summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (array is null)
+            if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
@@ -315,7 +315,7 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int index)
         {
-            if (array is null)
+            if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
@@ -425,6 +425,10 @@ namespace Collections.Pooled
             return removed;
         }
 
+        /// <summary>
+        /// Removes the object at the head of the queue and assigns it to <paramref name="result"/>, returning true.
+        /// If the queue is empty, returns false and sets <paramref name="result"/> to the default value for <typeparamref name="T"/>.
+        /// </summary>
         public bool TryDequeue([MaybeNullWhen(false)] out T result)
         {
             int head = _head;
@@ -462,6 +466,10 @@ namespace Collections.Pooled
             return _array[_head];
         }
 
+        /// <summary>
+        /// Assigns the object at the head of the queue to <paramref name="result"/> without removing it, returning true.
+        /// If the queue is empty, returns false and sets <paramref name="result"/> to the default value for <typeparamref name="T"/>.
+        /// </summary>
         public bool TryPeek([MaybeNullWhen(false)] out T result)
         {
             if (_size == 0)
@@ -503,7 +511,7 @@ namespace Collections.Pooled
         /// </summary>
         public int RemoveWhere(Func<T, bool> match)
         {
-            if (match is null)
+            if (match == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             if (_size == 0)
@@ -624,6 +632,10 @@ namespace Collections.Pooled
             throw new InvalidOperationException("Queue is empty.");
         }
 
+        /// <summary>
+        /// Sets the capacity to the actual number of elements in the <see cref="PooledQueue{T}"/>, 
+        /// if that number is less than 90 percent of current capacity.
+        /// </summary>
         public void TrimExcess()
         {
             int threshold = (int)(_array.Length * 0.9);
@@ -659,6 +671,9 @@ namespace Collections.Pooled
 #endif
         }
 
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets <see cref="PooledQueue{T}.Count"/> to zero.
+        /// </summary>
         public void Dispose()
         {
             ReturnArray(replaceWith: Array.Empty<T>());
@@ -674,9 +689,11 @@ namespace Collections.Pooled
             _pool = ArrayPool<T>.Shared;
         }
 
-        // Implements an enumerator for a Queue.  The enumerator uses the
-        // internal version number of the list to ensure that no modifications are
-        // made to the list while an enumeration is in progress.
+        /// <summary>
+        /// Implements an enumerator for a Queue.  The enumerator uses the
+        /// internal version number of the queue to ensure that no modifications are
+        /// made to the queue while an enumeration is in progress.
+        /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
         public struct Enumerator : IEnumerator<T>, IEnumerator
         {
@@ -693,12 +710,19 @@ namespace Collections.Pooled
                 _currentElement = default!;
             }
 
+            /// <summary>
+            /// Disposes the enumerator.
+            /// </summary>
             public void Dispose()
             {
                 _index = -2;
                 _currentElement = default!;
             }
 
+            /// <summary>
+            /// Advances the enumerator.
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext()
             {
                 if (_version != _q._version)
@@ -740,6 +764,9 @@ namespace Collections.Pooled
                 return true;
             }
 
+            /// <summary>
+            /// Returns the current item.
+            /// </summary>
             public T Current
             {
                 get

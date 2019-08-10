@@ -319,10 +319,10 @@ namespace Collections.Pooled
             return result;
         }
 
-        // Copies the stack into an array.
+        ///<summary>Copies the stack into an array.</summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (array is null)
+            if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
@@ -346,6 +346,7 @@ namespace Collections.Pooled
             }
         }
 
+        ///<summary>Copies the stack into a span.</summary>
         public void CopyTo(Span<T> span)
         {
             if (span.Length < _size)
@@ -363,7 +364,7 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int arrayIndex)
         {
-            if (array is null)
+            if (array == null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
@@ -413,6 +414,10 @@ namespace Collections.Pooled
         IEnumerator IEnumerable.GetEnumerator()
             => new Enumerator(this);
 
+        /// <summary>
+        /// Sets the capacity to the actual number of elements in the <see cref="PooledStack{T}"/>, 
+        /// if that number is less than 90 percent of current capacity.
+        /// </summary>
         public void TrimExcess()
         {
             if (_size == 0)
@@ -460,6 +465,13 @@ namespace Collections.Pooled
             return array[size];
         }
 
+        /// <summary>
+        ///     If the stack is not empty returns true and sets the <paramref name="result"/> parameter
+        ///     to the value of the top object on the <see cref="PooledStack{T}"/> without removing it.
+        ///     If the stack is empty, returns false and sets <paramref name="result"/> to the default
+        ///     value for <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="result"></param>
         public bool TryPeek([MaybeNullWhen(false)] out T result)
         {
             int size = _size - 1;
@@ -501,6 +513,13 @@ namespace Collections.Pooled
             return item;
         }
 
+        /// <summary>
+        ///     If the stack is not empty returns true and sets the <paramref name="result"/> parameter
+        ///     to the value of the top object on the <see cref="PooledStack{T}"/> after removing it.
+        ///     If the stack is empty, returns false and sets <paramref name="result"/> to the default
+        ///     value for <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="result"></param>
         public bool TryPop([MaybeNullWhen(false)] out T result)
         {
             int size = _size - 1;
@@ -605,6 +624,9 @@ namespace Collections.Pooled
 #endif
         }
 
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets <see cref="PooledStack{T}.Count"/> to zero.
+        /// </summary>
         public void Dispose()
         {
             ReturnArray(replaceWith: Array.Empty<T>());
@@ -620,6 +642,9 @@ namespace Collections.Pooled
             _pool = ArrayPool<T>.Shared;
         }
 
+        /// <summary>
+        /// Enumerates the <see cref="PooledStack{T}"/>.
+        /// </summary>
         [SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes", Justification = "not an expected scenario")]
         public struct Enumerator : IEnumerator<T>, IEnumerator
         {
@@ -636,8 +661,15 @@ namespace Collections.Pooled
                 _currentElement = default!;
             }
 
+            /// <summary>
+            /// Disposes the enumerator.
+            /// </summary>
             public void Dispose() => _index = -1;
 
+            /// <summary>
+            /// Advances the enumerator.
+            /// </summary>
+            /// <returns></returns>
             public bool MoveNext()
             {
                 bool retval;
@@ -664,6 +696,9 @@ namespace Collections.Pooled
                 return retval;
             }
 
+            /// <summary>
+            /// Returns the current item.
+            /// </summary>
             public T Current
             {
                 get
