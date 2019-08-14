@@ -71,7 +71,7 @@ namespace Collections.Pooled
         /// <summary>
         /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
         /// </summary>
-        event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
+        event PropertyChangedEventHandler? INotifyPropertyChanged.PropertyChanged
         {
             add => PropertyChanged += value;
             remove => PropertyChanged -= value;
@@ -84,7 +84,7 @@ namespace Collections.Pooled
         /// see <seealso cref="INotifyCollectionChanged"/>
         /// </remarks>
         [field: NonSerialized]
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+        public virtual event NotifyCollectionChangedEventHandler? CollectionChanged;
 
         /// <summary>
         /// Called by base class Collection&lt;T&gt; when the list is being cleared;
@@ -191,7 +191,7 @@ namespace Collections.Pooled
         /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
         /// </summary>
         [field: NonSerialized]
-        protected virtual event PropertyChangedEventHandler PropertyChanged;
+        protected virtual event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
         /// Raise CollectionChanged event to any listeners.
@@ -319,8 +319,7 @@ namespace Collections.Pooled
 
             public SimpleMonitor(PooledObservableCollection<T> collection)
             {
-                Debug.Assert(collection != null);
-                _collection = collection;
+                _collection = collection ?? throw new ArgumentNullException(nameof(collection));
             }
 
             public void Dispose() => _collection._blockReentrancyCount--;

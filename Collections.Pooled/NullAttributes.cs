@@ -2,7 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 // See the LICENSE file in the project root for more information.
 
-#if !NETCOREAPP3_0
+#if NET461 || NETSTANDARD2_0
 // As of this writing, these attributes related to nullable
 // reference types are not available outside of NETCOREAPP3_0
 // so they are replicated here.

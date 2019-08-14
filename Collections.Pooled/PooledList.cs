@@ -779,7 +779,6 @@ namespace Collections.Pooled
         /// will be returned, or the default value of <typeparamref name="T"/> if no match is found.
         /// </summary>
         /// <param name="match"></param>
-        /// <returns></returns>
         [return: MaybeNull]
         public T Find(Func<T, bool> match)
         {

@@ -353,7 +353,7 @@ namespace Collections.Pooled
                 // clear the elements so that the gc can reclaim the references.
                 // clear only up to _lastIndex for _slots 
                 Array.Clear(_slots!, 0, _lastIndex);
-                Array.Clear(_buckets, 0, _buckets.Length);
+                Array.Clear(_buckets, 0, _size);
                 _lastIndex = 0;
                 _count = 0;
                 _freeList = -1;
@@ -1615,7 +1615,7 @@ namespace Collections.Pooled
                 Slot[] newSlots = s_slotPool.Rent(newSize);
                 int[] newBuckets = s_bucketPool.Rent(newSize);
 
-                if (newSlots.Length >= _slots.Length || newBuckets.Length >= _buckets.Length)
+                if (newSlots.Length >= _slots.Length || newBuckets.Length >= _buckets?.Length)
                 {
                     // ArrayPool treats "newSize" as a minimum - if it gives us arrays that are as-big or bigger
                     // that what we already have, we're not really trimming any excess and may as well quit.
