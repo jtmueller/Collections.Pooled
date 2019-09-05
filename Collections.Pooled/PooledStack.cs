@@ -289,7 +289,7 @@ namespace Collections.Pooled
             int freeIndex = 0;   // the first free slot in items array
 
             // Find the first item which needs to be removed.
-            while (freeIndex < _size && !match!(_array[freeIndex]))
+            while (freeIndex < _size && !match(_array[freeIndex]))
                 freeIndex++;
             if (freeIndex >= _size) return 0;
 
@@ -297,7 +297,7 @@ namespace Collections.Pooled
             while (current < _size)
             {
                 // Find the first item which needs to be kept.
-                while (current < _size && match!(_array[current]))
+                while (current < _size && match(_array[current]))
                     current++;
 
                 if (current < _size)
@@ -322,17 +322,17 @@ namespace Collections.Pooled
         ///<summary>Copies the stack into an array.</summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if (arrayIndex < 0 || arrayIndex > array!.Length)
+            if (arrayIndex < 0 || arrayIndex > array.Length)
             {
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.arrayIndex);
             }
 
-            if (array!.Length - arrayIndex < _size)
+            if (array.Length - arrayIndex < _size)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
@@ -364,12 +364,12 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int arrayIndex)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if (array!.Rank != 1)
+            if (array.Rank != 1)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }

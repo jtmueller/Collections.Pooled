@@ -204,7 +204,7 @@ namespace Collections.Pooled
                 int suggestedCapacity = (collection is ICollection<T> coll) ? coll.Count : 0;
                 Initialize(suggestedCapacity);
 
-                UnionWith(collection!);
+                UnionWith(collection);
 
                 if (_count > 0 && _size / _count > s_shrinkThreshold)
                 {
@@ -508,7 +508,7 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.info);
             }
 
-            info!.AddValue(s_versionName, _version); // need to serialize version to avoid problems with serializing while enumerating
+            info.AddValue(s_versionName, _version); // need to serialize version to avoid problems with serializing while enumerating
             info.AddValue(s_comparerName, _comparer, typeof(IEqualityComparer<T>));
             info.AddValue(s_capacityName, _buckets is null ? 0 : _size);
 
@@ -553,7 +553,7 @@ namespace Collections.Pooled
                 }
 
                 // there are no resizes here because we already set capacity above
-                for (int i = 0; i < array!.Length; i++)
+                for (int i = 0; i < array.Length; i++)
                 {
                     AddIfNotPresent(array[i]);
                 }
@@ -618,12 +618,12 @@ namespace Collections.Pooled
         /// <param name="other">enumerable with items to add</param>
         public void UnionWith(IEnumerable<T> other)
         {
-            if (other == null)
+            if (other is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.other);
             }
 
-            foreach (T item in other!)
+            foreach (T item in other)
             {
                 AddIfNotPresent(item);
             }
@@ -634,7 +634,6 @@ namespace Collections.Pooled
         /// </summary>
         /// <param name="other"></param>
         public void UnionWith(T[] other) => UnionWith((ReadOnlySpan<T>)other);
-
 
         /// <summary>
         /// Take the union of this PooledSet with other. Modifies this set.
@@ -779,7 +778,7 @@ namespace Collections.Pooled
             }
 
             // remove every element in other from this
-            foreach (T element in other!)
+            foreach (T element in other)
             {
                 Remove(element);
             }
@@ -824,7 +823,7 @@ namespace Collections.Pooled
             // if set is empty, then symmetric difference is other
             if (_count == 0)
             {
-                UnionWith(other!);
+                UnionWith(other);
                 return;
             }
 
@@ -1132,7 +1131,7 @@ namespace Collections.Pooled
                 }
             }
 
-            return ContainsAllElements(other!);
+            return ContainsAllElements(other);
         }
 
         /// <summary>
@@ -1320,7 +1319,7 @@ namespace Collections.Pooled
                 return true;
             }
 
-            foreach (T element in other!)
+            foreach (T element in other)
             {
                 if (Contains(element))
                 {
@@ -1477,7 +1476,7 @@ namespace Collections.Pooled
             // will array, starting at arrayIndex, be able to hold elements? Note: not
             // checking arrayIndex >= array.Length (consistency with list of allowing
             // count of 0; subsequent check takes care of the rest)
-            if (arrayIndex > array!.Length || count > array.Length - arrayIndex)
+            if (arrayIndex > array.Length || count > array.Length - arrayIndex)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_ArrayPlusOffTooSmall);
             }
@@ -1547,7 +1546,7 @@ namespace Collections.Pooled
                 {
                     // cache value in case delegate removes it
                     T value = _slots[i].value;
-                    if (match!(value))
+                    if (match(value))
                     {
                         // check again that remove actually removed it
                         if (Remove(value))

@@ -274,7 +274,7 @@ namespace Collections.Pooled
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
 
-            if (collection == null)
+            if (collection is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
 
             if (collection is ICollection<T> c)
@@ -295,7 +295,7 @@ namespace Collections.Pooled
             {
                 _size = 0;
                 _items = Array.Empty<T>();
-                using var en = collection!.GetEnumerator();
+                using var en = collection.GetEnumerator();
                 while (en.MoveNext())
                     Add(en.Current);
             }
@@ -461,7 +461,7 @@ namespace Collections.Pooled
         {
             // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-            return (value is T) || (value == null && default(T)! == null);
+            return (value is T) || (value is null && default(T)! is null);
         }
 
         object? IList.this[int index]
@@ -709,7 +709,7 @@ namespace Collections.Pooled
             var list = new PooledList<TOutput>(_size);
             for (int i = 0; i < _size; i++)
             {
-                list._items[i] = converter!(_items[i]);
+                list._items[i] = converter(_items[i]);
             }
             list._size = _size;
             return list;
@@ -782,14 +782,14 @@ namespace Collections.Pooled
         [return: MaybeNull]
         public T Find(Func<T, bool> match)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = 0; i < _size; i++)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     return _items[i];
                 }
@@ -811,7 +811,7 @@ namespace Collections.Pooled
 
             for (int i = 0; i < _size; i++)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     result = _items[i];
                     return true;
@@ -836,7 +836,7 @@ namespace Collections.Pooled
             var list = new PooledList<T>();
             for (int i = 0; i < _size; i++)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     list.Add(_items[i]);
                 }
@@ -905,13 +905,13 @@ namespace Collections.Pooled
             if (count < 0 || startIndex > _size - count)
                 ThrowHelper.ThrowCountArgumentOutOfRange_ArgumentOutOfRange_Count();
 
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             int endIndex = startIndex + count;
             for (int i = startIndex; i < endIndex; i++)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                     return i;
             }
             return -1;
@@ -925,14 +925,14 @@ namespace Collections.Pooled
         [return: MaybeNull]
         public T FindLast(Predicate<T> match)
         {
-            if (match == null)
+            if (match is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
             }
 
             for (int i = _size - 1; i >= 0; i--)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     return _items[i];
                 }
@@ -956,7 +956,7 @@ namespace Collections.Pooled
 
             for (int i = _size - 1; i >= 0; i--)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     result = _items[i];
                     return true;
@@ -1014,12 +1014,12 @@ namespace Collections.Pooled
             if (end < start || end > _size)
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.range, ExceptionResource.ArgumentOutOfRange_EndIndexStartIndex);
 
-            if (match == null)
+            if (match is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
             for (int i = end; i >= start; i--)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                     return i;
             }
 
@@ -1064,7 +1064,7 @@ namespace Collections.Pooled
             int endIndex = startIndex - count;
             for (int i = startIndex; i > endIndex; i--)
             {
-                if (match!(_items[i]))
+                if (match(_items[i]))
                 {
                     return i;
                 }
@@ -1079,7 +1079,7 @@ namespace Collections.Pooled
         /// <param name="action"></param>
         public void ForEach(Action<T> action)
         {
-            if (action == null)
+            if (action is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.action);
             }
@@ -1091,7 +1091,7 @@ namespace Collections.Pooled
                 {
                     break;
                 }
-                action!(_items[i]);
+                action(_items[i]);
             }
 
             if (version != _version)
@@ -1116,7 +1116,7 @@ namespace Collections.Pooled
                 {
                     break;
                 }
-                action!(_items[i], i);
+                action(_items[i], i);
             }
 
             if (version != _version)
@@ -1318,7 +1318,7 @@ namespace Collections.Pooled
         /// </summary>
         public void InsertRange(int index, IEnumerable<T> collection)
         {
-            if (collection == null)
+            if (collection is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
             }
@@ -1356,7 +1356,7 @@ namespace Collections.Pooled
             }
             else
             {
-                using var en = collection!.GetEnumerator();
+                using var en = collection.GetEnumerator();
                 while (en.MoveNext())
                 {
                     Insert(index++, en.Current);
@@ -1607,14 +1607,14 @@ namespace Collections.Pooled
             int freeIndex = 0;   // the first free slot in items array
 
             // Find the first item which needs to be removed.
-            while (freeIndex < _size && !match!(_items[freeIndex])) freeIndex++;
+            while (freeIndex < _size && !match(_items[freeIndex])) freeIndex++;
             if (freeIndex >= _size) return 0;
 
             int current = freeIndex + 1;
             while (current < _size)
             {
                 // Find the first item which needs to be kept.
-                while (current < _size && match!(_items[current])) current++;
+                while (current < _size && match(_items[current])) current++;
 
                 if (current < _size)
                 {
@@ -1847,7 +1847,7 @@ namespace Collections.Pooled
                 // List<T> uses ArraySortHelper here but since it's an internal class,
                 // we're creating an IComparer<T> using the comparison function to avoid
                 // duplicating all that code.
-                Array.Sort(_items, 0, _size, new Comparer(comparison!));
+                Array.Sort(_items, 0, _size, new Comparer(comparison));
             }
             _version++;
         }
@@ -1900,7 +1900,7 @@ namespace Collections.Pooled
 
             for (int i = 0; i < _size; i++)
             {
-                if (!match!(_items[i]))
+                if (!match(_items[i]))
                 {
                     return false;
                 }

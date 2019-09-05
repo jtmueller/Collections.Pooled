@@ -54,7 +54,7 @@ namespace Collections.Pooled
 
         private static PooledList<T> CreateCopy(IEnumerable<T> collection, string paramName)
         {
-            if (collection == null)
+            if (collection is null)
             {
                 throw new ArgumentNullException(paramName);
             }

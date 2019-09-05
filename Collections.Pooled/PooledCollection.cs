@@ -36,11 +36,11 @@ namespace Collections.Pooled
         /// <exception cref="ArgumentNullException"><paramref name="list"/> is null.</exception>
         public PooledCollection(IList<T> list)
         {
-            if (list == null)
+            if (list is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.list);
             }
-            _items = list!;  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+            _items = list;
         }
 
         /// <summary>
@@ -127,13 +127,13 @@ namespace Collections.Pooled
             switch (_items)
             {
                 case PooledList<T> pl:
-                    pl.AddRange(enumerable!);
+                    pl.AddRange(enumerable);
                     break;
                 case List<T> list:
-                    list.AddRange(enumerable!);
+                    list.AddRange(enumerable);
                     break;
                 default:
-                    foreach (var item in enumerable!)
+                    foreach (var item in enumerable)
                     {
                         _items.Add(item);
                     }
@@ -282,12 +282,12 @@ namespace Collections.Pooled
 
         void ICollection.CopyTo(Array array, int index)
         {
-            if (array == null)
+            if (array is null)
             {
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.array);
             }
 
-            if (array!.Rank != 1) // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+            if (array.Rank != 1)
             {
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Arg_RankMultiDimNotSupported);
             }
@@ -331,7 +331,7 @@ namespace Collections.Pooled
                 // widening of primitive types here.
                 //
                 object?[]? objects = array as object[];
-                if (objects == null)
+                if (objects is null)
                 {
                     ThrowHelper.ThrowArgumentException_Argument_InvalidArrayType();
                 }
@@ -341,7 +341,7 @@ namespace Collections.Pooled
                 {
                     for (int i = 0; i < count; i++)
                     {
-                        objects![index++] = _items[i];  // TODO-NULLABLE: Remove ! when [DoesNotReturn] respected
+                        objects[index++] = _items[i];
                     }
                 }
                 catch (ArrayTypeMismatchException)
@@ -460,7 +460,7 @@ namespace Collections.Pooled
         {
             // Non-null values are fine.  Only accept nulls if T is a class or Nullable<U>.
             // Note that default(T) is not equal to null for value types except when T is Nullable<U>. 
-            return (value is T) || (value == null && default(T)! == null);
+            return (value is T) || (value is null && default(T)! is null);
         }
 
         /// <summary>
