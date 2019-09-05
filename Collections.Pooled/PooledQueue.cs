@@ -16,12 +16,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Collections.Pooled
 {
+    using static ClearModeUtil;
+
     /// <summary>
     /// A simple Queue of generic objects.  Internally it is implemented as a 
     /// circular buffer, so Enqueue can be O(n).  Dequeue is O(1).
@@ -73,7 +74,7 @@ namespace Collections.Pooled
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -103,7 +104,7 @@ namespace Collections.Pooled
             }
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = _pool.Rent(capacity);
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -131,7 +132,7 @@ namespace Collections.Pooled
         public PooledQueue(IEnumerable<T> enumerable, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
 
             switch (enumerable)
             {
@@ -215,7 +216,7 @@ namespace Collections.Pooled
         public PooledQueue(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
             _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
@@ -659,16 +660,6 @@ namespace Collections.Pooled
                 }
             }
             _array = replaceWith;
-        }
-
-        private static bool ShouldClear(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-            return mode != ClearMode.Never;
-#endif
         }
 
         /// <summary>

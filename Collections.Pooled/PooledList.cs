@@ -15,6 +15,8 @@ using System.Threading;
 
 namespace Collections.Pooled
 {
+    using static ClearModeUtil;
+
     /// <summary>
     /// Implements a variable-size list that uses a pooled array to store the
     /// elements. A PooledList has a capacity, which is the allocated length
@@ -33,7 +35,7 @@ namespace Collections.Pooled
     {
         // internal constant copied from Array.MaxArrayLength
         private const int s_maxArrayLength = 0x7FEFFFFF;
-        private const int s_defaultCapacity = 4;
+        private const int s_defaultCapacity = 16;
 
         [NonSerialized]
         private ArrayPool<T> _pool;
@@ -83,7 +85,7 @@ namespace Collections.Pooled
         {
             _items = Array.Empty<T>();
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -150,7 +152,7 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
 
             if (capacity == 0)
             {
@@ -228,7 +230,7 @@ namespace Collections.Pooled
         public PooledList(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
 
             int count = span.Length;
             if (count == 0)
@@ -272,7 +274,7 @@ namespace Collections.Pooled
         public PooledList(IEnumerable<T> collection, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
 
             if (collection is null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.collection);
@@ -1924,16 +1926,6 @@ namespace Collections.Pooled
             }
 
             _items = Array.Empty<T>();
-        }
-
-        private static bool ShouldClear(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-            return mode != ClearMode.Never;
-#endif
         }
 
         /// <summary>

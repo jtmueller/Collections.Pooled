@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0;netstandard2.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;netcoreapp2.1;netcoreapp3.0;netstandard2.1</TargetFrameworks>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup>
     <Authors>Joel Mueller</Authors>
     <Company />
-    <Description>Includes PooledList, PooledDictionary, PooledSet, PooledStack, and PooledQueue: based on the corresponding collections in System.Collections.Generic, but using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
+    <Description>Includes PooledList, PooledDictionary, PooledSet, PooledStack, PooledQueue, and PooledObservableCollection: based on the corresponding collections in System.Collections.Generic, using ArrayPool internally to reduce allocations, and with some API changes that allow for better compatibility with Span.</Description>
     <Copyright>Copyright (c) 2018, 2019 Joel Mueller, Dzmitry Lahoda, based on code from the .NET Foundation</Copyright>
-    <PackageTags>List ArrayPool Span Dictionary Stack Set HashSet</PackageTags>
+    <PackageTags>List ArrayPool Span Dictionary Stack Set HashSet ObservableCollection</PackageTags>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jtmueller/Collections.Pooled</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jtmueller/Collections.Pooled.git</RepositoryUrl>
@@ -28,12 +29,10 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\Collections.Pooled.xml</DocumentationFile>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>

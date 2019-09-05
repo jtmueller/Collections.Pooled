@@ -15,8 +15,7 @@ namespace Collections.Pooled.Tests.PooledSet
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_int(int capacity)
         {
-            PooledSet<T> set = new PooledSet<T>(capacity);
-            RegisterForDispose(set);
+            using var set = new PooledSet<T>(capacity);
             Assert.Equal(0, set.Count);
         }
 
@@ -24,8 +23,7 @@ namespace Collections.Pooled.Tests.PooledSet
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_int_AddUpToAndBeyondCapacity(int capacity)
         {
-            PooledSet<T> set = new PooledSet<T>(capacity);
-            RegisterForDispose(set);
+            using var set = new PooledSet<T>(capacity);
 
             AddToCollection(set, capacity);
             Assert.Equal(capacity, set.Count);
@@ -39,8 +37,7 @@ namespace Collections.Pooled.Tests.PooledSet
         {
             // Highest pre-computed number + 1.
             const int Capacity = 7199370;
-            var set = new PooledSet<T>(Capacity);
-            RegisterForDispose(set);
+            using var set = new PooledSet<T>(Capacity);
 
             // Assert that the HashTable's capacity is set to the descendant prime number of the given one.
             const int NextPrime = 7199371;
@@ -51,30 +48,32 @@ namespace Collections.Pooled.Tests.PooledSet
         public void HashSet_Generic_Constructor_int_Negative_ThrowsArgumentOutOfRangeException()
         {
             AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(-1));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(int.MinValue));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(Int32.MinValue));
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_int_IEqualityComparer(int capacity)
         {
-            IEqualityComparer<T> comparer = GetIEqualityComparer();
-            PooledSet<T> set = new PooledSet<T>(capacity, comparer);
-            RegisterForDispose(set);
+            var comparer = GetIEqualityComparer();
+            using var set = new PooledSet<T>(capacity, comparer);
             Assert.Equal(0, set.Count);
             if (comparer == null)
+            {
                 Assert.Equal(EqualityComparer<T>.Default, set.Comparer);
+            }
             else
+            {
                 Assert.Equal(comparer, set.Comparer);
+            }
         }
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_int_IEqualityComparer_AddUpToAndBeyondCapacity(int capacity)
         {
-            IEqualityComparer<T> comparer = GetIEqualityComparer();
-            PooledSet<T> set = new PooledSet<T>(capacity, comparer);
-            RegisterForDispose(set);
+            var comparer = GetIEqualityComparer();
+            using var set = new PooledSet<T>(capacity, comparer);
 
             AddToCollection(set, capacity);
             Assert.Equal(capacity, set.Count);
@@ -86,9 +85,9 @@ namespace Collections.Pooled.Tests.PooledSet
         [Fact]
         public void HashSet_Generic_Constructor_int_IEqualityComparer_Negative_ThrowsArgumentOutOfRangeException()
         {
-            IEqualityComparer<T> comparer = GetIEqualityComparer();
+            var comparer = GetIEqualityComparer();
             AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(-1, comparer));
-            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(int.MinValue, comparer));
+            AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => new PooledSet<T>(Int32.MinValue, comparer));
         }
 
         #region TryGetValue
@@ -96,57 +95,55 @@ namespace Collections.Pooled.Tests.PooledSet
         [Fact]
         public void HashSet_Generic_TryGetValue_Contains()
         {
-            T value = CreateT(1);
-            PooledSet<T> set = new PooledSet<T> { value };
-            RegisterForDispose(set);
-            T equalValue = CreateT(1);
-            T actualValue;
-            Assert.True(set.TryGetValue(equalValue, out actualValue));
+            var value = CreateT(1);
+            using var set = new PooledSet<T> { value };
+            var equalValue = CreateT(1);
+            Assert.True(set.TryGetValue(equalValue, out var actualValue));
             Assert.Equal(value, actualValue);
             if (!typeof(T).IsValueType)
             {
+#pragma warning disable xUnit2005 // Do not use identity check on value type
                 Assert.Same(value, actualValue);
+#pragma warning restore xUnit2005 // Do not use identity check on value type
             }
         }
 
         [Fact]
         public void HashSet_Generic_TryGetValue_Contains_OverwriteOutputParam()
         {
-            T value = CreateT(1);
-            PooledSet<T> set = new PooledSet<T> { value };
-            RegisterForDispose(set);
-            T equalValue = CreateT(1);
-            T actualValue = CreateT(2);
+            var value = CreateT(1);
+            using var set = new PooledSet<T> { value };
+            var equalValue = CreateT(1);
+            var actualValue = CreateT(2);
             Assert.True(set.TryGetValue(equalValue, out actualValue));
             Assert.Equal(value, actualValue);
             if (!typeof(T).IsValueType)
             {
+#pragma warning disable xUnit2005 // Do not use identity check on value type
                 Assert.Same(value, actualValue);
+#pragma warning restore xUnit2005 // Do not use identity check on value type
             }
         }
 
         [Fact]
         public void HashSet_Generic_TryGetValue_NotContains()
         {
-            T value = CreateT(1);
-            PooledSet<T> set = new PooledSet<T> { value };
-            RegisterForDispose(set);
-            T equalValue = CreateT(2);
-            T actualValue;
-            Assert.False(set.TryGetValue(equalValue, out actualValue));
+            var value = CreateT(1);
+            using var set = new PooledSet<T> { value };
+            var equalValue = CreateT(2);
+            Assert.False(set.TryGetValue(equalValue, out var actualValue));
             Assert.Equal(default, actualValue);
         }
 
         [Fact]
         public void HashSet_Generic_TryGetValue_NotContains_OverwriteOutputParam()
         {
-            T value = CreateT(1);
-            PooledSet<T> set = new PooledSet<T> { value };
-            RegisterForDispose(set);
-            T equalValue = CreateT(2);
-            T actualValue = equalValue;
+            var value = CreateT(1);
+            using var set = new PooledSet<T> { value };
+            var equalValue = CreateT(2);
+            var actualValue = equalValue;
             Assert.False(set.TryGetValue(equalValue, out actualValue));
-            Assert.Equal(default(T), actualValue);
+            Assert.Equal(default, actualValue);
         }
 
         #endregion
@@ -157,8 +154,8 @@ namespace Collections.Pooled.Tests.PooledSet
         [MemberData(nameof(ValidCollectionSizes))]
         public void EnsureCapacity_Generic_RequestingLargerCapacity_DoesNotInvalidateEnumeration(int setLength)
         {
-            PooledSet<T> set = (PooledSet<T>)(GenericISetFactory(setLength));
-            var capacity = set.EnsureCapacity(0);
+            var set = (PooledSet<T>)(GenericISetFactory(setLength));
+            int capacity = set.EnsureCapacity(0);
             IEnumerator valuesEnum = set.GetEnumerator();
             IEnumerator valuesListEnum = new List<T>(set).GetEnumerator();
 
@@ -174,14 +171,14 @@ namespace Collections.Pooled.Tests.PooledSet
         [Fact]
         public void EnsureCapacity_Generic_NegativeCapacityRequested_Throws()
         {
-            var set = new PooledSet<T>();
+            using var set = new PooledSet<T>();
             AssertExtensions.Throws<ArgumentOutOfRangeException>("capacity", () => set.EnsureCapacity(-1));
         }
 
         [Fact]
         public void EnsureCapacity_Generic_HashsetNotInitialized_RequestedZero_ReturnsZero()
         {
-            var set = new PooledSet<T>();
+            using var set = new PooledSet<T>();
             Assert.Equal(0, set.EnsureCapacity(0));
         }
 
@@ -192,9 +189,8 @@ namespace Collections.Pooled.Tests.PooledSet
         [InlineData(4)]
         public void EnsureCapacity_Generic_HashsetNotInitialized_RequestedNonZero_CapacityIsSetToAtLeastTheRequested(int requestedCapacity)
         {
-            var set = new PooledSet<T>();
-            RegisterForDispose(set);
-            Assert.InRange(set.EnsureCapacity(requestedCapacity), requestedCapacity, int.MaxValue);
+            using var set = new PooledSet<T>();
+            Assert.InRange(set.EnsureCapacity(requestedCapacity), requestedCapacity, Int32.MaxValue);
         }
 
         [Theory]
@@ -234,7 +230,7 @@ namespace Collections.Pooled.Tests.PooledSet
         [InlineData(4)]
         public void EnsureCapacity_Generic_EnsureCapacityCalledTwice_ReturnsSameValue(int setLength)
         {
-            PooledSet<T> set = (PooledSet<T>)GenericISetFactory(setLength);
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
             int capacity = set.EnsureCapacity(0);
             Assert.Equal(capacity, set.EnsureCapacity(0));
 
@@ -254,8 +250,8 @@ namespace Collections.Pooled.Tests.PooledSet
         [InlineData(8)]
         public void EnsureCapacity_Generic_HashsetNotEmpty_RequestedSmallerThanCount_ReturnsAtLeastSizeOfCount(int setLength)
         {
-            PooledSet<T> set = (PooledSet<T>)GenericISetFactory(setLength);
-            Assert.InRange(set.EnsureCapacity(setLength - 1), setLength, int.MaxValue);
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
+            Assert.InRange(set.EnsureCapacity(setLength - 1), setLength, Int32.MaxValue);
         }
 
         [Theory]
@@ -263,14 +259,14 @@ namespace Collections.Pooled.Tests.PooledSet
         [InlineData(20)]
         public void EnsureCapacity_Generic_HashsetNotEmpty_SetsToAtLeastTheRequested(int setLength)
         {
-            PooledSet<T> set = (PooledSet<T>)GenericISetFactory(setLength);
+            var set = (PooledSet<T>)GenericISetFactory(setLength);
 
             // get current capacity
             int currentCapacity = set.EnsureCapacity(0);
 
             // assert we can update to a larger capacity
             int newCapacity = set.EnsureCapacity(currentCapacity * 2);
-            Assert.InRange(newCapacity, currentCapacity * 2, int.MaxValue);
+            Assert.InRange(newCapacity, currentCapacity * 2, Int32.MaxValue);
         }
 
         [Fact]

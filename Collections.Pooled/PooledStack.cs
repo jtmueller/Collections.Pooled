@@ -22,6 +22,8 @@ using System.Threading;
 
 namespace Collections.Pooled
 {
+    using static ClearModeUtil;
+
     /// <summary>
     /// A simple stack of objects.  Internally it is implemented as an array,
     /// so Push can be O(n).  Pop is O(1).
@@ -69,7 +71,7 @@ namespace Collections.Pooled
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = Array.Empty<T>();
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -103,7 +105,7 @@ namespace Collections.Pooled
             }
             _pool = customPool ?? ArrayPool<T>.Shared;
             _array = _pool.Rent(capacity);
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace Collections.Pooled
         public PooledStack(IEnumerable<T> enumerable, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
 
             switch (enumerable)
             {
@@ -213,7 +215,7 @@ namespace Collections.Pooled
         public PooledStack(ReadOnlySpan<T> span, ClearMode clearMode, ArrayPool<T> customPool)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
             _array = _pool.Rent(span.Length);
             span.CopyTo(_array);
             _size = span.Length;
@@ -612,16 +614,6 @@ namespace Collections.Pooled
             }
 
             _array = replaceWith;
-        }
-
-        private static bool ShouldClear(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-            return mode != ClearMode.Never;
-#endif
         }
 
         /// <summary>

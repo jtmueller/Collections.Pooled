@@ -8,11 +8,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
 namespace Collections.Pooled
 {
+    using static ClearModeUtil;
+
     /// <summary>
     /// Represents a set of values.
     /// </summary>
@@ -123,7 +124,7 @@ namespace Collections.Pooled
             _freeList = -1;
             _version = 0;
             _size = 0;
-            _clearOnFree = ShouldClear(clearMode);
+            _clearOnFree = ShouldClear<T>(clearMode);
         }
 
         /// <summary>
@@ -1788,16 +1789,6 @@ namespace Collections.Pooled
             _buckets = null;
         }
 
-        private static bool ShouldClear(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<T>());
-#else
-            return mode != ClearMode.Never;
-#endif
-        }
-
 #nullable disable
 
         /// <summary>
@@ -1872,9 +1863,9 @@ namespace Collections.Pooled
             {
                 Debug.Assert(!_comparer.Equals(_slots[i].value, value));
             }
+            Debug.Assert(_freeList == -1);
 #endif
 
-            Debug.Assert(_freeList == -1);
             _slots[index].hashCode = hashCode;
             _slots[index].value = value;
             _slots[index].next = _buckets[bucket] - 1;

@@ -8,12 +8,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
 namespace Collections.Pooled
 {
+    using static ClearModeUtil;
+
     /// <summary>
     /// Used internally to control behavior of insertion into a <see cref="PooledDictionary{TKey, TValue}"/>.
     /// </summary>
@@ -141,8 +142,8 @@ namespace Collections.Pooled
                 _comparer = comparer;
             }
 
-            _clearKeyOnFree = ShouldClearKey(clearMode);
-            _clearValueOnFree = ShouldClearValue(clearMode);
+            _clearKeyOnFree = ShouldClear<TKey>(clearMode);
+            _clearValueOnFree = ShouldClear<TValue>(clearMode);
 
             if (typeof(TKey) == typeof(string) && _comparer is null)
             {
@@ -327,8 +328,8 @@ namespace Collections.Pooled
         /// </summary>
         protected PooledDictionary(SerializationInfo info, StreamingContext _)
         {
-            _clearKeyOnFree = (bool?)info.GetValue(s_clearKeyName, typeof(bool)) ?? ShouldClearKey(ClearMode.Auto);
-            _clearValueOnFree = (bool?)info.GetValue(s_clearValueName, typeof(bool)) ?? ShouldClearValue(ClearMode.Auto);
+            _clearKeyOnFree = (bool?)info.GetValue(s_clearKeyName, typeof(bool)) ?? ShouldClear<TKey>(ClearMode.Auto);
+            _clearValueOnFree = (bool?)info.GetValue(s_clearValueName, typeof(bool)) ?? ShouldClear<TValue>(ClearMode.Auto);
 
             // We can't do anything with the keys and values until the entire graph has been deserialized
             // and we have a resonable estimate that GetHashCode is not going to fail.  For the time being,
@@ -1557,26 +1558,6 @@ namespace Collections.Pooled
 
             _entries = Array.Empty<Entry>();
             _buckets = Array.Empty<int>();
-        }
-
-        private static bool ShouldClearKey(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TKey>());
-#else
-            return mode != ClearMode.Never;
-#endif
-        }
-
-        private static bool ShouldClearValue(ClearMode mode)
-        {
-#if NETSTANDARD2_1 || NETCOREAPP3_0
-            return mode == ClearMode.Always
-                || (mode == ClearMode.Auto && RuntimeHelpers.IsReferenceOrContainsReferences<TValue>());
-#else
-            return mode != ClearMode.Never;
-#endif
         }
 
         private static bool IsCompatibleKey(object key)
