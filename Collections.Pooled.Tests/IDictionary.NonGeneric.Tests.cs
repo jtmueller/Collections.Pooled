@@ -59,7 +59,10 @@ namespace Collections.Pooled.Tests
             int seed = 840;
             object missingKey = CreateTKey(seed++);
             while (dictionary.Contains(missingKey) || missingKey.Equals(null))
+            {
                 missingKey = CreateTKey(seed++);
+            }
+
             return missingKey;
         }
 
@@ -83,10 +86,7 @@ namespace Collections.Pooled.Tests
 
         #region ICollection Helper Methods
 
-        protected override ICollection NonGenericICollectionFactory()
-        {
-            return NonGenericIDictionaryFactory();
-        }
+        protected override ICollection NonGenericICollectionFactory() => NonGenericIDictionaryFactory();
 
         protected override bool DuplicateValuesAllowed => false;
         protected override bool NullAllowed => false;
@@ -104,7 +104,10 @@ namespace Collections.Pooled.Tests
                 object key = CreateTKey(seed++);
                 object value = CreateTValue(seed++);
                 while (casted.Contains(key) || Enumerable.Contains(InvalidValues, key))
+                {
                     key = CreateTKey(seed++);
+                }
+
                 casted.Add(key, value);
             }
         }
@@ -232,7 +235,10 @@ namespace Collections.Pooled.Tests
                 var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = null;
                 if (dictionary.Contains(missingKey))
+                {
                     dictionary.Remove(missingKey);
+                }
+
                 Assert.Null(dictionary[missingKey]);
             }
         }
@@ -317,7 +323,9 @@ namespace Collections.Pooled.Tests
             dictionary.Keys.CopyTo(expected, 0);
             int i = 0;
             foreach (object key in dictionary.Keys)
+            {
                 Assert.Equal(expected[i++], key);
+            }
         }
 
         [Theory]
@@ -368,9 +376,13 @@ namespace Collections.Pooled.Tests
         {
             var enumerator = NonGenericIDictionaryFactory(count).Keys.GetEnumerator();
             if (IDictionary_NonGeneric_Keys_Values_Enumeration_ResetImplemented)
+            {
                 enumerator.Reset();
+            }
             else
+            {
                 Assert.Throws<NotSupportedException>(() => enumerator.Reset());
+            }
         }
 
         #endregion
@@ -386,7 +398,9 @@ namespace Collections.Pooled.Tests
             dictionary.Values.CopyTo(expected, 0);
             int i = 0;
             foreach (object value in dictionary.Values)
+            {
                 Assert.Equal(expected[i++], value);
+            }
         }
 
         [Theory]
@@ -397,7 +411,10 @@ namespace Collections.Pooled.Tests
             var entries = new List<DictionaryEntry>();
 
             foreach (DictionaryEntry pair in dictionary)
+            {
                 entries.Add(pair);
+            }
+
             foreach (var pair in entries)
             {
                 object missingKey = GetNewKey(dictionary);
@@ -455,9 +472,13 @@ namespace Collections.Pooled.Tests
         {
             var enumerator = NonGenericIDictionaryFactory(count).Values.GetEnumerator();
             if (IDictionary_NonGeneric_Keys_Values_Enumeration_ResetImplemented)
+            {
                 enumerator.Reset();
+            }
             else
+            {
                 Assert.Throws<NotSupportedException>(() => enumerator.Reset());
+            }
         }
 
         #endregion
@@ -648,7 +669,10 @@ namespace Collections.Pooled.Tests
                 // returns false
                 object missingKey = null;
                 while (dictionary.Contains(missingKey))
+                {
                     dictionary.Remove(missingKey);
+                }
+
                 Assert.False(dictionary.Contains(missingKey));
             }
             else
@@ -667,7 +691,10 @@ namespace Collections.Pooled.Tests
                 var dictionary = NonGenericIDictionaryFactory(count);
                 object missingKey = null;
                 if (!dictionary.Contains(missingKey))
+                {
                     dictionary.Add(missingKey, CreateTValue(5341));
+                }
+
                 Assert.True(dictionary.Contains(missingKey));
             }
         }
@@ -710,9 +737,13 @@ namespace Collections.Pooled.Tests
         {
             var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
             if (ResetImplemented)
+            {
                 enumerator.Reset();
+            }
             else
+            {
                 Assert.Throws<NotSupportedException>(() => enumerator.Reset());
+            }
         }
 
         [Theory]
@@ -757,7 +788,11 @@ namespace Collections.Pooled.Tests
         {
             object current, key, value, entry;
             var enumerator = NonGenericIDictionaryFactory(count).GetEnumerator();
-            while (enumerator.MoveNext()) ;
+            while (enumerator.MoveNext())
+            {
+                ;
+            }
+
             if (Enumerator_Current_UndefinedOperation_Throws)
             {
                 Assert.Throws<InvalidOperationException>(() => enumerator.Current);

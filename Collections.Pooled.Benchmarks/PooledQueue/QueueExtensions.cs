@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Collections.Pooled.Benchmarks.PooledQueue
 {
-#if NET472
+#if NET48
     // extension methods to make up for missing methods in .NET Standard 2.0
     internal static class QueueExtensions
     {

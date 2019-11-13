@@ -45,7 +45,7 @@ namespace Collections.Pooled.Tests.PooledSet
         protected override void AddToCollection(ICollection<T> collection, int numberOfItemsToAdd)
         {
             int seed = 9600;
-            ISet<T> set = (ISet<T>)collection;
+            var set = (ISet<T>)collection;
             while (set.Count < numberOfItemsToAdd)
             {
                 T toAdd = CreateT(seed++);
@@ -124,7 +124,7 @@ namespace Collections.Pooled.Tests.PooledSet
             }
             else
             {
-                PooledSet<T> expected = new PooledSet<T>(set, GetIEqualityComparer());
+                using var expected = new PooledSet<T>(set, GetIEqualityComparer());
                 RegisterForDispose(expected);
                 foreach (T element in enumerable)
                     expected.Remove(element);
@@ -143,7 +143,7 @@ namespace Collections.Pooled.Tests.PooledSet
             }
             else if (set == enumerable)
             {
-                PooledSet<T> beforeOperation = new PooledSet<T>(set, GetIEqualityComparer());
+                using var beforeOperation = new PooledSet<T>(set, GetIEqualityComparer());
                 RegisterForDispose(beforeOperation);
                 set.IntersectWith(enumerable);
                 Assert.True(beforeOperation.SetEquals(set));
@@ -151,7 +151,7 @@ namespace Collections.Pooled.Tests.PooledSet
             else
             {
                 IEqualityComparer<T> comparer = GetIEqualityComparer();
-                PooledSet<T> expected = new PooledSet<T>(comparer);
+                using var expected = new PooledSet<T>(comparer);
                 RegisterForDispose(expected);
                 foreach (T value in set)
                     if (enumerable.Contains(value, comparer))
@@ -274,7 +274,7 @@ namespace Collections.Pooled.Tests.PooledSet
         private void Validate_SymmetricExceptWith(ISet<T> set, IEnumerable<T> enumerable)
         {
             IEqualityComparer<T> comparer = GetIEqualityComparer();
-            PooledSet<T> expected = new PooledSet<T>(comparer);
+            using var expected = new PooledSet<T>(comparer);
             RegisterForDispose(expected);
             foreach (T element in enumerable)
                 if (!set.Contains(element, comparer))
@@ -290,7 +290,7 @@ namespace Collections.Pooled.Tests.PooledSet
         private void Validate_UnionWith(ISet<T> set, IEnumerable<T> enumerable)
         {
             IEqualityComparer<T> comparer = GetIEqualityComparer();
-            PooledSet<T> expected = new PooledSet<T>(set, comparer);
+            using var expected = new PooledSet<T>(set, comparer);
             RegisterForDispose(expected);
             foreach (T element in enumerable)
                 if (!set.Contains(element, comparer))
@@ -423,7 +423,7 @@ namespace Collections.Pooled.Tests.PooledSet
             Validate_ExceptWith(set, set);
         }
 
-#if !NET472
+#if !NET48
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         //[SkipOnTargetFramework(TargetFrameworkMonikers.NetFramework, "Full framework throws InvalidOperationException")]
@@ -612,7 +612,7 @@ namespace Collections.Pooled.Tests.PooledSet
             Debug.Assert(enumerable != null);
 
             IEqualityComparer<T> comparer = GetIEqualityComparer();
-            PooledSet<T> expected = new PooledSet<T>(comparer);
+            using var expected = new PooledSet<T>(comparer);
             RegisterForDispose(expected);
             foreach (T element in enumerable)
                 if (!set.Contains(element, comparer))

@@ -41,10 +41,19 @@ namespace Collections.Pooled.Tests
             _disposables.AddRange(objects.OfType<IDisposable>());
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            _disposables.ForEach(d => d?.Dispose());
-            _disposables.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _disposables.ForEach(d => d?.Dispose());
+                _disposables.Dispose();
+            }
         }
 
         public enum EnumerableType

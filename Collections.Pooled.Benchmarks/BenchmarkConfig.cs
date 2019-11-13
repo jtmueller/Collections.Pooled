@@ -12,10 +12,12 @@ namespace Collections.Pooled.Benchmarks
     {
         public BenchmarkConfig()
         {
-            Add(Job.Core
+            Add(Job.Default
+                .With(CoreRuntime.Core30)
                 .With(Platform.X64)
                 .With(Jit.RyuJit));
-            Add(Job.Clr
+            Add(Job.Default
+                .With(ClrRuntime.Net48)
                 .With(Platform.X64)
                 .With(Jit.RyuJit));
             Add(MemoryDiagnoser.Default);
