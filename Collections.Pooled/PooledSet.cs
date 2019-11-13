@@ -2616,12 +2616,24 @@ namespace Collections.Pooled
         /// </summary>
         public void Dispose()
         {
-            ReturnArrays();
-            _size = 0;
-            _lastIndex = 0;
-            _count = 0;
-            _freeList = -1;
-            _version++;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Clears all values and returns internal arrays to the ArrayPool.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ReturnArrays();
+                _size = 0;
+                _lastIndex = 0;
+                _count = 0;
+                _freeList = -1;
+                _version++;
+            }
         }
 
         #endregion

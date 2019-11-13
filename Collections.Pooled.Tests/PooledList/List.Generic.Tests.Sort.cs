@@ -126,12 +126,10 @@ namespace Collections.Pooled.Tests.PooledList
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 1; sortCount < count - startIndex; sortCount++)
                 {
-                    using (var list = new PooledList<T>(unsortedList))
-                    {
-                        list.Sort(startIndex, sortCount + 1, comparer);
-                        for (int i = startIndex; i < sortCount; i++)
-                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 0);
-                    }
+                    using var list = new PooledList<T>(unsortedList);
+                    list.Sort(startIndex, sortCount + 1, comparer);
+                    for (int i = startIndex; i < sortCount; i++)
+                        Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 0);
                 }
 
             unsortedList.Dispose();
@@ -147,12 +145,10 @@ namespace Collections.Pooled.Tests.PooledList
             for (int startIndex = 0; startIndex < count - 2; startIndex++)
                 for (int sortCount = 2; sortCount < count - startIndex; sortCount++)
                 {
-                    using (var list = new PooledList<T>(unsortedList))
-                    {
-                        list.Sort(startIndex, sortCount + 1, comparer);
-                        for (int i = startIndex; i < sortCount; i++)
-                            Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 1);
-                    }
+                    using var list = new PooledList<T>(unsortedList);
+                    list.Sort(startIndex, sortCount + 1, comparer);
+                    for (int i = startIndex; i < sortCount; i++)
+                        Assert.InRange(comparer.Compare(list[i], list[i + 1]), Int32.MinValue, 1);
                 }
 
             unsortedList.Dispose();

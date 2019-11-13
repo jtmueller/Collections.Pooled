@@ -63,7 +63,7 @@ namespace Collections.Pooled.Tests
             List,
             Queue,
             Lazy,
-        };
+        }
 
         [Flags]
         public enum ModifyOperation

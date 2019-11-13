@@ -569,6 +569,7 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
         {
+#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
             if (TryGetValue(key, out var value))
             {
                 var updatedValue = updater(key, value);
@@ -578,6 +579,7 @@ namespace Collections.Pooled
             {
                 TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
             }
+#pragma warning restore CS8717
         }
 
         /// <summary>
@@ -591,6 +593,7 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updater)
         {
+#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
             if (TryGetValue(key, out var value))
             {
                 var updatedValue = updater(key, value);
@@ -601,6 +604,7 @@ namespace Collections.Pooled
                 var addValue = addValueFactory(key);
                 TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
             }
+#pragma warning restore CS8717
         }
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
@@ -646,9 +650,15 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Returns true if the dictionary contains the given key.
+        /// </summary>
         public bool ContainsKey(TKey key)
             => FindEntry(key) >= 0;
 
+        /// <summary>
+        /// Returns true if the dictionary contains the given value.
+        /// </summary>
         public bool ContainsValue(TValue value)
         {
             var entries = _entries;
@@ -713,6 +723,9 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
         public Enumerator GetEnumerator()
             => new Enumerator(this, Enumerator.KeyValuePair);
 
@@ -1055,6 +1068,9 @@ namespace Collections.Pooled
             return true;
         }
 
+        /// <summary>
+        /// Called during deserialization.
+        /// </summary>
         public virtual void OnDeserialization(object? sender)
         {
             HashHelpers.SerializationInfoTable.TryGetValue(this, out var siInfo);
@@ -1169,6 +1185,13 @@ namespace Collections.Pooled
         // The overload Remove(TKey key, out TValue value) is a copy of this method with one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
+
+        /// <summary>
+        /// Removes the item with the given key.
+        /// Returns true if the key was found and the value successfully removed.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Returns true if the key was found and removed.</returns>
         public bool Remove(TKey key)
         {
             if (key is null)
@@ -1232,6 +1255,15 @@ namespace Collections.Pooled
         // This overload is a copy of the overload Remove(TKey key) with one additional
         // statement to copy the value for entry being removed into the output parameter.
         // Code has been intentionally duplicated for performance reasons.
+
+        /// <summary>
+        /// Removes the item with the given key.
+        /// If the key was found, returns true and sets the <paramref name="value"/> parameter to the removed value.
+        /// If the key was not found, returns false and sets the <paramref name="value"/> parameter to the default value for the type.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The removed value</param>
+        /// <returns>Returns true if the key was found and removed.</returns>
         public bool Remove(TKey key, [MaybeNullWhen(false)] out TValue value)
         {
             if (key is null)
@@ -1292,6 +1324,14 @@ namespace Collections.Pooled
             return false;
         }
 
+        /// <summary>
+        /// Attempts to get the value corresponding to the given key.
+        /// If the key was found, returns true and sets the <paramref name="value"/> parameter to the corresponding value.
+        /// If the key was not found, returns false and sets the <paramref name="value"/> to the default value for the type.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The returned value</param>
+        /// <returns>True if the key was found, otherwise false.</returns>
         public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
         {
             int i = FindEntry(key);
@@ -1304,22 +1344,46 @@ namespace Collections.Pooled
             return false;
         }
 
+        /// <summary>
+        /// Attempts to add the given key-value pair, if the key was not already present.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="value">The value to add</param>
+        /// <returns>Returns true if the value was successfully added, false if the key was already present and the value was not added.</returns>
         public bool TryAdd(TKey key, TValue value)
             => TryInsert(key, value, InsertionBehavior.None);
 
+        /// <summary>
+        /// Gets the current value associated with the given key. If the key was not found,
+        /// adds <paramref name="addValue"/> with the given key and returns it.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="addValue">The value to add if the key was not found</param>
+        /// <returns>Either the current value or the just-added value.</returns>
         public TValue GetOrAdd(TKey key, TValue addValue)
         {
+#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
             if (TryGetValue(key, out var value))
                 return value;
+#pragma warning restore CS8717
 
             Add(key, addValue);
             return addValue;
         }
 
+        /// <summary>
+        /// Gets the current value associated with the given key. If the key was not found,
+        /// runs <paramref name="valueFactory"/> and adds the result with the given key, returning the newly-added value.
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <param name="valueFactory">A function that will be used to generate a value to add if the key was not found</param>
+        /// <returns>Either the current value or the just-added value.</returns>
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
+#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
             if (TryGetValue(key, out var value))
                 return value;
+#pragma warning restore CS8717
 
             var addValue = valueFactory(key);
             Add(key, addValue);
@@ -1617,15 +1681,33 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets the Count to zero.
+        /// </summary>
         public void Dispose()
         {
-            ReturnArrays();
-            _count = 0;
-            _size = 0;
-            _freeList = -1;
-            _freeCount = 0;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets the Count to zero.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ReturnArrays();
+                _count = 0;
+                _size = 0;
+                _freeList = -1;
+                _freeCount = 0;
+            }
+        }
+
+        /// <summary>
+        /// Enumerates dictionary keys and values.
+        /// </summary>
         public struct Enumerator : IEnumerator<KeyValuePair<TKey, TValue>>, IDictionaryEnumerator
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -1646,6 +1728,9 @@ namespace Collections.Pooled
                 _current = new KeyValuePair<TKey, TValue>();
             }
 
+            /// <summary>
+            /// Moves to the next item, returning false if there are no more items.
+            /// </summary>
             public bool MoveNext()
             {
                 if (_version != _dictionary._version)
@@ -1671,9 +1756,12 @@ namespace Collections.Pooled
                 return false;
             }
 
+            /// <summary>
+            /// The current item.
+            /// </summary>
             public KeyValuePair<TKey, TValue> Current => _current;
 
-            public void Dispose()
+            void IDisposable.Dispose()
             {
             }
 
@@ -1748,20 +1836,33 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// A collection of dictionary keys.
+        /// </summary>
         [DebuggerTypeProxy(typeof(DictionaryKeyCollectionDebugView<,>))]
         [DebuggerDisplay("Count = {Count}")]
         public sealed class KeyCollection : ICollection<TKey>, ICollection, IReadOnlyCollection<TKey>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
 
+            /// <summary>
+            /// Creates an instance of a KeyCollection
+            /// </summary>
+            /// <param name="dictionary"></param>
             public KeyCollection(PooledDictionary<TKey, TValue> dictionary)
             {
                 _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
             }
 
+            /// <summary>
+            /// Gets the enumerator.
+            /// </summary>
             public Enumerator GetEnumerator()
                 => new Enumerator(_dictionary);
 
+            /// <summary>
+            /// Copies the dictionary keys to an array.
+            /// </summary>
             public void CopyTo(TKey[] array, int index)
             {
                 if (array is null)
@@ -1781,6 +1882,10 @@ namespace Collections.Pooled
                 }
             }
 
+            /// <summary>
+            ///  Copies the dictionary keys to a span.
+            /// </summary>
+            /// <param name="span"></param>
             public void CopyTo(Span<TKey> span)
             {
                 if (span.Length < _dictionary.Count)
@@ -1795,6 +1900,9 @@ namespace Collections.Pooled
                 }
             }
 
+            /// <summary>
+            /// The number of items in the collection.
+            /// </summary>
             public int Count => _dictionary.Count;
 
             bool ICollection<TKey>.IsReadOnly => true;
@@ -1863,6 +1971,9 @@ namespace Collections.Pooled
 
             object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
 
+            /// <summary>
+            /// The enumerator.
+            /// </summary>
             public struct Enumerator : IEnumerator<TKey>, IEnumerator
             {
                 private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -1882,6 +1993,10 @@ namespace Collections.Pooled
                 {
                 }
 
+                /// <summary>
+                /// Moves to the next value, returning false if there are no more values.
+                /// </summary>
+                /// <returns></returns>
                 public bool MoveNext()
                 {
                     if (_version != _dictionary._version)
@@ -1905,6 +2020,9 @@ namespace Collections.Pooled
                     return false;
                 }
 
+                /// <summary>
+                /// The current value.
+                /// </summary>
                 public TKey Current => _currentKey;
 
                 object? IEnumerator.Current
@@ -1933,12 +2051,18 @@ namespace Collections.Pooled
             }
         }
 
+        /// <summary>
+        /// A collection of dicationary values.
+        /// </summary>
         [DebuggerTypeProxy(typeof(DictionaryValueCollectionDebugView<,>))]
         [DebuggerDisplay("Count = {Count}")]
         public sealed class ValueCollection : ICollection<TValue>, ICollection, IReadOnlyCollection<TValue>
         {
             private readonly PooledDictionary<TKey, TValue> _dictionary;
 
+            /// <summary>
+            /// Creates an instance of ValueCollection.
+            /// </summary>
             public ValueCollection(PooledDictionary<TKey, TValue> dictionary)
             {
                 if (dictionary is null)
@@ -1948,9 +2072,15 @@ namespace Collections.Pooled
                 _dictionary = dictionary;
             }
 
+            /// <summary>
+            /// Gets the enumerator.
+            /// </summary>
             public Enumerator GetEnumerator()
                 => new Enumerator(_dictionary);
 
+            /// <summary>
+            /// Copies the dictionary values to an array.
+            /// </summary>
             public void CopyTo(TValue[] array, int index)
             {
                 if (array is null)
@@ -1970,6 +2100,9 @@ namespace Collections.Pooled
                 }
             }
 
+            /// <summary>
+            /// Copies the dictionary values to the given span.
+            /// </summary>
             public void CopyTo(Span<TValue> span)
             {
                 if (span.Length < _dictionary.Count)
@@ -1984,6 +2117,9 @@ namespace Collections.Pooled
                 }
             }
 
+            /// <summary>
+            /// The count of items.
+            /// </summary>
             public int Count => _dictionary.Count;
 
             bool ICollection<TValue>.IsReadOnly => true;
@@ -2052,6 +2188,9 @@ namespace Collections.Pooled
 
             object ICollection.SyncRoot => ((ICollection)_dictionary).SyncRoot;
 
+            /// <summary>
+            /// A dictionary enumerator.
+            /// </summary>
             public struct Enumerator : IEnumerator<TValue>, IEnumerator
             {
                 private readonly PooledDictionary<TKey, TValue> _dictionary;
@@ -2071,6 +2210,10 @@ namespace Collections.Pooled
                 {
                 }
 
+                /// <summary>
+                /// Moves to the next value, returning false if there are no more values.
+                /// </summary>
+                /// <returns></returns>
                 public bool MoveNext()
                 {
                     if (_version != _dictionary._version)
@@ -2093,6 +2236,9 @@ namespace Collections.Pooled
                     return false;
                 }
 
+                /// <summary>
+                /// Returns the current value.
+                /// </summary>
                 public TValue Current => _currentValue;
 
                 object? IEnumerator.Current

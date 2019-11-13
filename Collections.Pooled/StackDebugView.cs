@@ -17,12 +17,6 @@ namespace Collections.Pooled
         }
 
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public T[] Items
-        {
-            get
-            {
-                return _stack.ToArray();
-            }
-        }
+        public T[] Items => _stack.ToArray();
     }
 }

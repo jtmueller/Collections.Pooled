@@ -621,9 +621,21 @@ namespace Collections.Pooled
         /// </summary>
         public void Dispose()
         {
-            ReturnArray(replaceWith: Array.Empty<T>());
-            _size = 0;
-            _version++;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets <see cref="PooledStack{T}.Count"/> to zero.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ReturnArray(replaceWith: Array.Empty<T>());
+                _size = 0;
+                _version++;
+            }
         }
 
         void IDeserializationCallback.OnDeserialization(object? sender)

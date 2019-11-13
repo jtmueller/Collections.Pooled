@@ -4,15 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Collections.Pooled.Tests
 {
     public static class Extensions
     {
-        public static T[] Slice<T>(
-            this T[] array,
-            int startIndex,
-            int length = -1)
+        public static T[] Slice<T>(this T[] array, int startIndex, int length = -1)
         {
             if (length == -1)
                 length = array.Length - startIndex;

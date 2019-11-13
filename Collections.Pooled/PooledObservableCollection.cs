@@ -22,9 +22,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     public class PooledObservableCollection<T> : PooledCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
-#pragma warning disable IDE0069 // Disposable fields should be disposed
         private SimpleMonitor? _monitor; // Lazily allocated only when a subclass calls BlockReentrancy() or during serialization. Do not rename (binary serialization)
-#pragma warning restore IDE0069
 
         [NonSerialized]
         private int _blockReentrancyCount;
@@ -66,7 +64,6 @@ namespace Collections.Pooled
         /// Move item at oldIndex to newIndex.
         /// </summary>
         public void Move(int oldIndex, int newIndex) => MoveItem(oldIndex, newIndex);
-
 
         /// <summary>
         /// PropertyChanged event (per <see cref="INotifyPropertyChanged" />).
@@ -258,6 +255,18 @@ namespace Collections.Pooled
         }
 
         /// <summary>
+        /// Returns the underlying storage to the pool and sets the Count to zero.
+        /// </summary>
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                _monitor?.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Helper to raise a PropertyChanged event for the Count property
         /// </summary>
         private void OnCountPropertyChanged() => OnPropertyChanged(EventArgsCache.CountPropertyChanged);
@@ -288,9 +297,11 @@ namespace Collections.Pooled
         /// <summary>
         /// Helper to raise CollectionChanged event with action == Reset to any listeners
         /// </summary>
-        private void OnCollectionReset() => OnCollectionChanged(EventArgsCache.ResetCollectionChanged);
+        private void OnCollectionReset() 
+            => OnCollectionChanged(EventArgsCache.ResetCollectionChanged);
 
-        private SimpleMonitor EnsureMonitorInitialized() => _monitor ?? (_monitor = new SimpleMonitor(this));
+        private SimpleMonitor EnsureMonitorInitialized() 
+            => _monitor ?? (_monitor = new SimpleMonitor(this));
 
         [OnSerializing]
         private void OnSerializing(StreamingContext context)

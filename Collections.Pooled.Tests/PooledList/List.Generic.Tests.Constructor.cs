@@ -16,7 +16,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void Constructor_Default()
         {
-            PooledList<T> list = new PooledList<T>();
+            using var list = new PooledList<T>();
             Assert.Equal(0, list.Capacity); //"Expected capacity of list to be the same as given."
             Assert.Empty(list); //"Do not expect anything to be in the list."
             Assert.False(((IList<T>)list).IsReadOnly); //"List should not be readonly"
@@ -31,11 +31,10 @@ namespace Collections.Pooled.Tests.PooledList
         [InlineData(100)]
         public void Constructor_Capacity(int capacity)
         {
-            PooledList<T> list = new PooledList<T>(capacity);
+            using var list = new PooledList<T>(capacity);
             Assert.True(capacity <= list.Capacity); //"Expected capacity of list to be at least the same as given."
             Assert.Empty(list); //"Do not expect anything to be in the list."
             Assert.False(((IList<T>)list).IsReadOnly); //"List should not be readonly"
-            list.Dispose();
         }
 
         [Theory]
@@ -52,8 +51,8 @@ namespace Collections.Pooled.Tests.PooledList
         public void Constructor_IEnumerable(EnumerableType enumerableType, int listLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
             IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
-            PooledList<T> list = new PooledList<T>(enumerable);
-            PooledList<T> expected = enumerable.ToPooledList();
+            using var list = new PooledList<T>(enumerable);
+            using var expected = enumerable.ToPooledList();
 
             Assert.Equal(enumerableLength, list.Count); //"Number of items in list do not match the number of items given."
 
@@ -61,15 +60,13 @@ namespace Collections.Pooled.Tests.PooledList
                 Assert.Equal(expected[i], list[i]); //"Expected object in item array to be the same as in the list"
 
             Assert.False(((IList<T>)list).IsReadOnly); //"List should not be readonly"
-            list.Dispose();
-            expected.Dispose();
         }
 #pragma warning restore xUnit1026 // Theory methods should use all of their parameters
 
         [Fact]
         public void Constructor_NullIEnumerable_ThrowsArgumentNullException()
         {
-            Assert.Throws<ArgumentNullException>(() => { PooledList<T> _list = new PooledList<T>((IEnumerable<T>)null); }); //"Expected ArgumentnUllException for null items"
+            Assert.Throws<ArgumentNullException>(() => { var _list = new PooledList<T>((IEnumerable<T>)null); }); //"Expected ArgumentnUllException for null items"
         }
     }
 }

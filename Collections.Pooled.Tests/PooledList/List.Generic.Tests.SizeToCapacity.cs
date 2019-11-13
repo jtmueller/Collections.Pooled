@@ -29,7 +29,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void SizeToCapacityCapacityCount()
         {
-            var list = new PooledList<T>(13, true);
+            using var list = new PooledList<T>(13, true);
             Assert.InRange(list.Capacity, 13, list.Capacity);
             Assert.Equal(13, list.Count);
             list.Dispose();
@@ -38,7 +38,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void SizeToCapacityItemsSet()
         {
-            var list = new PooledList<T>(13, true);
+            using var list = new PooledList<T>(13, true);
             var value = CreateT(42);
             list[12] = value;
             Assert.Equal(value, list[12]);
@@ -48,7 +48,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void NoSizeToCapacityItemsSet()
         {
-            var list = new PooledList<T>(13, false);
+            using var list = new PooledList<T>(13, false);
             var value = CreateT(42);
             Assert.Throws<ArgumentOutOfRangeException>(() => list[12] = value);
             list.Dispose();
@@ -62,7 +62,7 @@ namespace Collections.Pooled.Tests.PooledList
             items[7] = value;
             var pool = new SingleArrayPool(items);
 
-            var list = new PooledList<T>(13, ClearMode.Never, pool, true);
+            using var list = new PooledList<T>(13, ClearMode.Never, pool, true);
 
             Assert.Equal(value, list[7]);
 
@@ -78,7 +78,7 @@ namespace Collections.Pooled.Tests.PooledList
             items[items.Length - 1] = value;
             var pool = new SingleArrayPool(items);
 
-            var list = new PooledList<T>(13, ClearMode.Always, pool, true);
+            using var list = new PooledList<T>(13, ClearMode.Always, pool, true);
 
             Assert.Equal(default, list[7]);
             Assert.Equal(default, list[list.Count - 1]);

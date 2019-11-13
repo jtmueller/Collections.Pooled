@@ -32,15 +32,13 @@ namespace Collections.Pooled.Tests.PooledList
 
         protected virtual PooledList<T> GenericListFactory()
         {
-            return new PooledList<T>();
+            return RegisterForDispose(new PooledList<T>());
         }
 
         protected virtual PooledList<T> GenericListFactory(int count)
         {
             var toCreateFrom = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
-            var list = new PooledList<T>(toCreateFrom);
-            RegisterForDispose(list);
-            return list;
+            return RegisterForDispose(new PooledList<T>(toCreateFrom));
         }
 
         protected virtual T[] GenericArrayFactory(int count)

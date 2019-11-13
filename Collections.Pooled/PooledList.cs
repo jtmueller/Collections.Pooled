@@ -1929,13 +1929,25 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Returns the internal buffers to the ArrayPool.
+        /// Returns the internal buffers to the pool.
         /// </summary>
         public void Dispose()
         {
-            ReturnArray();
-            _size = 0;
-            _version++;
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns the internal buffers to the pool.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                ReturnArray();
+                _size = 0;
+                _version++;
+            }
         }
 
         void IDeserializationCallback.OnDeserialization(object? sender)

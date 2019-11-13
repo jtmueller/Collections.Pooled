@@ -19,7 +19,7 @@ namespace Collections.Pooled
             _comparer = EqualityComparer<T>.Default;
         }
 
-        // using m_comparer to keep equals properties intact; don't want to choose one of the comparers
+        // using _comparer to keep equals properties intact; don't want to choose one of the comparers
         public bool Equals(PooledSet<T> x, PooledSet<T> y)
         {
             return PooledSet<T>.PooledSetEquals(x, y, _comparer);

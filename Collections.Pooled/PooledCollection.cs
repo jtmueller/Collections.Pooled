@@ -466,10 +466,22 @@ namespace Collections.Pooled
         /// <summary>
         /// Returns the underlying storage to the pool and sets the Count to zero.
         /// </summary>
-        public virtual void Dispose()
+        public void Dispose()
         {
-            if (_items is IDisposable disposable)
-                disposable.Dispose();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Returns the underlying storage to the pool and sets the Count to zero.
+        /// </summary>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (_items is IDisposable disposable)
+                    disposable.Dispose();
+            }
         }
     }
 }

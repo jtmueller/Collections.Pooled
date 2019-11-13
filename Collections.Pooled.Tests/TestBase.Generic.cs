@@ -78,7 +78,7 @@ namespace Collections.Pooled.Tests
             }
         }
 
-        private class IntArrayComparer : IEqualityComparer<int[]>
+        private readonly struct IntArrayComparer : IEqualityComparer<int[]>
         {
             public bool Equals(int[] x, int[] y)
             {
@@ -91,7 +91,7 @@ namespace Collections.Pooled.Tests
                 if (x.Length != y.Length)
                     return false;
 
-                return x.AsSpan().SequenceEqual(y.AsSpan());
+                return x.AsSpan().SequenceEqual(y);
             }
 
             public int GetHashCode(int[] obj)
@@ -158,7 +158,7 @@ namespace Collections.Pooled.Tests
         /// </summary>
         protected IEnumerable<T> CreateQueue(IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            PooledQueue<T> queue = new PooledQueue<T>(count);
+            var queue = new PooledQueue<T>(count);
             RegisterForDispose(queue);
             int seed = 528;
             int duplicateAdded = 0;
@@ -208,7 +208,7 @@ namespace Collections.Pooled.Tests
         /// </summary>
         protected IEnumerable<T> CreateList(IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            List<T> list = new List<T>(count);
+            var list = new List<T>(count);
             int seed = 528;
             int duplicateAdded = 0;
             List<T> match = null;
@@ -300,7 +300,7 @@ namespace Collections.Pooled.Tests
         /// </summary>
         protected IEnumerable<T> CreateSortedSet(IEnumerable<T> enumerableToMatchTo, int count, int numberOfMatchingElements)
         {
-            SortedSet<T> set = new SortedSet<T>(GetIComparer());
+            var set = new SortedSet<T>(GetIComparer());
             int seed = 528;
             List<T> match = null;
 

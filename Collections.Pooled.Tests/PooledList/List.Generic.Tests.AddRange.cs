@@ -20,8 +20,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(EnumerableTestData))]
         public void AddRange(EnumerableType enumerableType, int listLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            PooledList<T> list = GenericListFactory(listLength);
-            var listBeforeAdd = list.ToPooledList();
+            var list = GenericListFactory(listLength);
+            using var listBeforeAdd = list.ToPooledList();
             IEnumerable<T> enumerable = CreateEnumerable(enumerableType, list, enumerableLength, numberOfMatchingElements, numberOfDuplicateElements);
             list.AddRange(enumerable);
 
@@ -44,8 +44,8 @@ namespace Collections.Pooled.Tests.PooledList
         [MemberData(nameof(ValidCollectionSizes))]
         public void AddRange_NullEnumerable_ThrowsArgumentNullException(int count)
         {
-            PooledList<T> list = GenericListFactory(count);
-            var listBeforeAdd = list.ToPooledList();
+            var list = GenericListFactory(count);
+            using var listBeforeAdd = list.ToPooledList();
             Assert.Throws<ArgumentNullException>(() => list.AddRange((IEnumerable<T>)null));
             Assert.Equal(listBeforeAdd, list);
             list.Dispose();
@@ -55,7 +55,7 @@ namespace Collections.Pooled.Tests.PooledList
         [Fact]
         public void AddRange_AddSelfAsEnumerable_ThrowsExceptionWhenNotEmpty()
         {
-            PooledList<T> list = GenericListFactory(0);
+            var list = GenericListFactory(0);
 
             // Succeeds when list is empty.
             list.AddRange(list);

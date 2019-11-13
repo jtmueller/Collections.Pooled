@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net48;netcoreapp2.1;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;net48</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
     <IsPackable>false</IsPackable>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
