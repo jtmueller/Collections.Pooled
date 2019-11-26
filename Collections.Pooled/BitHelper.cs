@@ -45,7 +45,7 @@ namespace Collections.Pooled
             int i = startPosition;
             for (int bi = i / s_intSize; (uint)bi < (uint)_span.Length; bi = ++i / s_intSize)
             {
-                if ((_span[bi] & (1 << (i % s_intSize))) == 0)
+                if (_span[bi] == 0 || (_span[bi] & (1 << (i % s_intSize))) == 0)
                     return i;
             }
             return -1;
@@ -56,6 +56,15 @@ namespace Collections.Pooled
             int i = startPosition;
             for (int bi = i / s_intSize; (uint)bi < (uint)_span.Length; bi = ++i / s_intSize)
             {
+                if (_span[bi] == 0)
+                {
+                    if (bi++ == _span.Length)
+                        break;
+                    // skip ahead to the next int boundary
+                    i = (bi * s_intSize) - 1;
+                    continue;
+                }
+
                 if ((_span[bi] & (1 << (i % s_intSize))) != 0)
                     return i;
             }
