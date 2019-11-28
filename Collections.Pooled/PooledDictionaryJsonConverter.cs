@@ -106,21 +106,21 @@ namespace Collections.Pooled
                 throw new JsonException();
             }
 
-            public override void Write(Utf8JsonWriter writer, PooledDictionary<string, TValue> value, JsonSerializerOptions options)
+            public override void Write(Utf8JsonWriter writer, PooledDictionary<string, TValue> dictionary, JsonSerializerOptions options)
             {
                 writer.WriteStartObject();
 
-                foreach (var kvp in value)
+                foreach (var (key, value) in dictionary)
                 {
-                    writer.WritePropertyName(kvp.Key);
+                    writer.WritePropertyName(key);
 
                     if (_valueConverter != null)
                     {
-                        _valueConverter.Write(writer, kvp.Value, options);
+                        _valueConverter.Write(writer, value, options);
                     }
                     else
                     {
-                        JsonSerializer.Serialize(writer, kvp.Value, options);
+                        JsonSerializer.Serialize(writer, value, options);
                     }
                 }
 
