@@ -15,6 +15,9 @@ namespace Collections.Pooled.Tests.PooledStack
     /// </summary>
     public abstract partial class Stack_Generic_Tests<T> : IGenericSharedAPI_Tests<T>
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledStack<T>);
+
         #region PooledStack<T> Helper Methods
 
         #region IGenericSharedAPI<T> Helper Methods

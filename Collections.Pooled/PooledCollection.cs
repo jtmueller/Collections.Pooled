@@ -7,6 +7,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     /// <summary>
@@ -17,6 +21,9 @@ namespace Collections.Pooled
     [Serializable]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+#endif
     public class PooledCollection<T> : IList<T>, IList, IReadOnlyList<T>, IDisposable
     {
         private readonly IList<T> _items; // Do not rename (binary serialization)

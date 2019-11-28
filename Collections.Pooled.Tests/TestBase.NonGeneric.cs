@@ -16,6 +16,9 @@ namespace Collections.Pooled.Tests
     {
         private readonly PooledList<IDisposable> _disposables = new PooledList<IDisposable>();
 
+        public abstract Type CollectionType { get; }
+        public abstract bool SupportsJson { get; }
+
         #region Helper Methods
 
         public static IEnumerable<object[]> ValidCollectionSizes()

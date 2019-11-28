@@ -14,6 +14,9 @@ namespace Collections.Pooled.Tests.PooledSet
     /// </summary>
     public abstract partial class HashSet_Generic_Tests<T> : ISet_Generic_Tests<T>
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledSet<T>);
+
         #region ISet<T> Helper Methods
 
         protected override bool ResetImplemented => true;

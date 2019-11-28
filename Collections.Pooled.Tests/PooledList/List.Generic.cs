@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Collections.Pooled.Tests.PooledList
 {
@@ -30,6 +31,9 @@ namespace Collections.Pooled.Tests.PooledList
 
     public class List_Generic_Tests_string_ReadOnly : List_Generic_Tests<string>
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(ReadOnlyCollection<string>);
+
         protected override string CreateT(int seed)
         {
             int stringLength = seed % 10 + 5;
@@ -53,6 +57,9 @@ namespace Collections.Pooled.Tests.PooledList
 
     public class List_Generic_Tests_int_ReadOnly : List_Generic_Tests<int>
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(ReadOnlyCollection<int>);
+
         protected override int CreateT(int seed)
         {
             var rand = new Random(seed);

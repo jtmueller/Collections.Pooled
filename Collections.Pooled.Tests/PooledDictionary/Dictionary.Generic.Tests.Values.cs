@@ -13,6 +13,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
 {
     public class Dictionary_Generic_Tests_Values : ICollection_Generic_Tests<string>
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(PooledDictionary<string, string>.ValueCollection);
+
         protected override bool DefaultValueAllowed => true;
         protected override bool DuplicateValuesAllowed => true;
         protected override bool IsReadOnly => true;
@@ -82,6 +85,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
     public class Dictionary_Generic_Tests_Values_AsICollection : ICollection_NonGeneric_Tests
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(PooledDictionary<string, string>.ValueCollection);
+
         protected override bool NullAllowed => true;
         protected override bool DuplicateValuesAllowed => true;
         protected override bool IsReadOnly => true;

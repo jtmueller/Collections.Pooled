@@ -5,6 +5,9 @@ namespace Collections.Pooled.Tests.PooledList
 {
     public abstract class List_NonGeneric_Tests<T> : IList_NonGeneric_Tests
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledList<T>);
+
         protected override IList NonGenericIListFactory()
         {
             var list = new PooledList<T>();

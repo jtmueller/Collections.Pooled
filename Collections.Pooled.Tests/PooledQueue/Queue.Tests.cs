@@ -12,6 +12,9 @@ namespace Collections.Pooled.Tests.PooledQueue
 {
     public class Queue_ICollection_NonGeneric_Tests : ICollection_NonGeneric_Tests
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledQueue<string>);
+
         #region ICollection Helper Methods
 
         protected override Type ICollection_NonGeneric_CopyTo_ArrayOfEnumType_ThrowType => typeof(ArgumentException);

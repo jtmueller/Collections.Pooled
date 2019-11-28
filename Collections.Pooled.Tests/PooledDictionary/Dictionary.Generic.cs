@@ -10,18 +10,15 @@ namespace Collections.Pooled.Tests.PooledDictionary
 {
     public partial class Dictionary_Generic_Tests_string_string : Dictionary_Generic_Tests<string, string>
     {
-        protected override KeyValuePair<string, string> CreateT(int seed)
-        {
-            return new KeyValuePair<string, string>(CreateTKey(seed), CreateTKey(seed + 500));
-        }
+        protected override KeyValuePair<string, string> CreateT(int seed) => new KeyValuePair<string, string>(CreateTKey(seed), CreateTKey(seed + 500));
 
 #if NETCOREAPP3_0
         protected override string CreateTKey(int seed)
         {
             int stringLength = seed % 10 + 5;
             var rand = new Random(seed);
-            using var pooled = MemoryPool<byte>.Shared.Rent(stringLength);
-            var bytes = pooled.Memory.Span[..stringLength];
+            byte[] pooled = stringLength < 33 ? null : ArrayPool<byte>.Shared.Rent(stringLength);
+            Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
             rand.NextBytes(bytes);
             return Convert.ToBase64String(bytes);
         }
@@ -41,17 +38,18 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
     public class Dictionary_Generic_Tests_int_int : Dictionary_Generic_Tests<int, int>
     {
+        public override bool SupportsJson => false;
         protected override bool DefaultValueAllowed => true;
 
         protected override KeyValuePair<int, int> CreateT(int seed)
         {
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             return new KeyValuePair<int, int>(rand.Next(), rand.Next());
         }
 
         protected override int CreateTKey(int seed)
         {
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             return rand.Next();
         }
 
@@ -60,33 +58,70 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
     public class Dictionary_Generic_Tests_SimpleInt_int_With_Comparer_WrapStructural_SimpleInt : Dictionary_Generic_Tests<SimpleInt, int>
     {
-        protected override bool DefaultValueAllowed { get { return true; } }
+        public override bool SupportsJson => false;
+        protected override bool DefaultValueAllowed => true;
 
-        public override IEqualityComparer<SimpleInt> GetKeyIEqualityComparer()
-        {
-            return new WrapStructural_SimpleInt();
-        }
+        public override IEqualityComparer<SimpleInt> GetKeyIEqualityComparer() => new WrapStructural_SimpleInt();
 
-        public override IComparer<SimpleInt> GetKeyIComparer()
-        {
-            return new WrapStructural_SimpleInt();
-        }
+        public override IComparer<SimpleInt> GetKeyIComparer() => new WrapStructural_SimpleInt();
 
         protected override SimpleInt CreateTKey(int seed)
         {
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             return new SimpleInt(rand.Next());
         }
 
         protected override int CreateTValue(int seed)
         {
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             return rand.Next();
         }
 
-        protected override KeyValuePair<SimpleInt, int> CreateT(int seed)
+        protected override KeyValuePair<SimpleInt, int> CreateT(int seed) => new KeyValuePair<SimpleInt, int>(CreateTKey(seed), CreateTValue(seed));
+    }
+
+    public class Dictionary_Generic_Tests_string_SimpleObject : Dictionary_Generic_Tests<string, SimpleObject>
+    {
+        public override bool SupportsJson => true;
+        protected override bool DefaultValueAllowed => false;
+
+        public override IEqualityComparer<string> GetKeyIEqualityComparer() => StringComparer.Ordinal;
+
+        public override IComparer<string> GetKeyIComparer() => StringComparer.Ordinal;
+
+        protected override string CreateTKey(int seed) => CreateString(seed);
+
+        protected override SimpleObject CreateTValue(int seed)
         {
-            return new KeyValuePair<SimpleInt, int>(CreateTKey(seed), CreateTValue(seed));
+            var rand = new Random(seed);
+            return new SimpleObject
+            {
+                Name = CreateString(rand.Next()),
+                Age = rand.Next()
+            };
         }
+
+#if NETCOREAPP3_0
+        protected string CreateString(int seed)
+        {
+            int stringLength = seed % 10 + 5;
+            var rand = new Random(seed);
+            byte[] pooled = stringLength < 33 ? null : ArrayPool<byte>.Shared.Rent(stringLength);
+            Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
+            rand.NextBytes(bytes);
+            return Convert.ToBase64String(bytes);
+        }
+#else
+        protected string CreateString(int seed)
+        {
+            int stringLength = seed % 10 + 5;
+            var rand = new Random(seed);
+            var bytes = new byte[stringLength];
+            rand.NextBytes(bytes);
+            return Convert.ToBase64String(bytes);
+        }
+#endif
+
+        protected override KeyValuePair<string, SimpleObject> CreateT(int seed) => new KeyValuePair<string, SimpleObject>(CreateTKey(seed), CreateTValue(seed));
     }
 }

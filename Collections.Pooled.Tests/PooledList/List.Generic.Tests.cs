@@ -14,6 +14,9 @@ namespace Collections.Pooled.Tests.PooledList
     /// </summary>
     public abstract partial class List_Generic_Tests<T> : IList_Generic_Tests<T>
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledList<T>);
+
         #region IList<T> Helper Methods
 
         protected override IList<T> GenericIListFactory()

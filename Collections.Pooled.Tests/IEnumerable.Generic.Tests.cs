@@ -10,6 +10,10 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 
+#if NETCOREAPP3_0
+using System.Text.Json;
+#endif
+
 namespace Collections.Pooled.Tests
 {
     /// <summary>
@@ -964,6 +968,24 @@ namespace Collections.Pooled.Tests
             }
         }
 
+        #endregion
+
+        #region JSON (.NET Core 3 Only)
+#if NETCOREAPP3_0
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void IEnumerable_Generic_Json(int count)
+        {
+            if (!SupportsJson) return;
+            var collection = GenericIEnumerableFactory(count);
+            var json = JsonSerializer.Serialize(collection, CollectionType);
+            var deserialized = (IEnumerable<T>)JsonSerializer.Deserialize(json, CollectionType);
+            Assert.NotSame(collection, deserialized);
+            Assert.Equal(collection, deserialized);
+        }
+
+#endif
         #endregion
     }
 }

@@ -10,6 +10,9 @@ namespace Collections.Pooled.Tests.PooledSet
 {
     public class HashSet_IEnumerable_NonGeneric_Tests : IEnumerable_NonGeneric_Tests
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledSet<string>);
+
         protected override IEnumerable NonGenericIEnumerableFactory(int count)
         {
             var set = new PooledSet<string>();
@@ -31,7 +34,7 @@ namespace Collections.Pooled.Tests.PooledSet
             {
                 yield return (IEnumerable enumerable) =>
                 {
-                    PooledSet<string> casted = ((PooledSet<string>)enumerable);
+                    var casted = (PooledSet<string>)enumerable;
                     if (casted.Count > 0)
                     {
                         casted.Clear();
@@ -45,7 +48,7 @@ namespace Collections.Pooled.Tests.PooledSet
         protected string CreateT(PooledSet<string> set, int seed)
         {
             int stringLength = seed % 10 + 5;
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             byte[] bytes = new byte[stringLength];
             rand.NextBytes(bytes);
             string ret = Convert.ToBase64String(bytes);

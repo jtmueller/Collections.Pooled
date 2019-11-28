@@ -20,6 +20,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     using static ClearModeUtil;
@@ -31,6 +35,9 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(StackDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+#endif
     public class PooledStack<T> : IEnumerable<T>, ICollection, IReadOnlyCollection<T>, IDisposable, IDeserializationCallback
     {
         [NonSerialized]
@@ -591,6 +598,14 @@ namespace Collections.Pooled
                 i++;
             }
             return outArray;
+        }
+
+        /// <summary>
+        /// Reverses the stack. Useful when loading from saved state.
+        /// </summary>
+        public void Reverse()
+        {
+            Array.Reverse(_array, 0, _size);
         }
 
         private void ThrowForEmptyStack()

@@ -10,6 +10,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     /// <summary>
@@ -20,6 +24,9 @@ namespace Collections.Pooled
     [Serializable]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+#endif
     public class PooledObservableCollection<T> : PooledCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         private SimpleMonitor? _monitor; // Lazily allocated only when a subclass calls BlockReentrancy() or during serialization. Do not rename (binary serialization)

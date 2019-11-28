@@ -13,6 +13,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     using static ClearModeUtil;
@@ -31,6 +35,9 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+#endif
     public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
     {
         // internal constant copied from Array.MaxArrayLength

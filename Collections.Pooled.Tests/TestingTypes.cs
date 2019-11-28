@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Collections.Pooled.Tests
 {
@@ -14,31 +15,19 @@ namespace Collections.Pooled.Tests
     [Serializable]
     public class BadIntEqualityComparer : IEqualityComparer<int>
     {
-        public bool Equals(int x, int y)
-        {
-            return x == y;
-        }
+        public bool Equals(int x, int y) => x == y;
 
-        public int GetHashCode(int obj)
-        {
-            return obj % 2;
-        }
+        public int GetHashCode(int obj) => obj % 2;
 
-        public override bool Equals(object obj)
-        {
-            return obj is BadIntEqualityComparer; // Equal to all other instances of this type, not to anything else.
-        }
+        public override bool Equals(object obj) => obj is BadIntEqualityComparer; // Equal to all other instances of this type, not to anything else.
 
-        public override int GetHashCode()
-        {
-            return unchecked((int)0xC001CAFE); // Doesn't matter as long as its constant.
-        }
+        public override int GetHashCode() => unchecked((int)0xC001CAFE); // Doesn't matter as long as its constant.
     }
 
     [Serializable]
     public class EquatableBackwardsOrder : IEquatable<EquatableBackwardsOrder>, IComparable<EquatableBackwardsOrder>, IComparable
     {
-        private int _value;
+        private readonly int _value;
 
         public EquatableBackwardsOrder(int value)
         {
@@ -46,73 +35,55 @@ namespace Collections.Pooled.Tests
         }
 
         public int CompareTo(EquatableBackwardsOrder other) //backwards from the usual integer ordering
-        {
-            return other._value - _value;
-        }
+            => other._value - _value;
 
         public override int GetHashCode() => _value;
 
         public override bool Equals(object obj)
         {
-            EquatableBackwardsOrder other = obj as EquatableBackwardsOrder;
+            var other = obj as EquatableBackwardsOrder;
             return other != null && Equals(other);
         }
 
-        public bool Equals(EquatableBackwardsOrder other)
-        {
-            return _value == other._value;
-        }
+        public bool Equals(EquatableBackwardsOrder other) => _value == other._value;
 
         int IComparable.CompareTo(object obj)
         {
             if (obj != null && obj.GetType() == typeof(EquatableBackwardsOrder))
+            {
                 return ((EquatableBackwardsOrder)obj)._value - _value;
-            else return -1;
+            }
+            else
+            {
+                return -1;
+            }
         }
     }
 
     [Serializable]
     public class Comparer_SameAsDefaultComparer : IEqualityComparer<int>, IComparer<int>
     {
-        public int Compare(int x, int y)
-        {
-            return x - y;
-        }
+        public int Compare(int x, int y) => x - y;
 
-        public bool Equals(int x, int y)
-        {
-            return x == y;
-        }
+        public bool Equals(int x, int y) => x == y;
 
-        public int GetHashCode(int obj)
-        {
-            return obj.GetHashCode();
-        }
+        public int GetHashCode(int obj) => obj.GetHashCode();
     }
 
     [Serializable]
     public class Comparer_HashCodeAlwaysReturnsZero : IEqualityComparer<int>, IComparer<int>
     {
-        public int Compare(int x, int y)
-        {
-            return x - y;
-        }
+        public int Compare(int x, int y) => x - y;
 
-        public bool Equals(int x, int y)
-        {
-            return x == y;
-        }
+        public bool Equals(int x, int y) => x == y;
 
-        public int GetHashCode(int obj)
-        {
-            return 0;
-        }
+        public int GetHashCode(int obj) => 0;
     }
 
     [Serializable]
     public class Comparer_ModOfInt : IEqualityComparer<int>, IComparer<int>
     {
-        private int _mod;
+        private readonly int _mod;
 
         public Comparer_ModOfInt(int mod)
         {
@@ -124,44 +95,45 @@ namespace Collections.Pooled.Tests
             _mod = 500;
         }
 
-        public int Compare(int x, int y)
-        {
-            return ((x % _mod) - (y % _mod));
-        }
+        public int Compare(int x, int y) => ((x % _mod) - (y % _mod));
 
-        public bool Equals(int x, int y)
-        {
-            return ((x % _mod) == (y % _mod));
-        }
+        public bool Equals(int x, int y) => ((x % _mod) == (y % _mod));
 
-        public int GetHashCode(int x)
-        {
-            return (x % _mod);
-        }
+        public int GetHashCode(int x) => (x % _mod);
     }
 
     [Serializable]
     public class Comparer_AbsOfInt : IEqualityComparer<int>, IComparer<int>
     {
-        public int Compare(int x, int y)
-        {
-            return Math.Abs(x) - Math.Abs(y);
-        }
+        public int Compare(int x, int y) => Math.Abs(x) - Math.Abs(y);
 
-        public bool Equals(int x, int y)
-        {
-            return Math.Abs(x) == Math.Abs(y);
-        }
+        public bool Equals(int x, int y) => Math.Abs(x) == Math.Abs(y);
 
-        public int GetHashCode(int x)
-        {
-            return Math.Abs(x);
-        }
+        public int GetHashCode(int x) => Math.Abs(x);
     }
 
     #endregion
 
     #region TestClasses
+
+    [Serializable]
+    public class SimpleObject : IEquatable<SimpleObject>
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+
+        public bool Equals([AllowNull] SimpleObject other)
+        {
+            if (other is null)
+                return false;
+
+            return other.Name == Name && other.Age == Age;
+        }
+
+        public override bool Equals(object obj) => obj is SimpleObject so && Equals(so);
+
+        public override int GetHashCode() => 17 ^ Age.GetHashCode() ^ (Name?.GetHashCode() ?? 0);
+    }
 
     [Serializable]
     public struct SimpleInt : IStructuralComparable, IStructuralEquatable, IComparable, IComparable<SimpleInt>
@@ -173,14 +145,11 @@ namespace Collections.Pooled.Tests
         }
         public int Val
         {
-            get { return _val; }
-            set { _val = value; }
+            get => _val;
+            set => _val = value;
         }
 
-        public int CompareTo(SimpleInt other)
-        {
-            return other.Val - _val;
-        }
+        public int CompareTo(SimpleInt other) => other.Val - _val;
 
         public int CompareTo(object obj)
         {
@@ -194,59 +163,44 @@ namespace Collections.Pooled.Tests
         public int CompareTo(object other, IComparer comparer)
         {
             if (other.GetType() == typeof(SimpleInt))
+            {
                 return ((SimpleInt)other).Val - _val;
+            }
+
             return -1;
         }
 
         public bool Equals(object other, IEqualityComparer comparer)
         {
             if (other.GetType() == typeof(SimpleInt))
+            {
                 return ((SimpleInt)other).Val == _val;
+            }
+
             return false;
         }
 
-        public int GetHashCode(IEqualityComparer comparer)
-        {
-            return comparer.GetHashCode(_val);
-        }
+        public int GetHashCode(IEqualityComparer comparer) => comparer.GetHashCode(_val);
     }
 
     [Serializable]
     public class WrapStructural_Int : IEqualityComparer<int>, IComparer<int>
     {
-        public int Compare(int x, int y)
-        {
-            return StructuralComparisons.StructuralComparer.Compare(x, y);
-        }
+        public int Compare(int x, int y) => StructuralComparisons.StructuralComparer.Compare(x, y);
 
-        public bool Equals(int x, int y)
-        {
-            return StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
-        }
+        public bool Equals(int x, int y) => StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
 
-        public int GetHashCode(int obj)
-        {
-            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
-        }
+        public int GetHashCode(int obj) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
     }
 
     [Serializable]
     public class WrapStructural_SimpleInt : IEqualityComparer<SimpleInt>, IComparer<SimpleInt>
     {
-        public int Compare(SimpleInt x, SimpleInt y)
-        {
-            return StructuralComparisons.StructuralComparer.Compare(x, y);
-        }
+        public int Compare(SimpleInt x, SimpleInt y) => StructuralComparisons.StructuralComparer.Compare(x, y);
 
-        public bool Equals(SimpleInt x, SimpleInt y)
-        {
-            return StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
-        }
+        public bool Equals(SimpleInt x, SimpleInt y) => StructuralComparisons.StructuralEqualityComparer.Equals(x, y);
 
-        public int GetHashCode(SimpleInt obj)
-        {
-            return StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
-        }
+        public int GetHashCode(SimpleInt obj) => StructuralComparisons.StructuralEqualityComparer.GetHashCode(obj);
     }
 
     public class GenericComparable : IComparable<GenericComparable>
@@ -300,10 +254,7 @@ namespace Collections.Pooled.Tests
     public static class ValueComparable
     {
         // Convenience method so the compiler can work its type inference magic.
-        public static ValueComparable<T> Create<T>(T value) where T : IComparable<T>
-        {
-            return new ValueComparable<T>(value);
-        }
+        public static ValueComparable<T> Create<T>(T value) where T : IComparable<T> => new ValueComparable<T>(value);
     }
 
     public struct ValueComparable<T> : IComparable<ValueComparable<T>> where T : IComparable<T>
@@ -331,10 +282,7 @@ namespace Collections.Pooled.Tests
         // Equals(object) is not implemented on purpose.
         // EqualityComparer is only supposed to call through to the strongly-typed Equals since we implement IEquatable.
 
-        public bool Equals(Equatable other)
-        {
-            return other != null && Value == other.Value;
-        }
+        public bool Equals(Equatable other) => other != null && Value == other.Value;
 
         public override int GetHashCode() => Value;
     }

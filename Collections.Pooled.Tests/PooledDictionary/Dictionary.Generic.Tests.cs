@@ -14,6 +14,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
     /// </summary>
     public abstract partial class Dictionary_Generic_Tests<TKey, TValue> : IDictionary_Generic_Tests<TKey, TValue>
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledDictionary<TKey, TValue>);
+
         #region IDictionary<TKey, TValue Helper Methods
 
         protected override IDictionary<TKey, TValue> GenericIDictionaryFactory()

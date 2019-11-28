@@ -13,6 +13,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
 {
     public class Dictionary_Generic_Tests_Keys : ICollection_Generic_Tests<string>
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(PooledDictionary<string, string>.KeyCollection);
+
         protected override bool DefaultValueAllowed => false;
         protected override bool DuplicateValuesAllowed => false;
         protected override bool IsReadOnly => true;
@@ -81,6 +84,9 @@ namespace Collections.Pooled.Tests.PooledDictionary
 
     public class Dictionary_Generic_Tests_Keys_AsICollection : ICollection_NonGeneric_Tests
     {
+        public override bool SupportsJson => false;
+        public override Type CollectionType => typeof(PooledDictionary<string, string>.KeyCollection);
+
         protected override bool NullAllowed => false;
         protected override bool DuplicateValuesAllowed => false;
         protected override bool IsReadOnly => true;
@@ -110,7 +116,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         private string CreateT(int seed)
         {
             int stringLength = seed % 10 + 5;
-            Random rand = new Random(seed);
+            var rand = new Random(seed);
             byte[] bytes = new byte[stringLength];
             rand.NextBytes(bytes);
             return Convert.ToBase64String(bytes);

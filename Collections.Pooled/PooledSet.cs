@@ -10,6 +10,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     using static ClearModeUtil;
@@ -57,6 +61,9 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design")]
     [Serializable]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+#endif
     public class PooledSet<T> : ICollection<T>, ISet<T>, IReadOnlyCollection<T>, ISerializable, IDeserializationCallback, IDisposable
     {
         // store lower 31 bits of hash code

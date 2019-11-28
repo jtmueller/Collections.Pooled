@@ -11,6 +11,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading;
 
+#if NETCOREAPP3_0
+using System.Text.Json.Serialization;
+#endif
+
 namespace Collections.Pooled
 {
     using static ClearModeUtil;
@@ -45,6 +49,9 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(IDictionaryDebugView<,>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
+#if NETCOREAPP3_0
+    [JsonConverter(typeof(PooledDictionaryJsonConverter))]
+#endif
     public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
         ISerializable, IDeserializationCallback, IDisposable
         where TKey : notnull
@@ -136,7 +143,6 @@ namespace Collections.Pooled
         public PooledDictionary(int capacity, ClearMode clearMode, IEqualityComparer<TKey>? comparer)
         {
             if (capacity < 0) ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity);
-            if (capacity > 0) Initialize(capacity);
             if (comparer != EqualityComparer<TKey>.Default)
             {
                 _comparer = comparer;
@@ -153,6 +159,11 @@ namespace Collections.Pooled
 
             _buckets = Array.Empty<int>();
             _entries = Array.Empty<Entry>();
+
+            if (capacity > 0)
+            {
+                Initialize(capacity);
+            }
         }
 
         /// <summary>
@@ -1271,6 +1282,12 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.key);
             }
 
+            if (_size == 0)
+            {
+                value = default!;
+                return false;
+            }
+
             int[] buckets = _buckets;
             var entries = _entries;
             int collisionCount = 0;
@@ -1526,7 +1543,7 @@ namespace Collections.Pooled
             _size = newSize;
             _freeCount = 0;
             s_bucketPool.Return(oldBuckets);
-            s_entryPool.Return(entries, clearArray: _clearKeyOnFree || _clearValueOnFree);
+            s_entryPool.Return(oldEntries, clearArray: _clearKeyOnFree || _clearValueOnFree);
         }
 
         bool ICollection.IsSynchronized => false;

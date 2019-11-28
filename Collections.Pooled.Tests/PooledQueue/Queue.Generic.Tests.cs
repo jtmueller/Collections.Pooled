@@ -14,6 +14,9 @@ namespace Collections.Pooled.Tests.PooledQueue
     /// </summary>
     public abstract partial class Queue_Generic_Tests<T> : IGenericSharedAPI_Tests<T>
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledQueue<T>);
+
         #region PooledQueue<T> Helper Methods
 
         protected PooledQueue<T> GenericQueueFactory()

@@ -10,6 +10,9 @@ namespace Collections.Pooled.Tests.PooledStack
 {
     public class Stack_ICollection_NonGeneric_Tests : ICollection_NonGeneric_Tests
     {
+        public override bool SupportsJson => true;
+        public override Type CollectionType => typeof(PooledStack<string>);
+
         #region ICollection Helper Methods
 
         protected override Type ICollection_NonGeneric_CopyTo_ArrayOfEnumType_ThrowType => typeof(ArgumentException);
