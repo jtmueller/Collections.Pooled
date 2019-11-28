@@ -1581,7 +1581,7 @@ namespace Collections.Pooled
         }
 
         /// <summary>
-        /// Removes the element at the given index. The size of the list is
+        /// Removes the first occurrence of the given item. The size of the list is
         /// decreased by one.
         /// </summary>
         public bool Remove(T item)
