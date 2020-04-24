@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Xunit;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 using System.Text.Json;
 #endif
 
@@ -971,7 +971,7 @@ namespace Collections.Pooled.Tests
         #endregion
 
         #region JSON (.NET Core 3 Only)
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]

@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 using System.Text.Json.Serialization;
 #endif
 
@@ -24,7 +24,7 @@ namespace Collections.Pooled
     [Serializable]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
     [JsonConverter(typeof(PooledEnumerableJsonConverter))]
 #endif
     public class PooledObservableCollection<T> : PooledCollection<T>, INotifyCollectionChanged, INotifyPropertyChanged

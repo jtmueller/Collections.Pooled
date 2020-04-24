@@ -13,7 +13,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 using System.Text.Json.Serialization;
 #endif
 
@@ -35,7 +35,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
     [JsonConverter(typeof(PooledEnumerableJsonConverter))]
 #endif
     public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
@@ -429,7 +429,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Gets or sets the element at the given index.
         /// </summary>
@@ -635,7 +635,7 @@ namespace Collections.Pooled
         public int BinarySearch(T item, IComparer<T> comparer)
             => BinarySearch(0, Count, item, comparer);
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Searches the list for a given element using a binary search
         /// algorithm. If the item implements <see cref="IComparable{T}"/>
@@ -869,7 +869,7 @@ namespace Collections.Pooled
         public int FindIndex(int startIndex, Func<T, bool> match)
             => FindIndex(startIndex, _size - startIndex, match);
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
         /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
@@ -990,7 +990,7 @@ namespace Collections.Pooled
         public int FindLastIndex(int startIndex, Func<T, bool> match)
             => FindLastIndex(startIndex, startIndex + 1, match);
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
         /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
@@ -1189,7 +1189,7 @@ namespace Collections.Pooled
             return Span.Slice(index);
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Returns a <see cref="Span{T}"/> allowing read/write access to a subset of the entire list.
         /// WARNING: Be careful not to modify the list until you're finished with the returned 
@@ -1253,7 +1253,7 @@ namespace Collections.Pooled
             return Array.IndexOf(_items, item, index, count);
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Returns the index of the first occurrence of a given value in a range of
         /// this list. The list is searched forwards, starting at index
@@ -1400,7 +1400,7 @@ namespace Collections.Pooled
             InsertRange(index, array.AsSpan());
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Inserts the elements of the given collection at a given index. If
         /// required, the capacity of the list is increased to twice the previous
@@ -1504,7 +1504,7 @@ namespace Collections.Pooled
             return LastIndexOf(item, index, index + 1);
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Returns the index of the last occurrence of a given value in a range of
         /// this list. The list is searched backwards, starting at index
@@ -1667,7 +1667,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Removes the element at the given index. The size of the list is
         /// decreased by one.
@@ -1753,7 +1753,7 @@ namespace Collections.Pooled
             _version++;
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Reverses the elements in a range of this list. Following a call to this
         /// method, an element in the range given by index and count

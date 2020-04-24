@@ -62,7 +62,7 @@ namespace Collections.Pooled.Tests
             }
         }
 
-#if !NETCOREAPP3_0
+#if !NETCOREAPP5_0
         public static bool TryAdd<TKey, TVal>(this IDictionary<TKey, TVal> dict, TKey key, TVal value)
         {
             if (dict.ContainsKey(key))

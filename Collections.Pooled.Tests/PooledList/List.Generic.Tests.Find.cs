@@ -532,7 +532,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindIndex(Index, pred<T>)
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindIndexIndex_VerifyVanilla(int count)
@@ -754,7 +754,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindIndex(Range, pred<T>)
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindIndexRange_VerifyVanilla(int count)
@@ -1041,7 +1041,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindLastIndex(Index, pred<T>)
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void FindLastIndexIndex_VerifyVanilla(int count)
@@ -1255,7 +1255,7 @@ namespace Collections.Pooled.Tests.PooledList
         #endregion
 
         #region FindLastIndex(Range, pred<T>)
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]

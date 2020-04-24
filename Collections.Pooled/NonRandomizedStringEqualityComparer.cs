@@ -28,7 +28,7 @@ namespace Collections.Pooled
         // This is used by the serialization engine.
         private NonRandomizedStringEqualityComparer(SerializationInfo information, StreamingContext context) { }
 
-        public sealed override bool Equals(string x, string y) => string.Equals(x, y);
+        public sealed override bool Equals(string? x, string? y) => string.Equals(x, y);
 
         public sealed override int GetHashCode(string str)
             => str is null ? 0 : str.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(str);

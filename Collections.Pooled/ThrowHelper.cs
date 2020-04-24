@@ -100,7 +100,6 @@ namespace Collections.Pooled
             throw GetWrongValueTypeArgumentException(value, targetType);
         }
 
-        [DoesNotReturn]
         private static ArgumentException GetAddingDuplicateWithKeyArgumentException(object? key)
             => new ArgumentException($"Error adding duplicate with key: {key}.");
 
@@ -125,7 +124,6 @@ namespace Collections.Pooled
         internal static void ThrowArgumentException(ExceptionResource resource, ExceptionArgument argument) 
             => throw GetArgumentException(resource, argument);
 
-        [DoesNotReturn]
         private static ArgumentNullException GetArgumentNullException(ExceptionArgument argument) 
             => new ArgumentNullException(GetArgumentName(argument));
 

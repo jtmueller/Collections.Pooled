@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Serialization;
 using System.Threading;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 using System.Text.Json.Serialization;
 #endif
 
@@ -49,7 +49,7 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(IDictionaryDebugView<,>))]
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
     [JsonConverter(typeof(PooledDictionaryJsonConverter))]
 #endif
     public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
@@ -1340,6 +1340,9 @@ namespace Collections.Pooled
             value = default!;
             return false;
         }
+
+        bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value)
+            => TryGetValue(key, out value);
 
         /// <summary>
         /// Attempts to get the value corresponding to the given key.

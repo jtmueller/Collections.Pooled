@@ -4,7 +4,7 @@
 
 #if NET461 || NETSTANDARD2_0 || NETCOREAPP2_1
 // As of this writing, these attributes related to nullable
-// reference types are not available outside of NETCOREAPP3_0 or NETSTANDARD2_1
+// reference types are not available outside of NETCOREAPP5_0 or NETSTANDARD2_1
 // so they are replicated here.
 
 #define INTERNAL_NULLABLE_ATTRIBUTES

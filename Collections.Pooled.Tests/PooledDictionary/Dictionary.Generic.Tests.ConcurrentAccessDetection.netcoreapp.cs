@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Collections.Pooled.Tests.PooledDictionary
 {
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
     public class DictionaryConcurrentAccessDetectionTests
     {
         private async Task DictionaryConcurrentAccessDetection<TKey, TValue>(PooledDictionary<TKey, TValue> dictionary, bool isValueType, object comparer, Action<PooledDictionary<TKey, TValue>> add, Action<PooledDictionary<TKey, TValue>> get, Action<PooledDictionary<TKey, TValue>> remove, Action<PooledDictionary<TKey, TValue>> removeOutParam)

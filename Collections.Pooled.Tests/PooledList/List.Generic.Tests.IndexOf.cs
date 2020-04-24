@@ -38,13 +38,13 @@ namespace Collections.Pooled.Tests.PooledList
                 case IndexOfMethod.IndexOf_T:
                     return (PooledList<T> list, T value) => list.IndexOf(value);
                 case IndexOfMethod.IndexOf_T_Index:
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
                     return (PooledList<T> list, T value) => list.IndexOf(value, (Index)0);
 #endif
                 case IndexOfMethod.IndexOf_T_int:
                     return (PooledList<T> list, T value) => list.IndexOf(value, 0);
                 case IndexOfMethod.IndexOf_T_Range:
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
                     return (PooledList<T> list, T value) => list.IndexOf(value, ..);
 #endif
                 case IndexOfMethod.IndexOf_T_int_int:
@@ -52,13 +52,13 @@ namespace Collections.Pooled.Tests.PooledList
                 case IndexOfMethod.LastIndexOf_T:
                     return (PooledList<T> list, T value) => list.LastIndexOf(value);
                 case IndexOfMethod.LastIndexOf_T_Index:
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
                     return (PooledList<T> list, T value) => list.LastIndexOf(value, ^1);
 #endif
                 case IndexOfMethod.LastIndexOf_T_int:
                     return (PooledList<T> list, T value) => list.LastIndexOf(value, list.Count - 1);
                 case IndexOfMethod.LastIndexOf_T_Range:
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
                     return (PooledList<T> list, T value) => list.LastIndexOf(value, ..);
 #endif
                 case IndexOfMethod.LastIndexOf_T_int_int:

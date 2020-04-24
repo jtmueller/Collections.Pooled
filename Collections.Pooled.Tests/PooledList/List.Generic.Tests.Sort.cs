@@ -154,7 +154,7 @@ namespace Collections.Pooled.Tests.PooledList
             unsortedList.Dispose();
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
         [Theory]
         [MemberData(nameof(ValidCollectionSizes_GreaterThanOne))]
         public void Sort_RangeIComparer_WithoutDuplicates(int count)

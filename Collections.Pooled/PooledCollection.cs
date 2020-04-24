@@ -7,7 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
 using System.Text.Json.Serialization;
 #endif
 
@@ -21,7 +21,7 @@ namespace Collections.Pooled
     [Serializable]
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [DebuggerDisplay("Count = {Count}")]
-#if NETCOREAPP3_0
+#if NETCOREAPP5_0
     [JsonConverter(typeof(PooledEnumerableJsonConverter))]
 #endif
     public class PooledCollection<T> : IList<T>, IList, IReadOnlyList<T>, IDisposable
@@ -82,7 +82,7 @@ namespace Collections.Pooled
             }
         }
 
-#if NETSTANDARD2_1 || NETCOREAPP3_0
+#if NETSTANDARD2_1 || NETCOREAPP5_0
         /// <summary>
         /// Gets or sets the element at the given index.
         /// </summary>
