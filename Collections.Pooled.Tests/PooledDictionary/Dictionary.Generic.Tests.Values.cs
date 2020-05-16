@@ -40,7 +40,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
             return dict.Values;
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         protected override string CreateT(int seed)
         {
             int stringLength = seed % 10 + 5;

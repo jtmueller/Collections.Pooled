@@ -81,7 +81,7 @@ namespace Collections.Pooled.Tests.PooledList
             var list = GenericListFactory(listLength);
             using var beforeList = list.ToPooledList();
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             list.RemoveRange((Index)index, count);
 #else
             list.RemoveRange(index, count);
@@ -98,7 +98,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         [Theory]
         [MemberData(nameof(ValidCollectionSizes))]
         public void Remove_Range_Range(int listLength)

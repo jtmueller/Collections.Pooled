@@ -62,7 +62,7 @@ namespace Collections.Pooled.Tests.PooledList
             }
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         [Theory]
         [InlineData(10, 0, 10)]
         [InlineData(10, 3, 3)]

@@ -59,7 +59,7 @@ namespace Collections.Pooled.Tests.PooledList
                 }
             }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             public void BasicInsert(T[] items, T item, Index index, int repeat)
             {
                 using var list = new PooledList<T>(items);
@@ -165,7 +165,7 @@ namespace Collections.Pooled.Tests.PooledList
                 list.Dispose();
             }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             public void InsertRangeIEnumerable(T[] itemsX, T[] itemsY, Index index, int repeat, Func<T[], IEnumerable<T>> constructIEnumerable)
             {
                 var list = new PooledList<T>(constructIEnumerable(itemsX));
@@ -255,7 +255,7 @@ namespace Collections.Pooled.Tests.PooledList
 
             #region InsertSpan
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             public void InsertSpan(ReadOnlySpan<T> itemsX, ReadOnlySpan<T> itemsY, Index index, int repeat)
             {
                 var list = new PooledList<T>(itemsX);
@@ -328,7 +328,7 @@ namespace Collections.Pooled.Tests.PooledList
 
                 verifyRange(list.GetRange(index, count));
                 verifyRange(list.GetRange(index));
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
                 verifyRange(list.GetRange((Index)index));
                 verifyRange(list.GetRange(index..(index + count)));
 #endif
@@ -736,7 +736,7 @@ namespace Collections.Pooled.Tests.PooledList
             IntDriver.BasicInsert(intArr1, 50, 0, 7);
             IntDriver.BasicInsert(intArr1, 50, 1, 8);
             IntDriver.BasicInsert(intArr1, 100, 50, 50);
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             IntDriver.BasicInsert(intArr1, 50, ^1, 7);
             IntDriver.BasicInsert(intArr1, 50, ^5, 8);
             IntDriver.BasicInsert(intArr1, 100, ^50, 50);
@@ -756,7 +756,7 @@ namespace Collections.Pooled.Tests.PooledList
             StringDriver.BasicInsert(stringArr1, "strobia", 1, 5);
             StringDriver.BasicInsert(stringArr1, "strobia", 50, 51);
             StringDriver.BasicInsert(stringArr1, "strobia", 0, 100);
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
             StringDriver.BasicInsert(stringArr1, "strobia", ^1, 5);
             StringDriver.BasicInsert(stringArr1, "strobia", ^50, 51);
             StringDriver.BasicInsert(stringArr1, "strobia", ^5, 100);
@@ -782,7 +782,7 @@ namespace Collections.Pooled.Tests.PooledList
             StringDriver.InsertValidations(stringArr1);
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         [Fact]
         public static void InsertSpanTests()
         {

@@ -13,7 +13,7 @@ namespace Collections.Pooled.Benchmarks
         public BenchmarkConfig()
         {
             AddJob(Job.Default
-                .WithRuntime(CoreRuntime.Core30)
+                .WithRuntime(CoreRuntime.Core31)
                 .WithPlatform(Platform.X64)
                 .WithJit(Jit.RyuJit));
             AddJob(Job.Default

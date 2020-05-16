@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Tests.StringKeyedDictionary
 {
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
     public class StringDictionary_Tests_string : StringDictionary_Generic_Tests<string>
     {
         protected override KeyValuePair<string, string> CreateT(int seed)

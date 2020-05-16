@@ -12,7 +12,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
     {
         protected override KeyValuePair<string, string> CreateT(int seed) => new KeyValuePair<string, string>(CreateTKey(seed), CreateTKey(seed + 500));
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         protected override string CreateTKey(int seed)
         {
             int stringLength = seed % 10 + 5;
@@ -109,7 +109,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
             };
         }
 
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
         protected string CreateString(int seed)
         {
             int stringLength = seed % 10 + 5;

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Collections.Pooled.Tests.StringKeyedDictionary
 {
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
     /// <summary>
     /// Contains tests that ensure the correctness of the PooledDictionary class.
     /// </summary>

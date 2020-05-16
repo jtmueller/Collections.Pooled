@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Collections.Pooled.Tests.PooledList
 {
-#if NETCOREAPP3_0
+#if NETCOREAPP3_1
     public abstract partial class List_Generic_Tests<T> : IList_Generic_Tests<T>
     {
         [Theory]

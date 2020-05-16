@@ -10,28 +10,27 @@ namespace Collections.Pooled.Benchmarks.PooledList
         {
             for (int i = 0; i < 10000; i++)
             {
-                pooled.Span[i] = 1;
+                pooled.Span[0] = 1;
             }
         }
 
-        [Benchmark]
+        [Benchmark(Baseline = true)]
         public void PooledIndex()
         {
             for (int i = 0; i < 10000; i++)
             {
-                pooled[i] = 1;
+                pooled[0] = 1;
             }
         }
 
-        // mark _items public to run this
-        // [Benchmark]
-        // public void Pooled_public_items()
-        // {
-        //     for (int i = 0; i < 10000; i++)
-        //     {
-        //         pooled._items[0] = 1;
-        //     }                
-        // }                
+        [Benchmark]
+        public void Pooled_public_items()
+        {
+            for (int i = 0; i < 10000; i++)
+            {
+                pooled._items[0] = 1;
+            }
+        }
 
         private PooledList<int> pooled;
 
