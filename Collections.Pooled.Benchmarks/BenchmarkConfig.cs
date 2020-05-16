@@ -12,19 +12,19 @@ namespace Collections.Pooled.Benchmarks
     {
         public BenchmarkConfig()
         {
-            Add(Job.Default
-                .With(CoreRuntime.Core30)
-                .With(Platform.X64)
-                .With(Jit.RyuJit));
-            Add(Job.Default
-                .With(ClrRuntime.Net48)
-                .With(Platform.X64)
-                .With(Jit.RyuJit));
-            Add(MemoryDiagnoser.Default);
-            Add(CsvMeasurementsExporter.Default);
-            Add(HtmlExporter.Default);
-            Add(MarkdownExporter.GitHub);
-            Add(ConsoleLogger.Default);
+            AddJob(Job.Default
+                .WithRuntime(CoreRuntime.Core30)
+                .WithPlatform(Platform.X64)
+                .WithJit(Jit.RyuJit));
+            AddJob(Job.Default
+                .WithRuntime(ClrRuntime.Net48)
+                .WithPlatform(Platform.X64)
+                .WithJit(Jit.RyuJit));
+            AddDiagnoser(MemoryDiagnoser.Default);
+            AddExporter(CsvMeasurementsExporter.Default);
+            AddExporter(HtmlExporter.Default);
+            AddExporter(MarkdownExporter.GitHub);
+            AddLogger(ConsoleLogger.Unicode);
         }
     }
 }

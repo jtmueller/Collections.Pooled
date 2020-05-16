@@ -32,7 +32,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         {
             int seed = 9600;
 
-            var comparer = GetIEqualityComparer();
+            //var comparer = GetIEqualityComparer();
             var dict = (IDictionary<TKey, TValue>)collection;
 
             while (dict.Count < numberOfItemsToAdd)
@@ -141,7 +141,7 @@ namespace Collections.Pooled.Tests.PooledDictionary
         [MemberData(nameof(ValidCollectionSizes))]
         public void Dictionary_Generic_ContainsValue_DefaultValuePresent(int count)
         {
-            PooledDictionary<TKey, TValue> dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
             int seed = 4315;
             TKey notPresent = CreateTKey(seed++);
             while (dictionary.ContainsKey(notPresent))
@@ -172,6 +172,58 @@ namespace Collections.Pooled.Tests.PooledDictionary
             IEnumerable<TValue> expected = dictionary.Select((pair) => pair.Value);
             IEnumerable<TValue> values = ((IReadOnlyDictionary<TKey, TValue>)dictionary).Values;
             Assert.True(expected.SequenceEqual(values));
+        }
+
+        #endregion
+
+        #region GetOrAdd
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Dictionary_Generic_GetOrAdd_ValidKeyNotContainedInDictionary_Value(int count)
+        {
+            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            TKey missingKey = GetNewKey(dictionary);
+            TValue value = CreateTValue(5123);
+            Assert.Equal(value, dictionary.GetOrAdd(missingKey, value));
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Dictionary_Generic_GetOrAdd_ValidKeyNotContainedInDictionary_Factory(int count)
+        {
+            var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+            TKey missingKey = GetNewKey(dictionary);
+            TValue value = CreateTValue(5123);
+            Assert.Equal(value, dictionary.GetOrAdd(missingKey, _ => CreateTValue(5123)));
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Dictionary_Generic_GetOrAdd_ValidKeyContainedInDictionary_Value(int count)
+        {
+            if (!IsReadOnly)
+            {
+                var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+                TKey missingKey = GetNewKey(dictionary);
+                TValue value = CreateTValue(5123);
+                dictionary.TryAdd(missingKey, value);
+                Assert.Equal(value, dictionary.GetOrAdd(missingKey, value));
+            }
+        }
+
+        [Theory]
+        [MemberData(nameof(ValidCollectionSizes))]
+        public void Dictionary_Generic_GetOrAdd_ValidKeyContainedInDictionary_Factory(int count)
+        {
+            if (!IsReadOnly)
+            {
+                var dictionary = (PooledDictionary<TKey, TValue>)GenericIDictionaryFactory(count);
+                TKey missingKey = GetNewKey(dictionary);
+                TValue value = CreateTValue(5123);
+                dictionary.TryAdd(missingKey, value);
+                Assert.Equal(value, dictionary.GetOrAdd(missingKey, _ => CreateTValue(5123)));
+            }
         }
 
         #endregion

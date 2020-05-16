@@ -28,10 +28,19 @@ namespace Collections.Pooled
         // This is used by the serialization engine.
         private NonRandomizedStringEqualityComparer(SerializationInfo information, StreamingContext context) { }
 
-        public sealed override bool Equals(string x, string y) => string.Equals(x, y);
+        public sealed override bool Equals(string? x, string? y) => string.Equals(x, y);
 
-        public sealed override int GetHashCode(string str)
-            => str is null ? 0 : str.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(str);
+        public bool Equals(ReadOnlySpan<char> x, ReadOnlySpan<char> y) => x.Equals(y, StringComparison.Ordinal);
+
+        public sealed override int GetHashCode(string? str)
+            => str is null ? 0 : str.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(str.AsSpan());
+
+        public bool Equals(string? x, ReadOnlySpan<char> y) => y.Equals(x.AsSpan(), StringComparison.Ordinal);
+
+        public bool Equals(ReadOnlySpan<char> x, string? y) => x.Equals(y.AsSpan(), StringComparison.Ordinal);
+
+        public int GetHashCode(ReadOnlySpan<char> chars)
+            => chars.Length == 0 ? s_empyStringHashCode : GetNonRandomizedHashCode(chars);
 
         void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -41,9 +50,8 @@ namespace Collections.Pooled
         // Use this if and only if 'Denial of Service' attacks are not a concern (i.e. never used for free-form user input),
         // or are otherwise mitigated.
         // This code was ported from an internal method on String, which relied on private members to get the char* pointer.
-        private static unsafe int GetNonRandomizedHashCode(string str)
+        private static unsafe int GetNonRandomizedHashCode(ReadOnlySpan<char> chars)
         {
-            ReadOnlySpan<char> chars = str.AsSpan();
             fixed (char* src = chars)
             {
                 Debug.Assert(src[chars.Length] == '\0', "src[this.Length] == '\\0'");

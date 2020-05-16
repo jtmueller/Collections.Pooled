@@ -64,7 +64,7 @@ namespace Collections.Pooled.Tests.PooledSet
         public void HashSet_Generic_Constructor_NullIEqualityComparer()
         {
             IEqualityComparer<T> comparer = null;
-            PooledSet<T> set = new PooledSet<T>(comparer);
+            using var set = new PooledSet<T>(comparer);
             if (comparer == null)
                 Assert.Equal(EqualityComparer<T>.Default, set.Comparer);
             else
@@ -76,7 +76,7 @@ namespace Collections.Pooled.Tests.PooledSet
         public void HashSet_Generic_Constructor_IEnumerable(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
             IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
-            PooledSet<T> set = new PooledSet<T>(enumerable);
+            using var set = new PooledSet<T>(enumerable);
             Assert.True(set.SetEquals(enumerable));
         }
 
@@ -86,7 +86,7 @@ namespace Collections.Pooled.Tests.PooledSet
         {
             IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, numberOfDuplicateElements);
             var span = enumerable.ToArray().AsSpan();
-            PooledSet<T> set = new PooledSet<T>(span);
+            using var set = new PooledSet<T>(span);
             Assert.True(set.SetEquals(enumerable));
         }
 
@@ -95,9 +95,8 @@ namespace Collections.Pooled.Tests.PooledSet
         public void HashSet_Generic_Constructor_IEnumerable_WithManyDuplicates(int count)
         {
             IEnumerable<T> items = CreateEnumerable(EnumerableType.List, null, count, 0, 0);
-            PooledSet<T> hashSetFromDuplicates = new PooledSet<T>(Enumerable.Range(0, 40).SelectMany(i => items).ToArray());
-            PooledSet<T> hashSetFromNoDuplicates = new PooledSet<T>(items);
-            RegisterForDispose(hashSetFromDuplicates, hashSetFromNoDuplicates);
+            using var hashSetFromDuplicates = new PooledSet<T>(Enumerable.Range(0, 40).SelectMany(i => items).ToArray());
+            using var hashSetFromNoDuplicates = new PooledSet<T>(items);
             Assert.True(hashSetFromNoDuplicates.SetEquals(hashSetFromDuplicates));
         }
 
@@ -105,14 +104,13 @@ namespace Collections.Pooled.Tests.PooledSet
         [MemberData(nameof(ValidCollectionSizes))]
         public void HashSet_Generic_Constructor_HashSet_SparselyFilled(int count)
         {
-            PooledSet<T> source = (PooledSet<T>)CreateEnumerable(EnumerableType.HashSet, null, count, 0, 0);
-            List<T> sourceElements = source.ToList();
+            var source = (PooledSet<T>)CreateEnumerable(EnumerableType.HashSet, null, count, 0, 0);
+            var sourceElements = source.ToList();
             foreach (int i in NonSquares(count))
                 source.Remove(sourceElements[i]);// Unevenly spaced survivors increases chance of catching any spacing-related bugs.
 
 
-            PooledSet<T> set = new PooledSet<T>(source, GetIEqualityComparer());
-            RegisterForDispose(set);
+            using var set = new PooledSet<T>(source, GetIEqualityComparer());
             Assert.True(set.SetEquals(source));
         }
 
@@ -127,9 +125,8 @@ namespace Collections.Pooled.Tests.PooledSet
         [MemberData(nameof(EnumerableTestData))]
         public void HashSet_Generic_Constructor_IEnumerable_IEqualityComparer(EnumerableType enumerableType, int setLength, int enumerableLength, int numberOfMatchingElements, int numberOfDuplicateElements)
         {
-            IEnumerable<T> enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, 0);
-            PooledSet<T> set = new PooledSet<T>(enumerable, GetIEqualityComparer());
-            RegisterForDispose(set);
+            var enumerable = CreateEnumerable(enumerableType, null, enumerableLength, 0, 0);
+            using var set = new PooledSet<T>(enumerable, GetIEqualityComparer());
             Assert.True(set.SetEquals(enumerable));
         }
 
@@ -361,10 +358,9 @@ namespace Collections.Pooled.Tests.PooledSet
         #endregion
 
         [Fact]
-        public void CanBeCastedToISet()
+        public void CanBeCastToISet()
         {
-            PooledSet<T> set = new PooledSet<T>();
-            RegisterForDispose(set);
+            using var set = new PooledSet<T>();
             ISet<T> iset = (set as ISet<T>);
             Assert.NotNull(iset);
         }

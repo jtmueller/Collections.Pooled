@@ -2532,12 +2532,12 @@ namespace Collections.Pooled
         /// <param name="set1"></param>
         /// <param name="set2"></param>
         /// <param name="comparer"></param>
-        internal static bool PooledSetEquals(PooledSet<T> set1, PooledSet<T> set2, IEqualityComparer<T> comparer)
+        internal static bool PooledSetEquals(PooledSet<T>? set1, PooledSet<T>? set2, IEqualityComparer<T> comparer)
         {
             // handle null cases first
             if (set1 is null)
             {
-                return (set2 is null);
+                return set2 is null;
             }
             else if (set2 is null)
             {

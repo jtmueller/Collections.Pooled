@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Collections.Pooled.Tests.PooledDictionary
 {
-    public partial class Dictionary_Generic_Tests_string_string : Dictionary_Generic_Tests<string, string>
+    public class Dictionary_Generic_Tests_string_string : Dictionary_Generic_Tests<string, string>
     {
         protected override KeyValuePair<string, string> CreateT(int seed) => new KeyValuePair<string, string>(CreateTKey(seed), CreateTKey(seed + 500));
 
@@ -18,9 +18,17 @@ namespace Collections.Pooled.Tests.PooledDictionary
             int stringLength = seed % 10 + 5;
             var rand = new Random(seed);
             byte[] pooled = stringLength < 33 ? null : ArrayPool<byte>.Shared.Rent(stringLength);
-            Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
-            rand.NextBytes(bytes);
-            return Convert.ToBase64String(bytes);
+            try
+            {
+                Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
+                rand.NextBytes(bytes);
+                return Convert.ToBase64String(bytes);
+            }
+            finally
+            {
+                if (pooled is object)
+                    ArrayPool<byte>.Shared.Return(pooled);
+            }
         }
 #else
         protected override string CreateTKey(int seed)
@@ -107,9 +115,17 @@ namespace Collections.Pooled.Tests.PooledDictionary
             int stringLength = seed % 10 + 5;
             var rand = new Random(seed);
             byte[] pooled = stringLength < 33 ? null : ArrayPool<byte>.Shared.Rent(stringLength);
-            Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
-            rand.NextBytes(bytes);
-            return Convert.ToBase64String(bytes);
+            try
+            {
+                Span<byte> bytes = pooled ?? stackalloc byte[stringLength];
+                rand.NextBytes(bytes);
+                return Convert.ToBase64String(bytes);
+            }
+            finally
+            {
+                if (pooled is object)
+                    ArrayPool<byte>.Shared.Return(pooled);
+            }
         }
 #else
         protected string CreateString(int seed)

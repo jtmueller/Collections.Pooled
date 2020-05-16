@@ -19,27 +19,6 @@ namespace Collections.Pooled
 {
     using static ClearModeUtil;
 
-    /// <summary>
-    /// Used internally to control behavior of insertion into a <see cref="PooledDictionary{TKey, TValue}"/>.
-    /// </summary>
-    internal enum InsertionBehavior : byte
-    {
-        /// <summary>
-        /// The default insertion behavior.
-        /// </summary>
-        None = 0,
-
-        /// <summary>
-        /// Specifies that an existing entry with the same key should be overwritten if encountered.
-        /// </summary>
-        OverwriteExisting = 1,
-
-        /// <summary>
-        /// Specifies that if an existing entry with the same key is encountered, an exception should be thrown.
-        /// </summary>
-        ThrowOnExisting = 2
-    }
-
     /// <remarks>
     /// A <see cref="PooledDictionary{TKey,TValue}"/> can support multiple readers concurrently, as long as the collection is not modified. 
     /// Even so, enumerating through a collection is intrinsically not a thread-safe procedure. 
@@ -56,7 +35,28 @@ namespace Collections.Pooled
         ISerializable, IDeserializationCallback, IDisposable
         where TKey : notnull
     {
-        private struct Entry
+        /// <summary>
+        /// Used internally to control behavior of insertion into a <see cref="PooledDictionary{TKey, TValue}"/>.
+        /// </summary>
+        protected enum InsertionBehavior : byte
+        {
+            /// <summary>
+            /// The default insertion behavior.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// Specifies that an existing entry with the same key should be overwritten if encountered.
+            /// </summary>
+            OverwriteExisting = 1,
+
+            /// <summary>
+            /// Specifies that if an existing entry with the same key is encountered, an exception should be thrown.
+            /// </summary>
+            ThrowOnExisting = 2
+        }
+
+        protected struct Entry
         {
             // 0-based index of next entry in chain: -1 means end of chain
             // also encodes whether this entry _itself_ is part of the free list by changing sign and subtracting 3,
@@ -91,7 +91,7 @@ namespace Collections.Pooled
         private int _freeList;
         private int _freeCount;
         private int _version;
-        private IEqualityComparer<TKey>? _comparer;
+        protected IEqualityComparer<TKey>? _comparer;
         private KeyCollection? _keys;
         private ValueCollection? _values;
 #pragma warning disable IDE0044
@@ -99,6 +99,10 @@ namespace Collections.Pooled
 #pragma warning restore IDE0044
         private readonly bool _clearKeyOnFree;
         private readonly bool _clearValueOnFree;
+
+        protected ReadOnlySpan<int> Buckets => new ReadOnlySpan<int>(_buckets);
+        protected ReadOnlySpan<Entry> Entries => new ReadOnlySpan<Entry>(_entries);
+        protected int Size => _size;
 
         #region Constructors
 
@@ -355,7 +359,7 @@ namespace Collections.Pooled
         /// <summary>
         /// The <see cref="IEqualityComparer{TKey}"/> used to compare keys in this dictionary.
         /// </summary>
-        public IEqualityComparer<TKey> Comparer
+        public virtual IEqualityComparer<TKey> Comparer
             => (_comparer is null || _comparer is NonRandomizedStringEqualityComparer)
                     ? EqualityComparer<TKey>.Default : _comparer;
 
@@ -883,7 +887,7 @@ namespace Collections.Pooled
             return _size;
         }
 
-        private bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
+        protected bool TryInsert(TKey key, TValue value, InsertionBehavior behavior)
         {
             if (key is null)
             {
@@ -1360,6 +1364,9 @@ namespace Collections.Pooled
             value = default!;
             return false;
         }
+
+        bool IDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value) => TryGetValue(key, out value!);
+        bool IReadOnlyDictionary<TKey, TValue>.TryGetValue(TKey key, out TValue value) => TryGetValue(key, out value!);
 
         /// <summary>
         /// Attempts to add the given key-value pair, if the key was not already present.

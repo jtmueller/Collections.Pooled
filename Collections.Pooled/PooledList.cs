@@ -2050,7 +2050,7 @@ namespace Collections.Pooled
 
             public Comparer(Func<T, T, int> comparison) => _comparison = comparison;
 
-            public int Compare(T x, T y) => _comparison(x, y);
+            public int Compare([AllowNull] T x, [AllowNull] T y) => _comparison(x!, y!);
         }
     }
 }

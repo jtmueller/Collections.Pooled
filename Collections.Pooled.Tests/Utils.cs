@@ -26,7 +26,7 @@ namespace Collections.Pooled.Tests
             if (arguments == null)
                 throw new ArgumentNullException(nameof(arguments));
             var ret = new T[array.Length + arguments.Length];
-            Array.Copy(array, ret, array.Length);
+            Array.Copy(array, 0, ret, 0, array.Length);
             Array.Copy(
                 arguments,
                 0,
