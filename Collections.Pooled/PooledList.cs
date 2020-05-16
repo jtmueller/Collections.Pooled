@@ -319,7 +319,14 @@ namespace Collections.Pooled
         /// the length of the Span, and may invalidate the Span entirely by making changes to the backing store.
         /// Continuing to use the Span after making changes to the PooledList is NOT guaranteed to work.
         /// </summary>
-        public Span<T> Span => _items.AsSpan(0, _size);
+        public Span<T> Span
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return _items.AsSpan(0, _size);
+            }
+        }
 
         /// <summary>
         /// Gets a <see cref="ReadOnlySpan{T}"/> for the items currently in the collection.
