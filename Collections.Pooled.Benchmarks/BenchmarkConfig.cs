@@ -27,4 +27,20 @@ namespace Collections.Pooled.Benchmarks
             AddLogger(ConsoleLogger.Unicode);
         }
     }
+
+    internal class NetCoreOnlyBenchmarkConfig : ManualConfig
+    {
+        public NetCoreOnlyBenchmarkConfig()
+        {
+            AddJob(Job.Default
+                .WithRuntime(CoreRuntime.Core31)
+                .WithPlatform(Platform.X64)
+                .WithJit(Jit.RyuJit));
+            AddDiagnoser(MemoryDiagnoser.Default);
+            AddExporter(CsvMeasurementsExporter.Default);
+            AddExporter(HtmlExporter.Default);
+            AddExporter(MarkdownExporter.GitHub);
+            AddLogger(ConsoleLogger.Unicode);
+        }
+    }
 }

@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
     [Config(typeof(BenchmarkConfig))]
-    public class Dict_ContainsKey_String_False_IgnoreCase : DictContainsBase<string>
+    public class Dict_ContainsKey_String_False_IgnoreCase : DictContainsBase_String
     {
         [Benchmark(Baseline = true)]
         public void Dict_ContainsKey()
@@ -24,8 +24,6 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
             for (int j = 0; j < N; j++)
                 result = pooled.ContainsKey(missingKey);
         }
-
-        protected override string GetT(int i) => i.ToString();
 
         protected override IEqualityComparer<string> Comparer
             => StringComparer.OrdinalIgnoreCase;

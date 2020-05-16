@@ -16,10 +16,12 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         [Params(100, 1_000, 10_000)]
         public int N;
 
+        protected virtual PooledDictionary<T, T> CreatePooled() => new PooledDictionary<T, T>(Comparer);
+
         [GlobalSetup]
         public virtual void GlobalSetup()
         {
-            pooled = new PooledDictionary<T, T>(Comparer);
+            pooled = CreatePooled();
             dict = new Dictionary<T, T>(Comparer);
 
             for (int i = 0; i < N; i++)

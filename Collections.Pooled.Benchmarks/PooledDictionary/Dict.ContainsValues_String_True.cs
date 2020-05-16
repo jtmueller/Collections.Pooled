@@ -6,7 +6,7 @@ using BenchmarkDotNet.Attributes;
 namespace Collections.Pooled.Benchmarks.PooledDictionary
 {
     [Config(typeof(BenchmarkConfig))]
-    public class Dict_ContainsValue_String_True : DictContainsBase<string>
+    public class Dict_ContainsValue_String_True : DictContainsBase_String
     {
         [Benchmark(Baseline = true)]
         public void Dict_ContainsVal()
@@ -23,8 +23,6 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
             for (int j = 0; j < N; j++)
                 result = pooled.ContainsValue(sampleKeys[j]);
         }
-
-        protected override string GetT(int i) => i.ToString();
 
         private string[] sampleKeys;
 

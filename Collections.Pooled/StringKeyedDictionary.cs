@@ -27,6 +27,8 @@ namespace Collections.Pooled
 
         public StringKeyedDictionary(int capacity) : this(capacity, ClearMode.Auto, null) { }
 
+        public StringKeyedDictionary(IEqualityComparer<string>? comparer) : this(0, ClearMode.Auto, comparer) { }
+
         public StringKeyedDictionary(int capacity, IEqualityComparer<string>? comparer) : this(capacity, ClearMode.Auto, comparer) { }
 
         public StringKeyedDictionary(int capacity, ClearMode clearMode, IEqualityComparer<string>? comparer) 
