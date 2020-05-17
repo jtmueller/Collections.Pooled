@@ -23,14 +23,15 @@ namespace Collections.Pooled.Benchmarks.PooledList
             }
         }
 
-        [Benchmark]
-        public void Pooled_public_items()
-        {
-            for (int i = 0; i < 10000; i++)
-            {
-                pooled._items[0] = 1;
-            }
-        }
+        // make _items public to run this
+        //[Benchmark]
+        //public void Pooled_public_items()
+        //{
+        //    for (int i = 0; i < 10000; i++)
+        //    {
+        //        pooled._items[0] = 1;
+        //    }
+        //}
 
         private PooledList<int> pooled;
 

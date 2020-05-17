@@ -8,12 +8,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
-
-#if NETCOREAPP3_0
-using System.Text.Json.Serialization;
-#endif
 
 namespace Collections.Pooled
 {
@@ -29,7 +26,7 @@ namespace Collections.Pooled
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
 #if NETCOREAPP3_0
-    [JsonConverter(typeof(PooledDictionaryJsonConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(PooledDictionaryJsonConverter))]
 #endif
     public class PooledDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>,
         ISerializable, IDeserializationCallback, IDisposable
@@ -100,8 +97,24 @@ namespace Collections.Pooled
         private readonly bool _clearKeyOnFree;
         private readonly bool _clearValueOnFree;
 
-        protected ReadOnlySpan<int> Buckets => new ReadOnlySpan<int>(_buckets);
-        protected ReadOnlySpan<Entry> Entries => new ReadOnlySpan<Entry>(_entries);
+        protected ReadOnlySpan<int> Buckets
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return new ReadOnlySpan<int>(_buckets);
+            }
+        }
+
+        protected ReadOnlySpan<Entry> Entries
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return new ReadOnlySpan<Entry>(_entries);
+            }
+        }
+
         protected int Size => _size;
 
         #region Constructors
@@ -384,61 +397,25 @@ namespace Collections.Pooled
         /// The keys in this dictionary.
         /// </summary>
         public KeyCollection Keys
-        {
-            get
-            {
-                if (_keys is null) _keys = new KeyCollection(this);
-                return _keys;
-            }
-        }
+            => _keys ??= new KeyCollection(this);
 
         ICollection<TKey> IDictionary<TKey, TValue>.Keys
-        {
-            get
-            {
-                if (_keys is null) _keys = new KeyCollection(this);
-                return _keys;
-            }
-        }
+            => _keys ??= new KeyCollection(this);
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
-        {
-            get
-            {
-                if (_keys is null) _keys = new KeyCollection(this);
-                return _keys;
-            }
-        }
+            => _keys ??= new KeyCollection(this);
 
         /// <summary>
         /// The values in this dictionary.
         /// </summary>
         public ValueCollection Values
-        {
-            get
-            {
-                if (_values is null) _values = new ValueCollection(this);
-                return _values;
-            }
-        }
+            => _values ??= new ValueCollection(this);
 
         ICollection<TValue> IDictionary<TKey, TValue>.Values
-        {
-            get
-            {
-                if (_values is null) _values = new ValueCollection(this);
-                return _values;
-            }
-        }
+            => _values ??= new ValueCollection(this);
 
-        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values
-        {
-            get
-            {
-                if (_values is null) _values = new ValueCollection(this);
-                return _values;
-            }
-        }
+        IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values 
+            => _values ??= new ValueCollection(this);
 
         /// <summary>
         /// Gets or sets an item in the dictionary by key.

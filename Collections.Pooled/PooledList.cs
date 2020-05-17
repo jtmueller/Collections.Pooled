@@ -51,7 +51,7 @@ namespace Collections.Pooled
         private object? _syncRoot;
 #pragma warning restore IDE0044
 
-        public T[] _items; // Do not rename (binary serialization)
+        private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
         private int _version; // Do not rename (binary serialization)
         private readonly bool _clearOnFree;
