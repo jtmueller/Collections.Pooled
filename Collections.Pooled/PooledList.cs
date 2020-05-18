@@ -13,10 +13,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 
-#if NETCOREAPP3_0
-using System.Text.Json.Serialization;
-#endif
-
 namespace Collections.Pooled
 {
     using static ClearModeUtil;
@@ -36,7 +32,7 @@ namespace Collections.Pooled
     [DebuggerTypeProxy(typeof(ICollectionDebugView<>))]
     [Serializable]
 #if NETCOREAPP3_0
-    [JsonConverter(typeof(PooledEnumerableJsonConverter))]
+    [System.Text.Json.Serialization.JsonConverter(typeof(PooledEnumerableJsonConverter))]
 #endif
     public class PooledList<T> : IList<T>, IReadOnlyPooledList<T>, IList, IDisposable, IDeserializationCallback
     {
@@ -324,7 +320,7 @@ namespace Collections.Pooled
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return _items.AsSpan(0, _size);
+                return new Span<T>(_items, 0, _size);
             }
         }
 
@@ -893,14 +889,6 @@ namespace Collections.Pooled
         /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
         /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
         /// </summary>
-        public int FindIndex(Index startIndex, int count, Func<T, bool> match)
-            => FindIndex(startIndex.GetOffset(_size), count, match);
-
-        /// <summary>
-        /// Searches for an element that matches the conditions defined by a specified predicate, 
-        /// and returns the zero-based index of the first occurrence within the <see cref="PooledList{T}"/>
-        /// or a portion of it. This method returns -1 if an item that matches the conditions is not found.
-        /// </summary>
         public int FindIndex(Range range, Func<T, bool> match)
         {
             var (offset, length) = range.GetOffsetAndLength(_size);
@@ -1007,13 +995,6 @@ namespace Collections.Pooled
             int offset = startIndex.GetOffset(_size);
             return FindLastIndex(offset, offset + 1, match);
         }
-
-        /// <summary>
-        /// Searches for an element that matches the conditions defined by a specified predicate, 
-        /// and returns the zero-based index of the last occurrence within the <see cref="PooledList{T}"/> or a portion of it.
-        /// </summary>
-        public int FindLastIndex(Index startIndex, int count, Func<T, bool> match)
-            => FindLastIndex(startIndex.GetOffset(_size), count, match);
 
         /// <summary>
         /// Searches for an element that matches the conditions defined by a specified predicate, 
@@ -1462,6 +1443,12 @@ namespace Collections.Pooled
 
         private Span<T> InsertSpan(int index, int count, bool clearOutput)
         {
+            // Note that insertions at the end are legal.
+            if ((uint)index > (uint)_size)
+            {
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
+            }
+
             EnsureCapacity(_size + count);
 
             if (index < _size)
