@@ -126,10 +126,9 @@ namespace Collections.Pooled
         /// <returns>Either the current value or the just-added value.</returns>
         public T GetOrAdd(ReadOnlySpan<char> key, T addValue)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
-                return value;
-#pragma warning restore CS8717
+            int i = FindEntry(key);
+            if (i >= 0)
+                return Entries[i].value;
 
             Add(key.ToString(), addValue);
             return addValue;
@@ -144,10 +143,9 @@ namespace Collections.Pooled
         /// <returns>Either the current value or the just-added value.</returns>
         public T GetOrAdd(ReadOnlySpan<char> key, Func<string, T> valueFactory)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
-                return value;
-#pragma warning restore CS8717
+            int i = FindEntry(key);
+            if (i >= 0)
+                return Entries[i].value;
 
             var keyStr = key.ToString();
             var addValue = valueFactory(keyStr);

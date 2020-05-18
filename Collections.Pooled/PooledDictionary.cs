@@ -561,17 +561,16 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, TValue addValue, Func<TKey, TValue, TValue> updater)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
+            int i = FindEntry(key);
+            if (i >= 0)
             {
-                var updatedValue = updater(key, value);
+                var updatedValue = updater(key, _entries[i].value);
                 TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
             }
             else
             {
                 TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
             }
-#pragma warning restore CS8717
         }
 
         /// <summary>
@@ -585,10 +584,10 @@ namespace Collections.Pooled
         /// <param name="updater"></param>
         public void AddOrUpdate(TKey key, Func<TKey, TValue> addValueFactory, Func<TKey, TValue, TValue> updater)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
+            int i = FindEntry(key);
+            if (i >= 0)
             {
-                var updatedValue = updater(key, value);
+                var updatedValue = updater(key, _entries[i].value);
                 TryInsert(key, updatedValue, InsertionBehavior.OverwriteExisting);
             }
             else
@@ -596,7 +595,6 @@ namespace Collections.Pooled
                 var addValue = addValueFactory(key);
                 TryInsert(key, addValue, InsertionBehavior.ThrowOnExisting);
             }
-#pragma warning restore CS8717
         }
 
         void ICollection<KeyValuePair<TKey, TValue>>.Add(KeyValuePair<TKey, TValue> keyValuePair)
@@ -605,11 +603,7 @@ namespace Collections.Pooled
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> keyValuePair)
         {
             int i = FindEntry(keyValuePair.Key);
-            if (i >= 0 && EqualityComparer<TValue>.Default.Equals(_entries[i].value, keyValuePair.Value))
-            {
-                return true;
-            }
-            return false;
+            return i >= 0 && EqualityComparer<TValue>.Default.Equals(_entries[i].value, keyValuePair.Value);
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> keyValuePair)
@@ -1363,10 +1357,9 @@ namespace Collections.Pooled
         /// <returns>Either the current value or the just-added value.</returns>
         public TValue GetOrAdd(TKey key, TValue addValue)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
-                return value;
-#pragma warning restore CS8717
+            int i = FindEntry(key);
+            if (i >= 0)
+                return _entries[i].value;
 
             Add(key, addValue);
             return addValue;
@@ -1381,10 +1374,9 @@ namespace Collections.Pooled
         /// <returns>Either the current value or the just-added value.</returns>
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
-#pragma warning disable CS8717 // A member returning a [MaybeNull] value introduces a null value for a type parameter.
-            if (TryGetValue(key, out var value))
-                return value;
-#pragma warning restore CS8717
+            int i = FindEntry(key);
+            if (i >= 0)
+                return _entries[i].value;
 
             var addValue = valueFactory(key);
             Add(key, addValue);
@@ -1481,8 +1473,7 @@ namespace Collections.Pooled
         /// dictionary.Clear();
         /// dictionary.TrimExcess();
         /// </summary>
-        public void TrimExcess()
-            => TrimExcess(Count);
+        public void TrimExcess() => TrimExcess(Count);
 
         /// <summary>
         /// Sets the capacity of this dictionary to hold up 'capacity' entries without any further expansion of its backing storage
