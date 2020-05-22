@@ -24,9 +24,10 @@ namespace Collections.Pooled.Benchmarks.PooledDictionary
         [Benchmark]
         public void PooledTryGetValue()
         {
-            foreach (var key in keys.AsSpan().Split('|'))
+            var spanKeys = keys.AsSpan();
+            foreach (var range in spanKeys.Split('|'))
             {
-                stringDict.TryGetValue(key, out _);
+                stringDict.TryGetValue(spanKeys[range], out _);
             }
         }
 

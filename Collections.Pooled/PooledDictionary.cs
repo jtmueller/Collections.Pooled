@@ -663,7 +663,8 @@ namespace Collections.Pooled
                     // ValueType: Devirtualize with EqualityComparer<TValue>.Default intrinsic
                     for (int i = 0; i < _count; i++)
                     {
-                        if (entries[i].next >= -1 && EqualityComparer<TValue>.Default.Equals(entries[i].value, value)) return true;
+                        if (entries[i].next >= -1 && EqualityComparer<TValue>.Default.Equals(entries[i].value, value))
+                            return true;
                     }
                 }
                 else
@@ -674,7 +675,8 @@ namespace Collections.Pooled
                     var defaultComparer = EqualityComparer<TValue>.Default;
                     for (int i = 0; i < _count; i++)
                     {
-                        if (entries[i].next >= -1 && defaultComparer.Equals(entries[i].value, value)) return true;
+                        if (entries[i].next >= -1 && defaultComparer.Equals(entries[i].value, value)) 
+                            return true;
                     }
                 }
             }
