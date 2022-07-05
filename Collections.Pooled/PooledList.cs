@@ -35,10 +35,8 @@ namespace Collections.Pooled
         private const int DefaultCapacity = 4;
         private static readonly T[] s_emptyArray = Array.Empty<T>();
 
-        [NonSerialized]
-        private ArrayPool<T> _pool;
-        [NonSerialized]
-        private object _syncRoot;
+        [NonSerialized] private ArrayPool<T> _pool;
+        [NonSerialized] private object _syncRoot;
 
         private T[] _items; // Do not rename (binary serialization)
         private int _size; // Do not rename (binary serialization)
@@ -53,7 +51,9 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList() : this(ClearMode.Auto, ArrayPool<T>.Shared) { }
+        public PooledList() : this(ClearMode.Auto, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -61,7 +61,9 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList(ClearMode clearMode) : this(clearMode, ArrayPool<T>.Shared) { }
+        public PooledList(ClearMode clearMode) : this(clearMode, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -69,7 +71,9 @@ namespace Collections.Pooled
         /// increased to DefaultCapacity, and then increased in multiples of two
         /// as required.
         /// </summary>
-        public PooledList(ArrayPool<T> customPool) : this(ClearMode.Auto, customPool) { }
+        public PooledList(ArrayPool<T> customPool) : this(ClearMode.Auto, customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList. The list is initially empty and has a capacity
@@ -89,49 +93,67 @@ namespace Collections.Pooled
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared) { }
+        public PooledList(int capacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, bool sizeToCapacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared, sizeToCapacity) { }
+        public PooledList(int capacity, bool sizeToCapacity) : this(capacity, ClearMode.Auto, ArrayPool<T>.Shared,
+            sizeToCapacity)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared) { }
+        public PooledList(int capacity, ClearMode clearMode) : this(capacity, clearMode, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ClearMode clearMode, bool sizeToCapacity) : this(capacity, clearMode, ArrayPool<T>.Shared, sizeToCapacity) { }        
+        public PooledList(int capacity, ClearMode clearMode, bool sizeToCapacity) : this(capacity, clearMode,
+            ArrayPool<T>.Shared, sizeToCapacity)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ArrayPool<T> customPool) : this(capacity, ClearMode.Auto, customPool) { }
+        public PooledList(int capacity, ArrayPool<T> customPool) : this(capacity, ClearMode.Auto, customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ArrayPool<T> customPool, bool sizeToCapacity) : this(capacity, ClearMode.Auto, customPool, sizeToCapacity) { }        
+        public PooledList(int capacity, ArrayPool<T> customPool, bool sizeToCapacity) : this(capacity, ClearMode.Auto,
+            customPool, sizeToCapacity)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
         /// initially empty, but will have room for the given number of elements
         /// before any reallocations are required.
         /// </summary>
-        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool) : this(capacity, clearMode, customPool, false) { }
+        public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool) : this(capacity, clearMode,
+            customPool, false)
+        {
+        }
 
         /// <summary>
         /// Constructs a List with a given initial capacity. The list is
@@ -142,7 +164,8 @@ namespace Collections.Pooled
         public PooledList(int capacity, ClearMode clearMode, ArrayPool<T> customPool, bool sizeToCapacity)
         {
             if (capacity < 0)
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
@@ -155,7 +178,7 @@ namespace Collections.Pooled
             {
                 _items = _pool.Rent(capacity);
             }
-            
+
             if (sizeToCapacity)
             {
                 _size = capacity;
@@ -163,7 +186,7 @@ namespace Collections.Pooled
                 {
                     Array.Clear(_items, 0, _size);
                 }
-            }            
+            }
         }
 
         /// <summary>
@@ -171,49 +194,64 @@ namespace Collections.Pooled
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array) : this(array.AsSpan(), ClearMode.Auto, ArrayPool<T>.Shared) { }
+        public PooledList(T[] array) : this(array.AsSpan(), ClearMode.Auto, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, ArrayPool<T>.Shared) { }
+        public PooledList(T[] array, ClearMode clearMode) : this(array.AsSpan(), clearMode, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), ClearMode.Auto, customPool) { }
+        public PooledList(T[] array, ArrayPool<T> customPool) : this(array.AsSpan(), ClearMode.Auto, customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(T[] array, ClearMode clearMode, ArrayPool<T> customPool) : this(array.AsSpan(), clearMode, customPool) { }
+        public PooledList(T[] array, ClearMode clearMode, ArrayPool<T> customPool) : this(array.AsSpan(), clearMode,
+            customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, ArrayPool<T>.Shared) { }
+        public PooledList(ReadOnlySpan<T> span) : this(span, ClearMode.Auto, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, ArrayPool<T>.Shared) { }
+        public PooledList(ReadOnlySpan<T> span, ClearMode clearMode) : this(span, clearMode, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(ReadOnlySpan<T> span, ArrayPool<T> customPool) : this(span, ClearMode.Auto, customPool) { }
+        public PooledList(ReadOnlySpan<T> span, ArrayPool<T> customPool) : this(span, ClearMode.Auto, customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
@@ -243,21 +281,29 @@ namespace Collections.Pooled
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection) : this(collection, ClearMode.Auto, ArrayPool<T>.Shared) { }
+        public PooledList(IEnumerable<T> collection) : this(collection, ClearMode.Auto, ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection, ClearMode clearMode) : this(collection, clearMode, ArrayPool<T>.Shared) { }
+        public PooledList(IEnumerable<T> collection, ClearMode clearMode) : this(collection, clearMode,
+            ArrayPool<T>.Shared)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection, ArrayPool<T> customPool) : this(collection, ClearMode.Auto, customPool) { }
+        public PooledList(IEnumerable<T> collection, ArrayPool<T> customPool) : this(collection, ClearMode.Auto,
+            customPool)
+        {
+        }
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
@@ -276,6 +322,7 @@ namespace Collections.Pooled
                     break;
 
                 case ICollection<T> c:
+                {
                     int count = c.Count;
                     if (count == 0)
                     {
@@ -287,7 +334,47 @@ namespace Collections.Pooled
                         c.CopyTo(_items, 0);
                         _size = count;
                     }
+
                     break;
+                }
+
+                case ICollection c:
+                {
+                    int count = c.Count;
+                    if (count == 0)
+                    {
+                        _items = s_emptyArray;
+                    }
+                    else
+                    {
+                        _items = _pool.Rent(count);
+                        c.CopyTo(_items, 0);
+                        _size = count;
+                    }
+
+                    break;
+                }
+
+                case IReadOnlyCollection<T> c:
+                {
+                    int count = c.Count;
+                    if (count == 0)
+                    {
+                        _items = s_emptyArray;
+                    }
+                    else
+                    {
+                        _items = _pool.Rent(count);
+                        _size = 0;
+                        using (var en = c.GetEnumerator())
+                        {
+                            while (en.MoveNext())
+                                Add(en.Current);
+                        }
+                    }
+
+                    break;
+                }
 
                 default:
                     _size = 0;
@@ -297,6 +384,7 @@ namespace Collections.Pooled
                         while (en.MoveNext())
                             Add(en.Current);
                     }
+
                     break;
             }
         }
@@ -324,7 +412,8 @@ namespace Collections.Pooled
             {
                 if (value < _size)
                 {
-                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.value, ExceptionResource.ArgumentOutOfRange_SmallCapacity);
+                    ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.value,
+                        ExceptionResource.ArgumentOutOfRange_SmallCapacity);
                 }
 
                 if (value != _items.Length)
@@ -336,6 +425,7 @@ namespace Collections.Pooled
                         {
                             Array.Copy(_items, newItems, _size);
                         }
+
                         ReturnArray();
                         _items = newItems;
                     }
@@ -378,6 +468,7 @@ namespace Collections.Pooled
                 {
                     Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                 }
+
                 return _syncRoot;
             }
         }
@@ -394,6 +485,7 @@ namespace Collections.Pooled
                 {
                     ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
+
                 return _items[index];
             }
 
@@ -403,6 +495,7 @@ namespace Collections.Pooled
                 {
                     ThrowHelper.ThrowArgumentOutOfRange_IndexException();
                 }
+
                 _items[index] = value;
                 _version++;
             }
@@ -417,10 +510,7 @@ namespace Collections.Pooled
 
         object IList.this[int index]
         {
-            get
-            {
-                return this[index];
-            }
+            get { return this[index]; }
             set
             {
                 ThrowHelper.IfNullAndNullsAreIllegalThenThrow<T>(value, ExceptionArgument.value);
@@ -549,7 +639,8 @@ namespace Collections.Pooled
             if (index < 0)
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
             if (count < 0)
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             if (_size - index < count)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
 
@@ -613,6 +704,7 @@ namespace Collections.Pooled
             {
                 return Contains((T)item);
             }
+
             return false;
         }
 
@@ -628,6 +720,7 @@ namespace Collections.Pooled
             {
                 list._items[i] = converter(_items[i]);
             }
+
             list._size = _size;
             return list;
         }
@@ -721,6 +814,7 @@ namespace Collections.Pooled
                     list.Add(_items[i]);
                 }
             }
+
             return list;
         }
 
@@ -746,6 +840,7 @@ namespace Collections.Pooled
             {
                 if (match(_items[i])) return i;
             }
+
             return -1;
         }
 
@@ -813,6 +908,7 @@ namespace Collections.Pooled
                     return i;
                 }
             }
+
             return -1;
         }
 
@@ -830,6 +926,7 @@ namespace Collections.Pooled
                 {
                     break;
                 }
+
                 action(_items[i]);
             }
 
@@ -864,7 +961,8 @@ namespace Collections.Pooled
 
             if (count < 0)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
 
             if (_size - index < count)
@@ -888,6 +986,7 @@ namespace Collections.Pooled
             {
                 return IndexOf((T)item);
             }
+
             return -1;
         }
 
@@ -929,7 +1028,8 @@ namespace Collections.Pooled
             // Note that insertions at the end are legal.
             if ((uint)index > (uint)_size)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_ListInsert);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index,
+                    ExceptionResource.ArgumentOutOfRange_ListInsert);
             }
 
             if (_size == _items.Length) EnsureCapacity(_size + 1);
@@ -937,6 +1037,7 @@ namespace Collections.Pooled
             {
                 Array.Copy(_items, index, _items, index + 1, _size - index);
             }
+
             _items[index] = item;
             _size++;
             _version++;
@@ -997,8 +1098,10 @@ namespace Collections.Pooled
                         {
                             c.CopyTo(_items, index);
                         }
+
                         _size += count;
                     }
+
                     break;
 
                 default:
@@ -1009,6 +1112,7 @@ namespace Collections.Pooled
                             Insert(index++, en.Current);
                         }
                     }
+
                     break;
             }
 
@@ -1079,7 +1183,8 @@ namespace Collections.Pooled
         public int LastIndexOf(T item)
         {
             if (_size == 0)
-            {  // Special case for empty list
+            {
+                // Special case for empty list
                 return -1;
             }
             else
@@ -1114,7 +1219,8 @@ namespace Collections.Pooled
 
             if (Count != 0 && count < 0)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
             }
 
             if (_size == 0)
@@ -1125,12 +1231,14 @@ namespace Collections.Pooled
 
             if (index >= _size)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index, ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.index,
+                    ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
             }
 
             if (count > index + 1)
             {
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_BiggerThanCollection);
             }
 
             return Array.LastIndexOf(_items, item, index, count);
@@ -1167,7 +1275,7 @@ namespace Collections.Pooled
             if (match == null)
                 ThrowHelper.ThrowArgumentNullException(ExceptionArgument.match);
 
-            int freeIndex = 0;   // the first free slot in items array
+            int freeIndex = 0; // the first free slot in items array
 
             // Find the first item which needs to be removed.
             while (freeIndex < _size && !match(_items[freeIndex])) freeIndex++;
@@ -1212,6 +1320,7 @@ namespace Collections.Pooled
             {
                 Array.Copy(_items, index + 1, _items, index, _size - index);
             }
+
             _version++;
 
             if (_clearOnFree)
@@ -1230,7 +1339,8 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
@@ -1271,7 +1381,8 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
@@ -1280,6 +1391,7 @@ namespace Collections.Pooled
             {
                 Array.Reverse(_items, index, count);
             }
+
             _version++;
         }
 
@@ -1313,7 +1425,8 @@ namespace Collections.Pooled
                 ThrowHelper.ThrowIndexArgumentOutOfRange_NeedNonNegNumException();
 
             if (count < 0)
-                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count, ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.count,
+                    ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
 
             if (_size - index < count)
                 ThrowHelper.ThrowArgumentException(ExceptionResource.Argument_InvalidOffLen);
@@ -1322,6 +1435,7 @@ namespace Collections.Pooled
             {
                 Array.Sort(_items, index, count, comparer);
             }
+
             _version++;
         }
 
@@ -1339,6 +1453,7 @@ namespace Collections.Pooled
                 // duplicating all that code.
                 Array.Sort(_items, 0, _size, new Comparer(comparison));
             }
+
             _version++;
         }
 
@@ -1390,6 +1505,7 @@ namespace Collections.Pooled
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -1468,6 +1584,7 @@ namespace Collections.Pooled
                     _index++;
                     return true;
                 }
+
                 return MoveNextRare();
             }
 
@@ -1493,6 +1610,7 @@ namespace Collections.Pooled
                     {
                         ThrowHelper.ThrowInvalidOperationException_InvalidOperation_EnumOpCantHappen();
                     }
+
                     return Current;
                 }
             }
