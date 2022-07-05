@@ -287,6 +287,16 @@ namespace Collections.Pooled
 
         /// <summary>
         /// Constructs a PooledList, copying the contents of the given collection. The
+        /// size of the new list will be equal to the size of the given collection
+        /// and the capacity will be equal to suggestCapacity
+        /// </summary>
+        public PooledList(IEnumerable<T> collection, int suggestCapacity) : this(collection, ClearMode.Auto,
+            ArrayPool<T>.Shared, suggestCapacity)
+        {
+        }
+
+        /// <summary>
+        /// Constructs a PooledList, copying the contents of the given collection. The
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
@@ -310,7 +320,8 @@ namespace Collections.Pooled
         /// size and capacity of the new list will both be equal to the size of the
         /// given collection.
         /// </summary>
-        public PooledList(IEnumerable<T> collection, ClearMode clearMode, ArrayPool<T> customPool)
+        public PooledList(IEnumerable<T> collection, ClearMode clearMode, ArrayPool<T> customPool,
+            int suggestCapacity = 0)
         {
             _pool = customPool ?? ArrayPool<T>.Shared;
             _clearOnFree = ShouldClear(clearMode);
@@ -377,8 +388,20 @@ namespace Collections.Pooled
                 }
 
                 default:
-                    _size = 0;
-                    _items = s_emptyArray;
+
+                    if (suggestCapacity < 0)
+                        ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.capacity,
+                            ExceptionResource.ArgumentOutOfRange_NeedNonNegNum);
+
+                    if (suggestCapacity == 0)
+                    {
+                        _items = s_emptyArray;
+                    }
+                    else
+                    {
+                        _items = _pool.Rent(suggestCapacity);
+                    }
+
                     using (var en = collection.GetEnumerator())
                     {
                         while (en.MoveNext())
