@@ -49,7 +49,7 @@ namespace Collections.Pooled
                 }
                 return true;
             }
-            return (candidate == 2);
+            return candidate == 2;
         }
 
         public static int GetPrime(int min)
@@ -66,7 +66,7 @@ namespace Collections.Pooled
 
             //outside of our predefined table. 
             //compute the hard way. 
-            for (int i = (min | 1); i < int.MaxValue; i += 2)
+            for (int i = min | 1; i < int.MaxValue; i += 2)
             {
                 if (IsPrime(i) && ((i - 1) % HashPrime != 0))
                     return i;
